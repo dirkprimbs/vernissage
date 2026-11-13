@@ -44,6 +44,16 @@ export const PHASE_SUN: Record<Phase, SunPosition> = {
   night: { elevation: -32, azimuth: 330 },
 };
 
+/** A typical hour on the clock for a chosen time of day (used when the time is not live). */
+export const PHASE_HOUR: Record<Phase, number> = { dawn: 6.75, day: 13, dusk: 18.5, night: 1 };
+
+/** The time of day in Toronto as a fractional hour (0 to 24), daylight saving time included. */
+export function torontoHour(when: number): number {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Toronto', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date(when));
+  const get = (t: string) => Number(parts.find((p) => p.type === t)?.value ?? 0);
+  return get('hour') + get('minute') / 60;
+}
+
 /** Name the time of day for a sun position. Twilight is dawn before solar noon and dusk after. */
 export function phaseOf(sun: SunPosition): Phase {
   if (sun.elevation > 7) return 'day';

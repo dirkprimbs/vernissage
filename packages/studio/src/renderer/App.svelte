@@ -19,7 +19,7 @@
     { id: 'gallery', label: 'Gallery', hint: 'Title, light, entry door' },
     { id: 'plan', label: 'Rooms', hint: 'Add, size and position rooms' },
     { id: 'walls', label: 'Walls', hint: 'Hang and size artworks' },
-    { id: 'library', label: 'Library', hint: 'Artworks and provenance' },
+    { id: 'library', label: 'Artworks', hint: 'Add works, edit their labels' },
     { id: 'build', label: 'Build', hint: 'Export the static website' },
   ];
 

@@ -83,6 +83,8 @@ export interface Skyline {
   group: THREE.Group;
   /** night 0..1 lights the windows and the tower */
   set(night: number): void;
+  /** the hour on Toronto's clock: the ferry does not run late at night */
+  setHour(hour: number): void;
   update(t: number): void;
 }
 
@@ -337,7 +339,14 @@ export function buildSkyline(): Skyline {
   district(700, 1300, 5200, 6400, 150, 0.5, 80, 190, condos, 2); // Yonge and Eglinton, on a clear day
 
   // ------------------------------------------------------------------ on the water
-  const boats: Array<{ o: THREE.Object3D; x0: number; n0: number; span: number; speed: number; phase: number }> = [];
+  // the Toronto Island ferry crosses between its terminal at the foot of Bay Street and the island
+  const PIER = { x: 560, n: SHORE_N - 16 }, ISLAND = { x: 470, n: -1180 };
+  /** seconds a crossing takes, and a stop at either dock (time runs faster on the water than on the clock) */
+  const CROSSING = 150, STOP = 40;
+  const ferryState = { at: 0, dir: 1, wait: STOP, inService: true };
+  let ferryObj: THREE.Object3D | undefined;
+  let ferryLights: THREE.MeshStandardMaterial | undefined;
+  const sails: Array<{ o: THREE.Object3D; x0: number; n0: number; span: number; speed: number; phase: number }> = [];
   {
     const hull = plain('#f4f4f0', 0.5), dark = plain('#2c3a48', 0.6), sail = new THREE.MeshStandardMaterial({ color: '#fbfaf5', roughness: 0.9, side: THREE.DoubleSide });
     const ferry = new THREE.Group();
@@ -346,10 +355,13 @@ export function buildSkyline(): Skyline {
     part(new THREE.BoxGeometry(34, 3.2, 9), hull, 4.2, ferry);
     part(new THREE.BoxGeometry(22, 2.6, 7.5), hull, 7, ferry);
     part(new THREE.CylinderGeometry(0.9, 1.1, 4, 8), dark, 10, ferry, -3);
-    const cabin = new THREE.Mesh(new THREE.BoxGeometry(33.5, 1.3, 9.1), glow('#ffe7b8', 1.4));
+    ferryLights = glow('#ffe7b8', 1.4);
+    const cabin = new THREE.Mesh(new THREE.BoxGeometry(33.5, 1.3, 9.1), ferryLights);
     cabin.position.y = 4.6; ferry.add(cabin);
+    // the hull is modelled along x; the crossing runs north–south
+    ferry.rotation.y = Math.atan2(ISLAND.x - PIER.x, ISLAND.n - PIER.n) + Math.PI / 2;
     city.add(ferry);
-    boats.push({ o: ferry, x0: 560, n0: SHORE_N - 420, span: 380, speed: 0.012, phase: 0 });
+    ferryObj = ferry;
     for (let i = 0; i < 6; i++) {
       const b = new THREE.Group();
       part(new THREE.BoxGeometry(9, 1.2, 2.6), hull, 0.5, b);
@@ -359,11 +371,12 @@ export function buildSkyline(): Skyline {
       part(new THREE.CylinderGeometry(0.1, 0.1, 13, 5), dark, 7.5, b, -0.5);
       b.rotation.y = r() * Math.PI;
       city.add(b);
-      boats.push({ o: b, x0: -900 + r() * 2400, n0: SHORE_N - 150 - r() * 650, span: 60 + r() * 160, speed: 0.01 + r() * 0.02, phase: r() * 6.28 });
+      sails.push({ o: b, x0: -900 + r() * 2400, n0: SHORE_N - 150 - r() * 650, span: 60 + r() * 160, speed: 0.01 + r() * 0.02, phase: r() * 6.28 });
     }
   }
 
   let nightNow = -1;
+  let lastT = -1;
   return {
     group: root,
     set(night) {
@@ -373,13 +386,41 @@ export function buildSkyline(): Skyline {
       const on = Math.min(1, night * 1.25);
       for (const e of lit) e.m.emissiveIntensity = on * e.k;
     },
+    setHour(h) {
+      // the last boats leave around eleven at night and the first at six in the morning
+      ferryState.inService = h >= 6 && h < 23;
+    },
     update(t) {
       for (const b of beacons) b.m.opacity = nightNow > 0.25 ? 0.25 + 0.75 * Math.max(0, Math.sin(t * 1.6 + b.phase)) ** 3 : 0;
-      for (const b of boats) {
+      const dt = lastT < 0 ? 0 : Math.min(1, Math.max(0, t - lastT));
+      lastT = t;
+      // sailboats are out by day; after nightfall they are back in their moorings
+      const sailing = nightNow < 0.5;
+      for (const b of sails) {
+        b.o.visible = sailing;
+        if (!sailing) continue;
         const a = t * b.speed * Math.PI * 2 + b.phase;
         b.o.position.set(b.x0 + Math.sin(a) * b.span, Math.sin(t * 0.9 + b.phase) * 0.12 - 0.25, -(b.n0 + Math.sin(a * 0.5) * b.span * 0.15));
-        if (b === boats[0]) b.o.rotation.y = Math.cos(a) > 0 ? 0 : Math.PI;
       }
+      // the ferry: crossing, a stop, crossing back. Out of service it finishes its trip to the city and stays there.
+      const f = ferryState;
+      const docked = f.at <= 0 && !f.inService;
+      if (docked) f.wait = STOP;
+      else if (f.wait > 0) f.wait -= dt;
+      else {
+        f.at += (f.dir * dt) / CROSSING;
+        if (f.at >= 1) { f.at = 1; f.dir = -1; f.wait = STOP; }
+        // after the last sailing it heads for the city even if it was on its way out
+        if (!f.inService && f.dir > 0 && f.at < 1) f.dir = -1;
+        if (f.at <= 0) { f.at = 0; f.dir = 1; f.wait = STOP; }
+      }
+      if (ferryObj) {
+        // ease out of and into the docks
+        const e = f.at * f.at * (3 - 2 * f.at);
+        ferryObj.position.set(PIER.x + (ISLAND.x - PIER.x) * e, Math.sin(t * 0.7) * 0.1 - 0.25, -(PIER.n + (ISLAND.n - PIER.n) * e));
+      }
+      // a ferry tied up for the night keeps only a few lights on
+      if (ferryLights) ferryLights.emissiveIntensity = Math.min(1, nightNow * 1.25) * (docked ? 0.25 : 1.4);
     },
   };
 }

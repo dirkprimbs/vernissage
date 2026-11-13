@@ -82,7 +82,7 @@ export class Gallery3D {
   private marker: TeleportMarker;
   private aimTarget?: THREE.Vector3;
 
-  constructor(private container: HTMLElement, private data: SiteData, private style: StyleDef, quality: Quality, outside: { sun: SunPosition; weather: Weather }, private opts: Gallery3DOptions, private ev: Gallery3DEvents = {}) {
+  constructor(private container: HTMLElement, private data: SiteData, private style: StyleDef, quality: Quality, outside: { sun: SunPosition; weather: Weather; hour: number }, private opts: Gallery3DOptions, private ev: Gallery3DEvents = {}) {
     this.quality = quality;
     this.lightingId = data.gallery.lighting.scenario;
     this.renderer = new THREE.WebGLRenderer({ antialias: quality !== 'low', powerPreference: 'high-performance' });
@@ -110,6 +110,7 @@ export class Gallery3D {
     this.renderer.autoClear = false;
     this.outdoors = new Outdoors(this.renderer, this.built.plan, data.gallery.environment.landscape, this.built.outlook,
       skyState(outside.sun, outside.weather, this.built.outlook), quality);
+    this.outdoors.setHour(outside.hour);
 
     this.scene.add(this.body);
     this.marker = new TeleportMarker(opts.accent);
@@ -137,7 +138,10 @@ export class Gallery3D {
 
   setQuality(q: Quality) { this.quality = q; this.setPixelRatio(q); this.lighting.setQuality(q); this.outdoors.setQuality(q); this.resize(); }
   /** the sun's place and the weather outside; the sky eases over unless `snap` */
-  setOutside(sun: SunPosition, weather: Weather, snap = false) { this.outdoors.set(skyState(sun, weather, this.built.outlook), snap); }
+  setOutside(sun: SunPosition, weather: Weather, snap = false, hour?: number) {
+    this.outdoors.set(skyState(sun, weather, this.built.outlook), snap);
+    if (hour !== undefined) this.outdoors.setHour(hour);
+  }
   setLighting(id: LightingId) { this.lightingId = id; this.lighting.apply(resolveLighting(id, id === this.data.gallery.lighting.scenario ? this.data.gallery.lighting.overrides : {})); }
   get selectedArtwork() { return this.selected; }
 
@@ -259,7 +263,9 @@ export class Gallery3D {
     if (moved || this.outdoors.landscape !== this.data.gallery.environment.landscape || oldBuilt.outlook.distanceTo(this.built.outlook) > 0.01) {
       const sky = this.outdoors.state;
       this.outdoors.dispose();
+      const hour = this.outdoors.hour;
       this.outdoors = new Outdoors(this.renderer, this.built.plan, this.data.gallery.environment.landscape, this.built.outlook, sky, this.quality);
+      this.outdoors.setHour(hour);
     }
 
     // stay where we are if that is still inside a room; otherwise start over at the entrance

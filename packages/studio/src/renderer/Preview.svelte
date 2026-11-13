@@ -1,6 +1,6 @@
 <script lang="ts">
   import { studio } from './api';
-  import { st } from './state.svelte';
+  import { st, finished } from './state.svelte';
 
   let src = $state('');
   let status = $state('');
@@ -22,6 +22,12 @@
     return () => window.removeEventListener('message', onMsg);
   });
 
+  // "Show in preview" from the artworks editor
+  $effect(() => {
+    const go = st.previewGoto;
+    if (go && frame?.contentWindow) frame.contentWindow.postMessage({ type: 'vernissage:goto', art: go.id }, st.previewBase);
+  });
+
   $effect(() => {
     if (!st.gallery) return;
     const snap = JSON.stringify(st.gallery);
@@ -31,10 +37,8 @@
     status = reload ? 'Updating…' : '';
     const t = setTimeout(async () => {
       try {
-        const data = JSON.parse(snap);
-        // a menu link still being typed should not stop the preview
-        if (Array.isArray(data.menu)) data.menu = data.menu.filter((l: { label?: string; url?: string }) => l.label?.trim() && /^https?:\/\/\S+\.\S+/.test(l.url ?? ''));
-        const r = await studio.updatePreview(data);
+        // rows still being typed (a menu link, a provenance entry) should not stop the preview
+        const r = await studio.updatePreview(finished(JSON.parse(snap)));
         if (!r.ok) { status = 'Fix the errors to update the preview'; return; }
         if (!reload && ready && frame?.contentWindow) {
           frame.contentWindow.postMessage({ type: 'vernissage:data', site: r.site }, st.previewBase);

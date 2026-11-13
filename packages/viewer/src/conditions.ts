@@ -1,5 +1,5 @@
 import {
-  PHASE_SUN, WEATHER_URL, phaseOf, sunPosition, weatherFromText,
+  PHASE_HOUR, PHASE_SUN, WEATHER_URL, phaseOf, sunPosition, torontoHour, weatherFromText,
   type Phase, type SunPosition, type TimeId, type Weather, type WeatherId,
 } from '@vernissage/schema';
 
@@ -8,6 +8,8 @@ export interface ConditionsChoice { time: TimeId; weather: WeatherId }
 export interface ConditionsNow {
   sun: SunPosition;
   phase: Phase;
+  /** the hour on Toronto's clock (0–24): the real one, or a typical one for a chosen time of day */
+  hour: number;
   weather: Weather;
   /** what Toronto reports right now, when it has been asked: "4 °C, Light Snow" */
   report?: string;
@@ -35,6 +37,7 @@ export class Conditions {
     const sun = this.choice.time === 'live' ? sunPosition(Date.now()) : PHASE_SUN[this.choice.time];
     return {
       sun, phase: this.choice.time === 'live' ? phaseOf(sun) : this.choice.time,
+      hour: this.choice.time === 'live' ? torontoHour(Date.now()) : PHASE_HOUR[this.choice.time],
       weather: this.choice.weather === 'live' ? this.liveWeather : this.choice.weather,
       report: this.report, failed: this.failed,
     };

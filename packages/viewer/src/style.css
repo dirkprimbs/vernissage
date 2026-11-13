@@ -195,6 +195,7 @@ body[data-mode="portfolio"] .stick, body.focus-open .stick, body:has(.modal-back
 .pf-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding-bottom: 20px; border-bottom: 1px solid var(--border1); }
 .pf-head h1 { font-family: var(--room-font); font-weight: 600; font-size: clamp(28px, 5vw, 44px); margin: 0; line-height: 1.1; }
 .pf-head p { margin: 6px 0 0; }
+.pf-notice { margin: 20px 0 0; padding: 12px 16px; border-radius: var(--r); background: color-mix(in srgb, var(--orange) 12%, var(--bg1)); border: 1px solid color-mix(in srgb, var(--orange) 45%, transparent); max-width: 80ch; line-height: 1.5; }
 .pf-tools { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 20px 0 8px; }
 .pf-tools input { flex: 1 1 260px; max-width: 420px; height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--border2); background: var(--bg1); font: inherit; }
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }

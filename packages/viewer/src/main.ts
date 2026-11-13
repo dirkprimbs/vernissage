@@ -68,7 +68,10 @@ async function boot() {
   /** running inside Vernissage Studio's preview, which sends edits as they happen */
   const studio = params.has('studio') && window.parent !== window;
   if (studio) window.addEventListener('message', (e) => {
-    if (e.source !== window.parent || e.data?.type !== 'vernissage:data' || !e.data.site?.gallery) return;
+    if (e.source !== window.parent) return;
+    // the studio's artworks editor asks to see a work
+    if (e.data?.type === 'vernissage:goto' && typeof e.data.art === 'string') { if (location.hash.startsWith('#/art') || mode !== '3d') location.hash = '#/'; queueMicrotask(() => { if (!joined) join(); g3d?.select(e.data.art, 'teleport'); }); return; }
+    if (e.data?.type !== 'vernissage:data' || !e.data.site?.gallery) return;
     try { applyUpdate(e.data.site as SiteData); }
     catch (err) { console.error(err); window.parent.postMessage({ type: 'vernissage:reload' }, '*'); }
   });
@@ -91,6 +94,9 @@ async function boot() {
   const portfolioEvents = {
     onOpen: (id: string) => { location.hash = `#/art/${id}`; },
     onEnter3D: has3D ? () => { location.hash = '#/'; } : undefined,
+    notice: fromFile
+      ? 'You opened this page as a file on your computer, so only the portfolio is shown: browsers allow the 3D gallery only on pages that come from a web server. Upload the whole folder to your web host, or use “Open in browser” in Vernissage Studio to walk the gallery on this computer.'
+      : has3D ? undefined : 'This browser cannot show the 3D gallery (WebGL is not available), so the portfolio is shown instead.',
   };
   let portfolio = new PortfolioView(data, portfolioEvents);
   portfolio.el.hidden = true;
@@ -120,7 +126,7 @@ async function boot() {
     onBrowse: () => { location.hash = '#/portfolio'; },
   });
 
-  const conditions = new Conditions(state.outside, (now) => { g3d?.setOutside(now.sun, now.weather); shell?.setOutside(now); });
+  const conditions = new Conditions(state.outside, (now) => { g3d?.setOutside(now.sun, now.weather, false, now.hour); shell?.setOutside(now); });
 
   /** build the 3D gallery behind the loading screen (a second or two for a large gallery) */
   async function prepare3D() {

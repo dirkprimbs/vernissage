@@ -7,6 +7,8 @@ export interface PortfolioEvents {
   onOpen: (id: string) => void;
   /** undefined when WebGL is not available */
   onEnter3D?: () => void;
+  /** why the 3D gallery is not offered, shown above the grid */
+  notice?: string;
 }
 
 /** The 2D portfolio: every work grouped by room, with a filter by room. */
@@ -33,6 +35,7 @@ export class PortfolioView {
           h('h1', {}, g.title),
           g.subtitle ? h('p', { class: 'muted' }, g.subtitle) : null),
         ev.onEnter3D ? h('button', { class: 'primary-btn', type: 'button', onclick: (() => ev.onEnter3D!()) as EventListener, html: `${icons.cube}<span>Walk the gallery</span>` }) : null),
+      ev.notice ? h('p', { class: 'pf-notice', role: 'note' }, ev.notice) : h('div'),
       g.rooms.length > 1 ? h('div', { class: 'pf-tools' }, chips) : h('div'),
       this.grid,
     );

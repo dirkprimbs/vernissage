@@ -122,6 +122,8 @@ export interface Landscape {
   group: THREE.Group;
   /** night 0..1 (city lights), snow 0..1 (white ground and trees) */
   set(night: number, snow: number): void;
+  /** the hour on Toronto's clock (the ferry keeps a timetable) */
+  setHour(hour: number): void;
   update(t: number): void;
 }
 
@@ -210,6 +212,7 @@ export function buildLandscape(plan: FloorPlan, kind: LandscapeId, north: THREE.
       snow.opacity = s * 0.95; snowCap.visible = s > 0.01;
       for (const e of snowy) e.m.color.copy(e.base).lerp(white, s * e.k);
     },
+    setHour(h) { skyline?.setHour(h); },
     update(t) {
       skyline?.update(t);
       boat.position.y = 0.05 + Math.sin(t * 1.1) * 0.03; boat.rotation.z = Math.sin(t * 0.8) * 0.04;

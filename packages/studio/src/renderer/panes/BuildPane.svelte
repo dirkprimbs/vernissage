@@ -26,7 +26,8 @@
 </script>
 
 <h1>Build the website</h1>
-<p class="muted">Vernissage writes a self-contained static site: an <code>index.html</code>, the viewer script and optimised images. Upload the folder to any web host.</p>
+<p class="muted">Vernissage writes a self-contained static site: an <code>index.html</code>, the viewer script and optimised images. Upload the whole folder to any web host.</p>
+<p class="muted small">To try the result on this computer, use <strong>Open in browser</strong>: it serves the folder the way a web host would. Opening <code>index.html</code> straight from the folder shows only the portfolio, because browsers allow the 3D gallery only on pages that come from a web server.</p>
 
 <div class="form">
   <label class="wide">Output folder
@@ -38,9 +39,10 @@
 
 <div class="row">
   <button class="primary big" disabled={busy || !st.outDir || st.errors.length > 0} onclick={build}>{busy ? 'Building…' : st.dirty ? 'Save and build' : 'Build website'}</button>
-  {#if report}
-    <button onclick={() => studio.openSite(report!.outDir).catch((e) => st.notify(e.message, 'error'))}>Open in browser</button>
-    <button class="ghost" onclick={() => studio.reveal(report!.outDir + '/index.html')}>Show in folder</button>
+  {#if report || st.outDir}
+    {@const dir = report?.outDir ?? st.outDir}
+    <button disabled={busy} onclick={() => studio.openSite(dir).catch((e) => st.notify(e.message, 'error'))}>Open in browser</button>
+    <button class="ghost" disabled={busy} onclick={() => studio.reveal(dir + '/index.html')}>Show in folder</button>
   {/if}
 </div>
 {#if st.errors.length}<p class="warn">Fix {st.errors.length} error(s) before building (see the badge at the top).</p>{/if}

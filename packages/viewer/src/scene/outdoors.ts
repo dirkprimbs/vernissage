@@ -63,6 +63,10 @@ export class Outdoors {
     this.scene.add(this.lake.mesh);
   }
 
+  /** the hour on Toronto's clock: boats keep to it */
+  hour = 12;
+  setHour(h: number) { this.hour = h; this.land.setHour(h); }
+
   /** where the sky should go; `snap` skips the transition */
   set(target: SkyState, snap = false) {
     this.target = cloneState(target);

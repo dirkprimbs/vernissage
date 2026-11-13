@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { moonAge, phaseOf, sunPosition, weatherFromText } from '../src';
+import { moonAge, phaseOf, sunPosition, torontoHour, weatherFromText } from '../src';
 
 describe('sunPosition (Toronto)', () => {
   // Environment Canada gave sunrise 12:09 UTC and sunset 21:54 UTC for 13 November 2026
@@ -52,5 +52,14 @@ describe('moonAge', () => {
     const nu = moonAge(Date.UTC(2024, 3, 8, 18, 21)); // new moon (the April 2024 eclipse)
     expect(Math.min(nu, 1 - nu)).toBeLessThan(0.02);
     expect(Math.abs(moonAge(Date.UTC(2024, 3, 23, 23, 49)) - 0.5)).toBeLessThan(0.02);
+  });
+});
+
+describe('torontoHour', () => {
+  it("reads Toronto's clock, with and without daylight saving time", () => {
+    expect(torontoHour(Date.UTC(2026, 10, 13, 17, 0))).toBe(12); // EST, UTC−5
+    expect(torontoHour(Date.UTC(2026, 6, 1, 16, 30))).toBe(12.5); // EDT, UTC−4
+    expect(torontoHour(Date.UTC(2026, 10, 14, 4, 15))).toBe(23.25); // late evening, already the next day in UTC
+    expect(torontoHour(Date.UTC(2026, 10, 14, 5, 0))).toBe(0);
   });
 });

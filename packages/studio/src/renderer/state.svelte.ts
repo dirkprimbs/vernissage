@@ -2,6 +2,18 @@ import { starterRoom } from '@vernissage/schema';
 import { parseGallery, planIssues, WALL_SIDES, type Gallery, type ValidationIssue, type WallSide } from '@vernissage/schema';
 import { studio, type Meta, type ProjectInfo } from './api';
 
+/**
+ * The gallery without rows that are still being typed: menu links without a label or a full address, and
+ * provenance entries without an event. They stay in the editor but are not saved, checked or previewed.
+ */
+export function finished<T extends { menu?: Array<{ label?: string; url?: string }>; artworks?: Array<{ provenance?: Array<{ event?: string }> }> }>(g: T): T {
+  return {
+    ...g,
+    menu: g.menu?.filter((l) => l.label?.trim() && /^https?:\/\/\S+\.\S+/.test(l.url ?? '')),
+    artworks: g.artworks?.map((a) => ({ ...a, provenance: a.provenance?.filter((p) => p.event?.trim()) })),
+  };
+}
+
 export type Pane = 'gallery' | 'plan' | 'walls' | 'library' | 'build';
 
 class StudioState {
@@ -19,6 +31,8 @@ class StudioState {
   previewUrl = $state('');
   previewRoom = $state<string | null>(null);
   previewKey = $state(0);
+  /** ask the live preview to go to an artwork (n makes repeated requests distinct) */
+  previewGoto = $state<{ id: string; n: number } | null>(null);
   message = $state<{ text: string; kind: 'info' | 'error' } | null>(null);
 
   get dirty() { return !!this.gallery && JSON.stringify(this.gallery) !== this.saved; }
@@ -47,14 +61,14 @@ class StudioState {
 
   validate() {
     if (!this.gallery) return;
-    const r = parseGallery($state.snapshot(this.gallery));
+    const r = parseGallery(finished($state.snapshot(this.gallery)));
     this.issues = r.gallery ? [...r.issues, ...planIssues(r.gallery)] : r.issues;
   }
 
   async save() {
     if (!this.gallery) return;
     const snap = $state.snapshot(this.gallery);
-    await studio.save(snap);
+    await studio.save(finished(snap));
     this.saved = JSON.stringify(snap);
     this.notify('Saved');
   }

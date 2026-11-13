@@ -56,7 +56,7 @@ The editor on the left folds away with the *Hide editor* button or **Ctrl+E**, s
 - **Gallery**: title, subtitle, intro (Markdown); whether visitors **start in** the gallery or the portfolio; the **menu bar** (links to other pages); the **indoor light** (Daylight, Gallery white, Evening spots, Chiaroscuro, Night tour); the **entry door** and the address it opens; the scenery outside. The sky needs no settings: it follows Toronto's time and weather, and visitors can change it in the Light menu.
 - **Rooms**: add rooms, set their size and height, and drag them into position. Doorways are generated between consecutive rooms that face each other.
 - **Walls**: an elevation drawing of each wall. Tick *Windows* to make a wall a window wall, or drag works onto it. Works are sized and spaced automatically to suit the wall; each has a **Size** slider to make it larger or smaller than its neighbours. Hanging can be in a line, stacked or in a grid.
-- **Library**: import JPG/PNG/SVG by button or drag and drop. Edit the label: title, artist, date, medium, description and the provenance table.
+- **Artworks**: add JPG/PNG/SVG files by button or drag and drop, pick a work from the thumbnail strip, choose the wall it hangs on, and edit its label: title, artist, date, medium, description, further details and the provenance entries. *Show in preview* jumps to the work in the live preview.
 - **Build**: choose an output folder (remembered per project) and an optional base path, then build. You can then open the site in the browser or reveal the folder.
 
 Settings without a control in the studio (display scales, focus-mode layouts, time and weather defaults, roof lanterns, plants, teleport) keep their defaults and can be changed in `gallery.json`.
