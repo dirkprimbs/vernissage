@@ -1,0 +1,112 @@
+{
+  "addie-card": {
+    "id": "addie-card",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/8/89/AddieCard05282vLewisHine.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:AddieCard05282vLewisHine.jpg",
+    "licence": "Public domain",
+    "sha256": "6cdbf342c246772fe3b8d983bc39ad2fb37d8da240fb02227a88d2339f54d1c4",
+    "width": 1882,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "allie-mae-burroughs": {
+    "id": "allie-mae-burroughs",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/2/26/Allie_Mae_Burroughs_print.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Allie_Mae_Burroughs_print.jpg",
+    "licence": "Public domain",
+    "sha256": "c8f90819f43beafe85032ac38d98f51be8030f3bf4994e4680f09312f6b50d1e",
+    "width": 1846,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "american-gothic-parks": {
+    "id": "american-gothic-parks",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/9/94/Gordon_Parks_-_American_Gothic.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Gordon_Parks_-_American_Gothic.jpg",
+    "licence": "Public domain",
+    "sha256": "171f90ac6c6a9d0eb7c258914d2f28e46c50150902757f38b70b5334fa637758",
+    "width": 1697,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "dust-storm-cimarron": {
+    "id": "dust-storm-cimarron",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Farmer_walking_in_dust_storm_Cimarron_County_Oklahoma2.jpg/3840px-Farmer_walking_in_dust_storm_Cimarron_County_Oklahoma2.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Farmer_walking_in_dust_storm_Cimarron_County_Oklahoma2.jpg",
+    "licence": "Public domain",
+    "sha256": "e1530fdbf6d5dcef4497a779173ab2f9fbca5d02f9453578689d46dc566d200a",
+    "width": 2400,
+    "height": 2346,
+    "fetched": "2026-11-13"
+  },
+  "first-flight": {
+    "id": "first-flight",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/First_flight3.jpg/3840px-First_flight3.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:First_flight3.jpg",
+    "licence": "Public domain",
+    "sha256": "85a5c170ac57e13fe92ca83bd45a05d4590ecb3c7248c339e6320c1e544b5c03",
+    "width": 2400,
+    "height": 1556,
+    "fetched": "2026-11-13"
+  },
+  "frederick-douglass": {
+    "id": "frederick-douglass",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/90/Frederick_Douglass%2C_head-and-shoulders_portrait%2C_facing_right%2C_ca_1850-1860.jpg/3840px-Frederick_Douglass%2C_head-and-shoulders_portrait%2C_facing_right%2C_ca_1850-1860.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Frederick_Douglass,_head-and-shoulders_portrait,_facing_right,_ca_1850-1860.jpg",
+    "licence": "Public domain",
+    "sha256": "12acce98b6315bb48b41cb81d7daaaee2ba651fc6a9ff57ddb39303d01a65cff",
+    "width": 1913,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "harriet-tubman": {
+    "id": "harriet-tubman",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fc/Harriet_Tubman_c1868-69.jpg/3840px-Harriet_Tubman_c1868-69.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Harriet_Tubman_c1868-69.jpg",
+    "licence": "Public domain",
+    "sha256": "083f6e17be10fed82798b74b0e2b5454f6d97f8d362a2b326aa684c935ed33bc",
+    "width": 1498,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "harvest-of-death": {
+    "id": "harvest-of-death",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/5/59/Timothy_H._O%27Sullivan_-_A_Harvest_of_Death%2C_Gettysburg%2C_Pennsylvania_-_Google_Art_Project.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Timothy_H._O%27Sullivan_-_A_Harvest_of_Death,_Gettysburg,_Pennsylvania_-_Google_Art_Project.jpg",
+    "licence": "Public domain",
+    "sha256": "14751b16c7b1f41fd47be7047c49d04b6caa8048104f797fdee26a114376d074",
+    "width": 2400,
+    "height": 1991,
+    "fetched": "2026-11-13"
+  },
+  "lincoln-gardner-1863": {
+    "id": "lincoln-gardner-1863",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/c/c4/Abraham_Lincoln_O-80_by_Gardner%2C_1863.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Abraham_Lincoln_O-80_by_Gardner,_1863.jpg",
+    "licence": "Public domain",
+    "sha256": "ecf0fc02cf43208f22b64d7472301dc330311b071dc59588fef46a630bd01977",
+    "width": 1762,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "manzanar-farm-workers": {
+    "id": "manzanar-farm-workers",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/9/94/Ansel_Adams_-_Farm_workers_and_Mt._Williamson.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Ansel_Adams_-_Farm_workers_and_Mt._Williamson.jpg",
+    "licence": "Public domain",
+    "sha256": "3de44a8773d0ecf81913760ecd5da710a0259622d29eb30c05fb5c48befaed08",
+    "width": 2000,
+    "height": 1500,
+    "fetched": "2026-11-13"
+  },
+  "migrant-mother": {
+    "id": "migrant-mother",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Lange-MigrantMother02.jpg/3840px-Lange-MigrantMother02.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Lange-MigrantMother02.jpg",
+    "licence": "Public domain",
+    "sha256": "ce3f4991a2ad5ba23e1ca369637a205ba7daaef4e1ab99b741d2c7ae0ce17cb1",
+    "width": 1846,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  }
+}

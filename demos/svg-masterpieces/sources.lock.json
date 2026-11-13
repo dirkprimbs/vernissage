@@ -1,0 +1,112 @@
+{
+  "birth-of-venus": {
+    "id": "birth-of-venus",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/4/47/La_nascita_di_Venere_%28Botticelli%29.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:La_nascita_di_Venere_(Botticelli).jpg",
+    "licence": "Public domain",
+    "sha256": "777676750438edee4ea4743d36b3e02ebd782923dccefca3f21b7c1e50cab7b6",
+    "width": 2400,
+    "height": 1538,
+    "fetched": "2026-11-13"
+  },
+  "first-flight": {
+    "id": "first-flight",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e3/First_flight3.jpg/3840px-First_flight3.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:First_flight3.jpg",
+    "licence": "Public domain",
+    "sha256": "85a5c170ac57e13fe92ca83bd45a05d4590ecb3c7248c339e6320c1e544b5c03",
+    "width": 2400,
+    "height": 1556,
+    "fetched": "2026-11-13"
+  },
+  "girl-with-a-pearl-earring": {
+    "id": "girl-with-a-pearl-earring",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d7/Meisje_met_de_parel.jpg/3840px-Meisje_met_de_parel.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Meisje_met_de_parel.jpg",
+    "licence": "Public domain",
+    "sha256": "a0421091890b2e16f78adcd1c095420ecb67d4f255abbf791e4a7bf501d6d07c",
+    "width": 2050,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "great-wave": {
+    "id": "great-wave",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a5/Tsunami_by_hokusai_19th_century.jpg/3840px-Tsunami_by_hokusai_19th_century.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg",
+    "licence": "Public domain",
+    "sha256": "cbfb819765ba60990de9c6776cb27ea430edbbf6a40a75f39130a32b8c099b1a",
+    "width": 2400,
+    "height": 1613,
+    "fetched": "2026-11-13"
+  },
+  "migrant-mother": {
+    "id": "migrant-mother",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/54/Lange-MigrantMother02.jpg/3840px-Lange-MigrantMother02.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Lange-MigrantMother02.jpg",
+    "licence": "Public domain",
+    "sha256": "ce3f4991a2ad5ba23e1ca369637a205ba7daaef4e1ab99b741d2c7ae0ce17cb1",
+    "width": 1846,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "milkmaid": {
+    "id": "milkmaid",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Johannes_Vermeer_-_Het_melkmeisje_-_Google_Art_Project.jpg/3840px-Johannes_Vermeer_-_Het_melkmeisje_-_Google_Art_Project.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Johannes_Vermeer_-_Het_melkmeisje_-_Google_Art_Project.jpg",
+    "licence": "Public domain",
+    "sha256": "85abc8077e2066b153125ee7a224b51a58bcf6bd6a5b50743ff5450c67c7b3bb",
+    "width": 2140,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "red-fuji": {
+    "id": "red-fuji",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/57/Red_Fuji_southern_wind_clear_morning.jpg/3840px-Red_Fuji_southern_wind_clear_morning.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Red_Fuji_southern_wind_clear_morning.jpg",
+    "licence": "Public domain",
+    "sha256": "62dbf2cb1c6a60b796fa0a68d02fe04c4edbf4ae85c49fa0bdf91f2cf2047a31",
+    "width": 2400,
+    "height": 1602,
+    "fetched": "2026-11-13"
+  },
+  "starry-night": {
+    "id": "starry-night",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/3840px-Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+    "licence": "Public domain",
+    "sha256": "61ab3fabf26bf67d2a2e13728217c7e000a6722131ebe04d2ba4cbcbb1e55727",
+    "width": 2400,
+    "height": 1854,
+    "fetched": "2026-11-13"
+  },
+  "sunflowers": {
+    "id": "sunflowers",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fe/Vincent_van_Gogh_-_Sunflowers_%281888%2C_National_Gallery_London%29.jpg/3840px-Vincent_van_Gogh_-_Sunflowers_%281888%2C_National_Gallery_London%29.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Sunflowers_(1888,_National_Gallery_London).jpg",
+    "licence": "Public domain",
+    "sha256": "30576cde43932e64a3b91878ccba0ba0b7f2e62f5e48df56347bf3f09fd607c8",
+    "width": 1888,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "the-scream": {
+    "id": "the-scream",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Edvard_Munch%2C_1893%2C_The_Scream%2C_oil%2C_tempera_and_pastel_on_cardboard%2C_91_x_73_cm%2C_National_Gallery_of_Norway.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Edvard_Munch,_1893,_The_Scream,_oil,_tempera_and_pastel_on_cardboard,_91_x_73_cm,_National_Gallery_of_Norway.jpg",
+    "licence": "Public domain",
+    "sha256": "2fa1238f3083fcdcd2d00c4a9eb572ce3146a5906d787f0d9e35d27825ee5217",
+    "width": 1934,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "wanderer": {
+    "id": "wanderer",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Caspar_David_Friedrich_-_Wanderer_above_the_sea_of_fog.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Caspar_David_Friedrich_-_Wanderer_above_the_sea_of_fog.jpg",
+    "licence": "Public domain",
+    "sha256": "f2deec3958ccd2fd6ef92e609ceaced5b59381ef7c45b5fdb15548b810aa0bf5",
+    "width": 1874,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  }
+}

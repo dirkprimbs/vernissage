@@ -1,0 +1,526 @@
+{
+  "schemaVersion": 5,
+  "title": "American Photographs",
+  "subtitle": "Famous images from the Library of Congress collections, 1863–1943",
+  "intro": "Eleven photographs held by or associated with the **Library of Congress**: Civil War views, portraits of Lincoln, Douglass and Tubman, the first powered flight, Lewis Hine's child labour reports and the Farm Security Administration's record of the Depression.\n\nThe originals are mostly small negatives and prints. Here they hang as large exhibition prints. Each label gives the medium of the original. All images are public domain or have no known restrictions; files come from Wikimedia Commons copies of the LoC and museum scans.",
+  "style": {
+    "preset": "industrial-loft"
+  },
+  "lighting": {
+    "scenario": "daylight"
+  },
+  "layout": {
+    "mode": "linear"
+  },
+  "focus": {
+    "defaultLayout": "immersive"
+  },
+  "artworks": [
+    {
+      "id": "migrant-mother",
+      "file": "assets/migrant-mother.jpg",
+      "title": "Destitute pea pickers in California. Mother of seven children. Age thirty-two. Nipomo, California (\"Migrant Mother\")",
+      "artist": {
+        "name": "Dorothea Lange",
+        "life": "1895–1965",
+        "nationality": "American"
+      },
+      "date": "February or March 1936",
+      "medium": "Nitrate film negative, 4 × 5 in.; shown as an exhibition print",
+      "dimensions": {
+        "width": 48,
+        "height": 60
+      },
+      "mat": true,
+      "collection": "Library of Congress, Prints & Photographs Division, FSA/OWI Collection",
+      "accession": "LC-USF34-9058-C",
+      "credit": "Library of Congress, Prints & Photographs Division, FSA/OWI Collection",
+      "provenance": [
+        {
+          "date": "1936",
+          "event": "Made by Lange for the Resettlement Administration (later Farm Security Administration) at a pea pickers' camp in Nipomo"
+        },
+        {
+          "date": "March 1936",
+          "event": "Published in the San Francisco News, prompting federal food aid to the camp"
+        },
+        {
+          "date": "1944",
+          "event": "FSA/OWI photographic file transferred to the Library of Congress"
+        },
+        {
+          "date": "1930s–40s",
+          "event": "The thumb in the lower right corner of the negative was retouched out of later prints"
+        }
+      ],
+      "source": "https://www.loc.gov/pictures/item/2017762891/",
+      "rights": "No known restrictions on publication (Library of Congress)",
+      "description": "Florence Owens Thompson and her children, photographed in a few exposures as Lange was driving home. The image became the defining picture of the Depression. Thompson's identity was not made public until the 1970s.",
+      "tags": [
+        "FSA",
+        "Depression",
+        "portrait"
+      ]
+    },
+    {
+      "id": "dust-storm-cimarron",
+      "file": "assets/dust-storm-cimarron.jpg",
+      "title": "Farmer and sons walking in the face of a dust storm. Cimarron County, Oklahoma",
+      "artist": {
+        "name": "Arthur Rothstein",
+        "life": "1915–1985",
+        "nationality": "American"
+      },
+      "date": "April 1936",
+      "medium": "Film negative; shown as an exhibition print",
+      "dimensions": {
+        "width": 60,
+        "height": 59
+      },
+      "mat": true,
+      "collection": "Library of Congress, Prints & Photographs Division, FSA/OWI Collection",
+      "credit": "Library of Congress, Prints & Photographs Division, FSA/OWI Collection",
+      "provenance": [
+        {
+          "date": "1936",
+          "event": "Made for the Resettlement Administration during Rothstein's assignment in the Dust Bowl"
+        },
+        {
+          "date": "1944",
+          "event": "FSA/OWI file transferred to the Library of Congress"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Farmer_walking_in_dust_storm_Cimarron_County_Oklahoma2.jpg",
+      "rights": "Public domain (U.S. government work)",
+      "description": "Farmer Arthur Coble and his sons head for shelter on their land near Boise City. It became the best-known image of the Dust Bowl.",
+      "tags": [
+        "FSA",
+        "Depression",
+        "Dust Bowl"
+      ]
+    },
+    {
+      "id": "allie-mae-burroughs",
+      "file": "assets/allie-mae-burroughs.jpg",
+      "title": "Allie Mae Burroughs, wife of a cotton sharecropper, Hale County, Alabama",
+      "artist": {
+        "name": "Walker Evans",
+        "life": "1903–1975",
+        "nationality": "American"
+      },
+      "date": "Summer 1936",
+      "medium": "Film negative, 8 × 10 in.; shown as an exhibition print",
+      "dimensions": {
+        "width": 46,
+        "height": 60
+      },
+      "mat": true,
+      "collection": "Library of Congress, Prints & Photographs Division, FSA/OWI Collection",
+      "credit": "Library of Congress, Prints & Photographs Division, FSA/OWI Collection",
+      "provenance": [
+        {
+          "date": "1936",
+          "event": "Made while Evans was on leave from the FSA, working with the writer James Agee"
+        },
+        {
+          "date": "1941",
+          "event": "Published in Let Us Now Praise Famous Men"
+        },
+        {
+          "date": "1944",
+          "event": "FSA/OWI file transferred to the Library of Congress"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Allie_Mae_Burroughs_print.jpg",
+      "rights": "Public domain (U.S. government work)",
+      "tags": [
+        "FSA",
+        "Depression",
+        "portrait"
+      ]
+    },
+    {
+      "id": "american-gothic-parks",
+      "file": "assets/american-gothic-parks.jpg",
+      "title": "Washington, D.C. Government charwoman (\"American Gothic\")",
+      "artist": {
+        "name": "Gordon Parks",
+        "life": "1912–2006",
+        "nationality": "American"
+      },
+      "date": "August 1942",
+      "medium": "Film negative; shown as an exhibition print",
+      "dimensions": {
+        "width": 42,
+        "height": 60
+      },
+      "mat": true,
+      "collection": "Library of Congress, Prints & Photographs Division, FSA/OWI Collection",
+      "credit": "Library of Congress, Prints & Photographs Division, FSA/OWI Collection",
+      "provenance": [
+        {
+          "date": "1942",
+          "event": "Made by Parks in his first weeks as an FSA photographer"
+        },
+        {
+          "date": "1944",
+          "event": "FSA/OWI file transferred to the Library of Congress"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Gordon_Parks_-_American_Gothic.jpg",
+      "rights": "Public domain (U.S. government work)",
+      "description": "Ella Watson, who cleaned the FSA building, posed with her mop and broom before the flag, in a pointed echo of Grant Wood's *American Gothic*. Parks's FSA chief Roy Stryker thought it too provocative to publish at the time.",
+      "tags": [
+        "FSA",
+        "portrait",
+        "Washington"
+      ]
+    },
+    {
+      "id": "lincoln-gardner-1863",
+      "file": "assets/lincoln-gardner-1863.jpg",
+      "title": "Abraham Lincoln",
+      "artist": {
+        "name": "Alexander Gardner",
+        "life": "1821–1882",
+        "nationality": "Scottish-American"
+      },
+      "date": "8 November 1863",
+      "medium": "Albumen print from wet collodion negative; shown enlarged",
+      "dimensions": {
+        "width": 44,
+        "height": 60
+      },
+      "mat": true,
+      "collection": "Library of Congress, Prints & Photographs Division",
+      "provenance": [
+        {
+          "date": "8 Nov 1863",
+          "event": "Made at Gardner's gallery in Washington, eleven days before the Gettysburg Address"
+        },
+        {
+          "event": "Prints in the Library of Congress and other collections"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Abraham_Lincoln_O-80_by_Gardner,_1863.jpg",
+      "rights": "Public domain",
+      "tags": [
+        "portrait",
+        "Civil War"
+      ]
+    },
+    {
+      "id": "frederick-douglass",
+      "file": "assets/frederick-douglass.jpg",
+      "title": "Frederick Douglass, head-and-shoulders portrait, facing right",
+      "artist": {
+        "name": "Unidentified photographer"
+      },
+      "date": "c. 1850–1860",
+      "medium": "Photographic print; shown enlarged",
+      "dimensions": {
+        "width": 48,
+        "height": 60
+      },
+      "mat": true,
+      "collection": "Library of Congress, Prints & Photographs Division",
+      "provenance": [
+        {
+          "event": "Douglass sat for more photographs than any other American of the 19th century, using portraits to counter racist caricature"
+        },
+        {
+          "event": "Library of Congress, Prints & Photographs Division"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Frederick_Douglass,_head-and-shoulders_portrait,_facing_right,_ca_1850-1860.jpg",
+      "rights": "Public domain",
+      "tags": [
+        "portrait",
+        "abolition"
+      ]
+    },
+    {
+      "id": "harriet-tubman",
+      "file": "assets/harriet-tubman.jpg",
+      "title": "Harriet Tubman",
+      "artist": {
+        "name": "Benjamin F. Powelson",
+        "life": "active 1860s–1870s",
+        "nationality": "American"
+      },
+      "date": "c. 1868–1869",
+      "medium": "Albumen print on carte-de-visite mount; shown enlarged",
+      "dimensions": {
+        "width": 37,
+        "height": 60
+      },
+      "mat": true,
+      "collection": "Library of Congress and Smithsonian National Museum of African American History and Culture",
+      "provenance": [
+        {
+          "date": "c. 1868",
+          "event": "Made by Powelson in Auburn, New York, where Tubman lived after the Civil War"
+        },
+        {
+          "event": "Kept in a photograph album of the Quaker abolitionist and teacher Emily Howland"
+        },
+        {
+          "date": "2017",
+          "event": "Album bought jointly at auction by the Library of Congress and the NMAAHC"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Harriet_Tubman_c1868-69.jpg",
+      "rights": "Public domain",
+      "description": "The earliest known photograph of Tubman, taken a few years after the war in which she served as a scout, spy and nurse for the Union army.",
+      "tags": [
+        "portrait",
+        "abolition"
+      ]
+    },
+    {
+      "id": "first-flight",
+      "file": "assets/first-flight.jpg",
+      "title": "First flight, 120 feet in 12 seconds, 10:35 a.m.; Kitty Hawk, North Carolina",
+      "artist": {
+        "name": "John T. Daniels",
+        "life": "1873–1948",
+        "nationality": "American"
+      },
+      "date": "17 December 1903",
+      "medium": "Glass plate negative; shown as an exhibition print",
+      "dimensions": {
+        "width": 90,
+        "height": 58
+      },
+      "mat": true,
+      "collection": "Library of Congress, Prints & Photographs Division, Wright Brothers Negatives",
+      "accession": "LC-DIG-ppprs-00626",
+      "provenance": [
+        {
+          "date": "17 Dec 1903",
+          "event": "Exposed by Daniels, a member of the Kill Devil Hills lifesaving station, on Orville Wright's camera"
+        },
+        {
+          "date": "1913",
+          "event": "Plate damaged in the Dayton flood; Wright family collection"
+        },
+        {
+          "date": "1949",
+          "event": "Wright brothers' negatives donated to the Library of Congress by the Wright estate"
+        }
+      ],
+      "source": "https://www.loc.gov/pictures/item/00652085/",
+      "rights": "No known restrictions on publication (Library of Congress)",
+      "description": "Orville Wright at the controls; Wilbur runs alongside. Daniels had never used a camera before. It is the only photograph of the first powered, controlled flight.",
+      "tags": [
+        "aviation",
+        "invention"
+      ]
+    },
+    {
+      "id": "addie-card",
+      "file": "assets/addie-card.jpg",
+      "title": "Addie Card, 12 years. Spinner in North Pownal Cotton Mill, Vermont",
+      "artist": {
+        "name": "Lewis Wickes Hine",
+        "life": "1874–1940",
+        "nationality": "American"
+      },
+      "date": "August 1910",
+      "medium": "Glass negative; shown as an exhibition print",
+      "dimensions": {
+        "width": 47,
+        "height": 60
+      },
+      "mat": true,
+      "collection": "Library of Congress, Prints & Photographs Division, National Child Labor Committee Collection",
+      "accession": "LC-DIG-nclc-05282",
+      "provenance": [
+        {
+          "date": "1910",
+          "event": "Made for the National Child Labor Committee's investigation of mill work"
+        },
+        {
+          "date": "1954",
+          "event": "NCLC photographs and records given to the Library of Congress"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:AddieCard05282vLewisHine.jpg",
+      "rights": "No known restrictions on publication (Library of Congress)",
+      "description": "Hine's captions record that the girls in the mill said Addie was ten. His photographs helped bring about federal child labour laws.",
+      "tags": [
+        "child labor",
+        "social documentary"
+      ]
+    },
+    {
+      "id": "manzanar-farm-workers",
+      "file": "assets/manzanar-farm-workers.jpg",
+      "title": "Farm workers, Mt. Williamson in background, Manzanar Relocation Center",
+      "artist": {
+        "name": "Ansel Adams",
+        "life": "1902–1984",
+        "nationality": "American"
+      },
+      "date": "1943",
+      "medium": "Gelatin silver negative; shown as an exhibition print",
+      "dimensions": {
+        "width": 80,
+        "height": 60
+      },
+      "mat": true,
+      "collection": "Library of Congress, Prints & Photographs Division, Ansel Adams's Photographs of Japanese-American Internment at Manzanar",
+      "provenance": [
+        {
+          "date": "1943–44",
+          "event": "Made by Adams during visits to the Manzanar War Relocation Center, California"
+        },
+        {
+          "date": "1965",
+          "event": "Adams gave the Manzanar photographs and negatives to the Library of Congress"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Ansel_Adams_-_Farm_workers_and_Mt._Williamson.jpg",
+      "rights": "No known restrictions on publication (Library of Congress)",
+      "tags": [
+        "Manzanar",
+        "internment",
+        "landscape"
+      ]
+    },
+    {
+      "id": "harvest-of-death",
+      "file": "assets/harvest-of-death.jpg",
+      "title": "A Harvest of Death, Gettysburg, July 1863",
+      "artist": {
+        "name": "Timothy H. O'Sullivan",
+        "life": "c. 1840–1882",
+        "nationality": "American"
+      },
+      "date": "July 1863 (printed 1866)",
+      "medium": "Albumen print from glass negative; plate 36 of Gardner's Photographic Sketch Book of the War",
+      "dimensions": {
+        "width": 72,
+        "height": 60
+      },
+      "mat": true,
+      "collection": "Library of Congress holds copies of Gardner's Sketch Book; this scan: Google Art Project",
+      "provenance": [
+        {
+          "date": "5–6 July 1863",
+          "event": "Photographed on the battlefield at Gettysburg by O'Sullivan, working for Alexander Gardner"
+        },
+        {
+          "date": "1866",
+          "event": "Published by Gardner as plate 36 of the Photographic Sketch Book of the War"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Timothy_H._O%27Sullivan_-_A_Harvest_of_Death,_Gettysburg,_Pennsylvania_-_Google_Art_Project.jpg",
+      "rights": "Public domain",
+      "tags": [
+        "Civil War",
+        "Gettysburg"
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "depression",
+      "name": "Documenting the Depression",
+      "description": "The Farm Security Administration's photographers, 1936–1942.",
+      "width": 12,
+      "depth": 10,
+      "height": 4,
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "migrant-mother"
+            },
+            {
+              "artwork": "dust-storm-cimarron"
+            }
+          ]
+        },
+        "west": {
+          "artworks": [
+            {
+              "artwork": "allie-mae-burroughs"
+            }
+          ]
+        },
+        "south": {
+          "artworks": [
+            {
+              "artwork": "american-gothic-parks"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "portraits",
+      "name": "Portraits of a Nation",
+      "description": "Lincoln, Douglass and Tubman in the decade of the Civil War.",
+      "width": 11,
+      "depth": 9,
+      "height": 4,
+      "wallColor": "#2f3437",
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "frederick-douglass"
+            },
+            {
+              "artwork": "lincoln-gardner-1863"
+            },
+            {
+              "artwork": "harriet-tubman"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "witness",
+      "name": "Witness and Invention",
+      "description": "From Gettysburg to Kitty Hawk, the mills of Vermont and the camp at Manzanar.",
+      "width": 14,
+      "depth": 10,
+      "height": 4,
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "first-flight"
+            }
+          ]
+        },
+        "east": {
+          "artworks": [
+            {
+              "artwork": "addie-card"
+            }
+          ]
+        },
+        "south": {
+          "artworks": [
+            {
+              "artwork": "manzanar-farm-workers"
+            },
+            {
+              "artwork": "harvest-of-death"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "display": {
+    "sizing": "true"
+  },
+  "entrance": {
+    "enabled": false
+  }
+}

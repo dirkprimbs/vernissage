@@ -1,0 +1,19 @@
+{
+  "name": "@vernissage/generator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "bin": { "vernissage": "dist/cli.js" },
+  "scripts": {
+    "build": "esbuild src/cli.ts src/index.ts --bundle --platform=node --format=esm --target=node20 --outdir=dist --external:sharp --banner:js=\"import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vernissage/schema": "*",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

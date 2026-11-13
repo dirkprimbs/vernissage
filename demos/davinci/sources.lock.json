@@ -1,0 +1,152 @@
+{
+  "adoration-of-the-magi": {
+    "id": "adoration-of-the-magi",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/27/Leonardo_da_Vinci_-_Adorazione_dei_Magi_-_Google_Art_Project.jpg/3840px-Leonardo_da_Vinci_-_Adorazione_dei_Magi_-_Google_Art_Project.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Adorazione_dei_Magi_-_Google_Art_Project.jpg",
+    "licence": "Public domain",
+    "sha256": "95db620794ed590cb4e6d08331ce2f32ded7bef49f6ae1e1d6781d7407c0c2a6",
+    "width": 2400,
+    "height": 2276,
+    "fetched": "2026-11-13"
+  },
+  "annunciation": {
+    "id": "annunciation",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Leonardo_da_Vinci_-_Annunciazione_-_Google_Art_Project.jpg/3840px-Leonardo_da_Vinci_-_Annunciazione_-_Google_Art_Project.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Annunciazione_-_Google_Art_Project.jpg",
+    "licence": "Public domain",
+    "sha256": "8a2f040fb7bd9f52251ab0c73b9e8dead246bf86797d8baecee5c7245f622c23",
+    "width": 2400,
+    "height": 1089,
+    "fetched": "2026-11-13"
+  },
+  "baptism-of-christ": {
+    "id": "baptism-of-christ",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Andrea_del_Verrocchio%2C_Leonardo_da_Vinci_-_Baptism_of_Christ_-_Uffizi.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Andrea_del_Verrocchio,_Leonardo_da_Vinci_-_Baptism_of_Christ_-_Uffizi.jpg",
+    "licence": "Public domain",
+    "sha256": "054902a74e0cf601ee82d0651f277ad6f91eede15996a8b03f9b055f29f5ee3c",
+    "width": 1565,
+    "height": 1864,
+    "fetched": "2026-11-13"
+  },
+  "ginevra-de-benci": {
+    "id": "ginevra-de-benci",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Leonardo_da_Vinci_-_Ginevra_de%27_Benci_-_Google_Art_Project.jpg/3840px-Leonardo_da_Vinci_-_Ginevra_de%27_Benci_-_Google_Art_Project.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Ginevra_de%27_Benci_-_Google_Art_Project.jpg",
+    "licence": "Public domain",
+    "sha256": "030de492587bd76a573673dc7a5234cac0262f4ad4fb87c1373882a06f2ecd2e",
+    "width": 2264,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "la-belle-ferronniere": {
+    "id": "la-belle-ferronniere",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/4/4d/La_Belle_Ferroni%C3%A8re_-_Google_Arts.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:La_Belle_Ferroni%C3%A8re_-_Google_Arts.jpg",
+    "licence": "Public domain",
+    "sha256": "a9cef012263a9e2f2f7ab525af1d271a5ea14fb5d202040e0a6c3caa710f0697",
+    "width": 1655,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "la-scapigliata": {
+    "id": "la-scapigliata",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/b/b2/Lascapigliata.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Lascapigliata.jpg",
+    "licence": "Public domain",
+    "sha256": "ab5baa13082c832001084f95ea197526c53a3847e35db904f2b7e4733e7b3acb",
+    "width": 1430,
+    "height": 1859,
+    "fetched": "2026-11-13"
+  },
+  "lady-with-an-ermine": {
+    "id": "lady-with-an-ermine",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f9/Lady_with_an_Ermine_-_Leonardo_da_Vinci_-_Google_Art_Project.jpg/3840px-Lady_with_an_Ermine_-_Leonardo_da_Vinci_-_Google_Art_Project.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Lady_with_an_Ermine_-_Leonardo_da_Vinci_-_Google_Art_Project.jpg",
+    "licence": "Public domain",
+    "sha256": "26cada53f708d7804fe49ae4fae077691b39be734e384b5a4da79490b42b63dd",
+    "width": 1785,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "last-supper": {
+    "id": "last-supper",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/bb/Leonardo_da_Vinci_-_The_Last_Supper_high_res.jpg/3840px-Leonardo_da_Vinci_-_The_Last_Supper_high_res.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_The_Last_Supper_high_res.jpg",
+    "licence": "Public domain",
+    "sha256": "e7717925da83fe22a5c016863fd24801cc9dc7ed1329ed9669e1a520050eba12",
+    "width": 2400,
+    "height": 1305,
+    "fetched": "2026-11-13"
+  },
+  "mona-lisa": {
+    "id": "mona-lisa",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/3840px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+    "licence": "Public domain",
+    "sha256": "7661b3db2d51c55aeaf0309a2eed81fe7ff2c9b9d79b46eaa96f97fe93b17a3c",
+    "width": 1610,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "saint-john-the-baptist": {
+    "id": "saint-john-the-baptist",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Leonardo_da_Vinci_-_Saint_John_the_Baptist_C2RMF_retouched.jpg/3840px-Leonardo_da_Vinci_-_Saint_John_the_Baptist_C2RMF_retouched.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Saint_John_the_Baptist_C2RMF_retouched.jpg",
+    "licence": "Public domain",
+    "sha256": "3167848be7687a8c5f1e2427be6b27114af40a89d0f742e8886f38138c5f9443",
+    "width": 1854,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "self-portrait": {
+    "id": "self-portrait",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/3/38/Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg",
+    "licence": "Public domain",
+    "sha256": "b40db6efc17afcf676e49d8740c581198bd5fec18c7039c776bd96f78257e927",
+    "width": 1539,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "studies-of-embryos": {
+    "id": "studies-of-embryos",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/c/c9/Da_Vinci_Studies_of_Embryos_Luc_Viatour.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Da_Vinci_Studies_of_Embryos_Luc_Viatour.jpg",
+    "licence": "Public domain",
+    "sha256": "b006d6d19fc55e2875b78851b4286adef22f8d1a33bc20cf84d1905659d864cc",
+    "width": 1443,
+    "height": 2121,
+    "fetched": "2026-11-13"
+  },
+  "virgin-and-child-with-st-anne": {
+    "id": "virgin-and-child-with-st-anne",
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/44/Leonardo_da_Vinci_-_Virgin_and_Child_with_St_Anne_C2RMF_retouched.jpg/3840px-Leonardo_da_Vinci_-_Virgin_and_Child_with_St_Anne_C2RMF_retouched.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Virgin_and_Child_with_St_Anne_C2RMF_retouched.jpg",
+    "licence": "Public domain",
+    "sha256": "704989104e78c9b0f06afc48da57a2581f574dbdc2b90aba94ebbd7c1ba8f0a2",
+    "width": 1790,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "virgin-of-the-rocks": {
+    "id": "virgin-of-the-rocks",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/e/e4/Leonardo_Da_Vinci_-_Vergine_delle_Rocce_%28Louvre%29.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Leonardo_Da_Vinci_-_Vergine_delle_Rocce_(Louvre).jpg",
+    "licence": "Public domain",
+    "sha256": "393e8a5e7989047085b6b479cbd687ab0b04d9af7a746fa1cc6f61c4bb5f7bda",
+    "width": 1513,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  },
+  "vitruvian-man": {
+    "id": "vitruvian-man",
+    "source": "https://upload.wikimedia.org/wikipedia/commons/2/22/Da_Vinci_Vitruve_Luc_Viatour.jpg",
+    "page": "https://commons.wikimedia.org/wiki/File:Da_Vinci_Vitruve_Luc_Viatour.jpg",
+    "licence": "Public domain",
+    "sha256": "47b8d28f06a8ed01ed2ceefb31104e1ed6a8926f8beddf91f45ab63a0fa880ea",
+    "width": 1765,
+    "height": 2400,
+    "fetched": "2026-11-13"
+  }
+}

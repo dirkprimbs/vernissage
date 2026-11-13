@@ -1,0 +1,567 @@
+{
+  "schemaVersion": 5,
+  "title": "Masterpieces in Vector",
+  "subtitle": "Famous paintings, prints and photographs as SVG traces",
+  "intro": "Every work in this gallery is an **SVG**: a vector trace of a public-domain original, made automatically with VTracer in one of three styles: *posterised colour*, *ink* and *minimal*. Zoom in using focus mode and the edges stay sharp at any size.\n\nThe traces are interpretations, not reproductions. Each label names the original and where it is.",
+  "style": {
+    "preset": "industrial-loft"
+  },
+  "lighting": {
+    "scenario": "daylight"
+  },
+  "layout": {
+    "mode": "grid",
+    "columns": 2
+  },
+  "focus": {
+    "defaultLayout": "catalogue"
+  },
+  "artworks": [
+    {
+      "id": "starry-night",
+      "file": "assets/starry-night.svg",
+      "title": "Starry Night Over the Rhône",
+      "artist": {
+        "name": "Vincent van Gogh",
+        "life": "1853–1890",
+        "nationality": "Dutch"
+      },
+      "date": "September 1888",
+      "medium": "SVG vector trace (posterised colour, 16-colour palette) after oil on canvas",
+      "dimensions": {
+        "width": 92,
+        "height": 72.5
+      },
+      "collection": "Original: Musée d'Orsay, Paris (RF 1975 19)",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "float",
+      "provenance": [
+        {
+          "date": "1888",
+          "event": "Painted in Arles"
+        },
+        {
+          "date": "1889",
+          "event": "Shown at the Salon des Indépendants, Paris"
+        },
+        {
+          "date": "1975",
+          "event": "Entered the French national collections (Musée d'Orsay since 1986)"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: posterised"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "posterised"
+      ],
+      "description": "Painted on the bank of the Rhône a few minutes' walk from the Yellow House, a year before the more famous *Starry Night*. The gas lamps of Arles double in the water under the Plough."
+    },
+    {
+      "id": "great-wave",
+      "file": "assets/great-wave.svg",
+      "title": "The Great Wave off Kanagawa",
+      "artist": {
+        "name": "Katsushika Hokusai",
+        "life": "1760–1849",
+        "nationality": "Japanese"
+      },
+      "date": "c. 1830–1832",
+      "medium": "SVG vector trace (posterised colour, 16-colour palette) after colour woodblock print (from Thirty-six Views of Mount Fuji)",
+      "dimensions": {
+        "width": 37.9,
+        "height": 25.7
+      },
+      "collection": "Original: many impressions; e.g. The Metropolitan Museum of Art",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "float",
+      "provenance": [
+        {
+          "date": "c. 1831",
+          "event": "Published by Nishimuraya Yohachi (Eijudō), Edo"
+        },
+        {
+          "event": "Several thousand impressions printed; about a hundred survive in public collections"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: posterised"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Tsunami_by_hokusai_19th_century.jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "posterised"
+      ],
+      "description": "Printed with imported Prussian blue, then new to Japanese printmakers. Mount Fuji sits small in the trough of the wave."
+    },
+    {
+      "id": "girl-with-a-pearl-earring",
+      "file": "assets/girl-with-a-pearl-earring.svg",
+      "title": "Girl with a Pearl Earring",
+      "artist": {
+        "name": "Johannes Vermeer",
+        "life": "1632–1675",
+        "nationality": "Dutch"
+      },
+      "date": "c. 1665",
+      "medium": "SVG vector trace (posterised colour, 16-colour palette) after oil on canvas",
+      "dimensions": {
+        "width": 39,
+        "height": 44.5
+      },
+      "collection": "Original: Mauritshuis, The Hague (inv. 670)",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "float",
+      "provenance": [
+        {
+          "date": "1881",
+          "event": "Bought at auction in The Hague by Arnoldus Andries des Tombe for two guilders"
+        },
+        {
+          "date": "1902",
+          "event": "Bequeathed by des Tombe to the Mauritshuis"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: posterised"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Meisje_met_de_parel.jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "posterised"
+      ],
+      "description": "Not a portrait but a *tronie*, a study of a face in exotic costume. The pearl is two strokes of paint."
+    },
+    {
+      "id": "the-scream",
+      "file": "assets/the-scream.svg",
+      "title": "The Scream",
+      "artist": {
+        "name": "Edvard Munch",
+        "life": "1863–1944",
+        "nationality": "Norwegian"
+      },
+      "date": "1893",
+      "medium": "SVG vector trace (posterised colour, 16-colour palette) after tempera and crayon on cardboard",
+      "dimensions": {
+        "width": 73.5,
+        "height": 91
+      },
+      "collection": "Original: National Museum, Oslo",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "float",
+      "provenance": [
+        {
+          "date": "1893",
+          "event": "Painted in Berlin"
+        },
+        {
+          "date": "1910",
+          "event": "Given to the National Gallery, Oslo by Olaf Schou"
+        },
+        {
+          "date": "1994",
+          "event": "Stolen and recovered the same year"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: posterised"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Edvard_Munch,_1893,_The_Scream,_oil,_tempera_and_pastel_on_cardboard,_91_x_73_cm,_National_Gallery_of_Norway.jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "posterised"
+      ]
+    },
+    {
+      "id": "birth-of-venus",
+      "file": "assets/birth-of-venus.svg",
+      "title": "The Birth of Venus",
+      "artist": {
+        "name": "Sandro Botticelli",
+        "life": "c. 1445–1510",
+        "nationality": "Italian"
+      },
+      "date": "c. 1484–1486",
+      "medium": "SVG vector trace (posterised colour, 16-colour palette) after tempera on canvas",
+      "dimensions": {
+        "width": 278.9,
+        "height": 172.5
+      },
+      "collection": "Original: Gallerie degli Uffizi, Florence",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "float",
+      "provenance": [
+        {
+          "date": "1550",
+          "event": "Recorded by Vasari in the Medici villa at Castello"
+        },
+        {
+          "date": "1815",
+          "event": "Moved to the Uffizi"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: posterised"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:La_nascita_di_Venere_(Botticelli).jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "posterised"
+      ]
+    },
+    {
+      "id": "migrant-mother",
+      "file": "assets/migrant-mother.svg",
+      "title": "Migrant Mother",
+      "artist": {
+        "name": "Dorothea Lange",
+        "life": "1895–1965",
+        "nationality": "American"
+      },
+      "date": "1936",
+      "medium": "SVG vector trace (single-colour ink on paper) after gelatin silver photograph (FSA/OWI, Library of Congress LC-USF34-9058-C)",
+      "dimensions": {
+        "width": 48,
+        "height": 60
+      },
+      "collection": "Original: Library of Congress, Prints & Photographs Division",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "thin-black",
+      "provenance": [
+        {
+          "date": "1936",
+          "event": "Photographed at Nipomo, California, for the Resettlement Administration"
+        },
+        {
+          "date": "1944",
+          "event": "FSA/OWI file transferred to the Library of Congress"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: ink"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Lange-MigrantMother02.jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "ink"
+      ]
+    },
+    {
+      "id": "wanderer",
+      "file": "assets/wanderer.svg",
+      "title": "Wanderer above the Sea of Fog",
+      "artist": {
+        "name": "Caspar David Friedrich",
+        "life": "1774–1840",
+        "nationality": "German"
+      },
+      "date": "c. 1817",
+      "medium": "SVG vector trace (single-colour ink on paper) after oil on canvas",
+      "dimensions": {
+        "width": 74.8,
+        "height": 94.8
+      },
+      "collection": "Original: Hamburger Kunsthalle",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "thin-black",
+      "provenance": [
+        {
+          "date": "1970",
+          "event": "Acquired by the Hamburger Kunsthalle"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: ink"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Caspar_David_Friedrich_-_Wanderer_above_the_sea_of_fog.jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "ink"
+      ],
+      "description": "The ink trace keeps only the silhouette: the figure seen from behind (*Rückenfigur*) and the rocks, with the fog left as bare paper."
+    },
+    {
+      "id": "first-flight",
+      "file": "assets/first-flight.svg",
+      "title": "First Flight",
+      "artist": {
+        "name": "John T. Daniels",
+        "life": "1873–1948",
+        "nationality": "American"
+      },
+      "date": "17 December 1903",
+      "medium": "SVG vector trace (single-colour ink on paper) after glass plate negative (Library of Congress LC-DIG-ppprs-00626)",
+      "dimensions": {
+        "width": 90,
+        "height": 58
+      },
+      "collection": "Original: Library of Congress, Prints & Photographs Division",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "thin-black",
+      "provenance": [
+        {
+          "date": "1903",
+          "event": "Exposed at Kitty Hawk on Orville Wright's camera"
+        },
+        {
+          "event": "Wright brothers' negatives now at the Library of Congress"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: ink"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:First_flight3.jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "ink"
+      ]
+    },
+    {
+      "id": "sunflowers",
+      "file": "assets/sunflowers.svg",
+      "title": "Sunflowers",
+      "artist": {
+        "name": "Vincent van Gogh",
+        "life": "1853–1890",
+        "nationality": "Dutch"
+      },
+      "date": "August 1888",
+      "medium": "SVG vector trace (seven flat colours, polygonal) after oil on canvas",
+      "dimensions": {
+        "width": 73,
+        "height": 92.1
+      },
+      "collection": "Original: The National Gallery, London (NG3863)",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "float",
+      "provenance": [
+        {
+          "date": "1888",
+          "event": "Painted in Arles to decorate Gauguin's room in the Yellow House"
+        },
+        {
+          "date": "1924",
+          "event": "Bought for the National Gallery, London"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: minimal"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Sunflowers_(1888,_National_Gallery_London).jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "minimal"
+      ]
+    },
+    {
+      "id": "red-fuji",
+      "file": "assets/red-fuji.svg",
+      "title": "Fine Wind, Clear Morning (Red Fuji)",
+      "artist": {
+        "name": "Katsushika Hokusai",
+        "life": "1760–1849",
+        "nationality": "Japanese"
+      },
+      "date": "c. 1830–1832",
+      "medium": "SVG vector trace (seven flat colours, polygonal) after colour woodblock print (from Thirty-six Views of Mount Fuji)",
+      "dimensions": {
+        "width": 38,
+        "height": 25.7
+      },
+      "collection": "Original: many impressions",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "float",
+      "provenance": [
+        {
+          "date": "c. 1831",
+          "event": "Published by Nishimuraya Yohachi (Eijudō), Edo"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: minimal"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Red_Fuji_southern_wind_clear_morning.jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "minimal"
+      ]
+    },
+    {
+      "id": "milkmaid",
+      "file": "assets/milkmaid.svg",
+      "title": "The Milkmaid",
+      "artist": {
+        "name": "Johannes Vermeer",
+        "life": "1632–1675",
+        "nationality": "Dutch"
+      },
+      "date": "c. 1658",
+      "medium": "SVG vector trace (seven flat colours, polygonal) after oil on canvas",
+      "dimensions": {
+        "width": 41,
+        "height": 45.5
+      },
+      "collection": "Original: Rijksmuseum, Amsterdam (SK-A-2344)",
+      "credit": "Trace: Vernissage demo, from a public-domain image on Wikimedia Commons",
+      "frame": "float",
+      "provenance": [
+        {
+          "date": "1696",
+          "event": "Sold in the Dissius sale, Amsterdam"
+        },
+        {
+          "date": "1908",
+          "event": "Bought by the Rijksmuseum from the Six collection"
+        },
+        {
+          "date": "2026",
+          "event": "Vector trace generated with VTracer for the Vernissage demo",
+          "note": "Style: minimal"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Johannes_Vermeer_-_Het_melkmeisje_-_Google_Art_Project.jpg",
+      "rights": "Original in the public domain; trace dedicated to the public domain (CC0)",
+      "tags": [
+        "vector",
+        "minimal"
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "posterised",
+      "name": "Posterised Colour",
+      "description": "Sixteen colours, smooth curves.",
+      "width": 16,
+      "depth": 11,
+      "height": 5,
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "great-wave",
+              "scale": 2
+            },
+            {
+              "artwork": "starry-night"
+            },
+            {
+              "artwork": "girl-with-a-pearl-earring",
+              "scale": 1.4
+            }
+          ]
+        },
+        "west": {
+          "artworks": [
+            {
+              "artwork": "the-scream"
+            }
+          ]
+        },
+        "south": {
+          "artworks": [
+            {
+              "artwork": "birth-of-venus"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ink",
+      "name": "Ink",
+      "description": "One colour on paper: photographs and a Romantic silhouette.",
+      "width": 11,
+      "depth": 11,
+      "height": 4.5,
+      "wallColor": "#e9e4da",
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "migrant-mother"
+            },
+            {
+              "artwork": "first-flight"
+            }
+          ]
+        },
+        "east": {
+          "artworks": [
+            {
+              "artwork": "wanderer"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "minimal",
+      "name": "Minimal",
+      "description": "Seven flat colours and straight edges.",
+      "width": 11,
+      "depth": 11,
+      "height": 4.5,
+      "walls": {
+        "south": {
+          "artworks": [
+            {
+              "artwork": "sunflowers"
+            },
+            {
+              "artwork": "milkmaid",
+              "scale": 1.4
+            }
+          ]
+        },
+        "west": {
+          "artworks": [
+            {
+              "artwork": "red-fuji",
+              "scale": 2
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "display": {
+    "sizing": "true"
+  },
+  "entrance": {
+    "enabled": false
+  }
+}

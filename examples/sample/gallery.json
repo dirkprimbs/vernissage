@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 5,
+  "title": "Sample Gallery",
+  "subtitle": "A tiny test project for Vernissage",
+  "intro": "Five synthetic works in two rooms. Use this project to try the **studio** and the **generator**.",
+  "style": {
+    "preset": "industrial-loft"
+  },
+  "lighting": {
+    "scenario": "daylight"
+  },
+  "artworks": [
+    {
+      "id": "circles",
+      "file": "assets/circles.svg",
+      "title": "Three Circles",
+      "artist": {
+        "name": "Vernissage Studio",
+        "life": "2026–"
+      },
+      "date": "2026",
+      "medium": "SVG",
+      "dimensions": {
+        "width": 60,
+        "height": 80
+      },
+      "provenance": [
+        {
+          "date": "2026",
+          "event": "Created for the sample project"
+        }
+      ],
+      "description": "A simple **SVG** with an embedded script that the generator strips.",
+      "tags": [
+        "vector"
+      ]
+    },
+    {
+      "id": "lines",
+      "file": "assets/lines.svg",
+      "title": "Evening Lines",
+      "artist": {
+        "name": "Vernissage Studio"
+      },
+      "date": "2026",
+      "medium": "SVG",
+      "dimensions": {
+        "width": 100,
+        "height": 70
+      },
+      "frame": "float",
+      "provenance": []
+    },
+    {
+      "id": "dusk",
+      "file": "assets/dusk.jpg",
+      "title": "Dusk",
+      "artist": {
+        "name": "Vernissage Studio"
+      },
+      "date": "2026",
+      "medium": "JPEG",
+      "dimensions": {
+        "width": 90,
+        "height": 67.5
+      },
+      "label": "below",
+      "provenance": [
+        {
+          "date": "2026",
+          "event": "Rendered with sharp"
+        },
+        {
+          "date": "2026",
+          "event": "Added to the sample gallery",
+          "note": "Test of the provenance timeline"
+        }
+      ]
+    },
+    {
+      "id": "sun",
+      "file": "assets/sun.png",
+      "title": "Sun",
+      "artist": {
+        "name": "Vernissage Studio"
+      },
+      "medium": "PNG",
+      "provenance": [
+        {
+          "event": "Generated"
+        }
+      ]
+    },
+    {
+      "id": "panorama",
+      "file": "assets/panorama.jpg",
+      "title": "Panorama",
+      "artist": {
+        "name": "Vernissage Studio"
+      },
+      "date": "2026",
+      "medium": "JPEG",
+      "dimensions": {
+        "width": 500,
+        "height": 200
+      },
+      "frame": "gilt",
+      "provenance": [
+        {
+          "event": "Generated"
+        }
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "first",
+      "name": "First Room",
+      "description": "Raster and vector side by side.",
+      "width": 10,
+      "depth": 8,
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "circles"
+            },
+            {
+              "artwork": "lines"
+            }
+          ]
+        },
+        "west": {
+          "artworks": [
+            {
+              "artwork": "dusk"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "second",
+      "name": "Second Room",
+      "width": 9,
+      "depth": 9,
+      "height": 4.5,
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "panorama"
+            }
+          ]
+        },
+        "south": {
+          "artworks": [
+            {
+              "artwork": "sun"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "display": {
+    "sizing": "true"
+  },
+  "entrance": {
+    "enabled": false
+  }
+}

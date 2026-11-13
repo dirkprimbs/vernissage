@@ -1,0 +1,783 @@
+{
+  "schemaVersion": 5,
+  "title": "Leonardo da Vinci",
+  "subtitle": "Portraits, sacred works and notebooks, 1472–1519",
+  "intro": "Fifteen works by Leonardo da Vinci (1452–1519), from the early *Annunciation* to the late *Saint John the Baptist*. They hang in three rooms at true scale where the walls allow. The *Last Supper* is a mural in Milan and appears here as a full-size reproduction.\n\nImages: public-domain photographs via Wikimedia Commons. Provenance notes are condensed from the holding museums' published records.",
+  "style": {
+    "preset": "industrial-loft"
+  },
+  "lighting": {
+    "scenario": "daylight"
+  },
+  "environment": {
+    "landscape": "toronto"
+  },
+  "layout": {
+    "mode": "linear"
+  },
+  "focus": {
+    "defaultLayout": "side-by-side"
+  },
+  "artworks": [
+    {
+      "id": "mona-lisa",
+      "file": "assets/mona-lisa.jpg",
+      "title": "Mona Lisa (La Gioconda)",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1503–1519",
+      "medium": "Oil on poplar panel",
+      "dimensions": {
+        "width": 53,
+        "height": 77
+      },
+      "collection": "Musée du Louvre, Paris",
+      "accession": "Inv. 779",
+      "credit": "Musée du Louvre, Département des Peintures",
+      "provenance": [
+        {
+          "date": "c. 1503",
+          "event": "Begun in Florence, probably a portrait of Lisa Gherardini, wife of Francesco del Giocondo"
+        },
+        {
+          "date": "1516–1519",
+          "event": "Kept by Leonardo, who took it to France"
+        },
+        {
+          "date": "after 1519",
+          "event": "French royal collection under Francis I",
+          "note": "Possibly via Leonardo's pupil Salaì"
+        },
+        {
+          "date": "1797",
+          "event": "Placed in the new Musée du Louvre"
+        },
+        {
+          "date": "1800–1804",
+          "event": "Hung in Napoleon's bedroom at the Tuileries"
+        },
+        {
+          "date": "1911–1913",
+          "event": "Stolen from the Louvre by Vincenzo Peruggia; recovered in Florence"
+        },
+        {
+          "date": "1914",
+          "event": "Returned to the Louvre"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Mona_Lisa,_by_Leonardo_da_Vinci,_from_C2RMF_retouched.jpg",
+      "rights": "Public domain (photograph: C2RMF, via Wikimedia Commons)",
+      "description": "Probably the most famous painting in the world. Leonardo kept working on it for years, building the soft transitions of light and shade (*sfumato*) from thin glazes. The landscape behind the sitter does not quite line up on the two sides of her head.",
+      "tags": [
+        "portrait",
+        "sfumato",
+        "Louvre"
+      ]
+    },
+    {
+      "id": "lady-with-an-ermine",
+      "file": "assets/lady-with-an-ermine.jpg",
+      "title": "Lady with an Ermine",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1489–1491",
+      "medium": "Oil on walnut panel",
+      "dimensions": {
+        "width": 39.3,
+        "height": 53.4
+      },
+      "collection": "National Museum in Kraków (Czartoryski Museum)",
+      "credit": "Princes Czartoryski Foundation, National Museum in Kraków",
+      "provenance": [
+        {
+          "date": "c. 1490",
+          "event": "Painted in Milan; the sitter is identified as Cecilia Gallerani, companion of Ludovico Sforza"
+        },
+        {
+          "date": "c. 1800",
+          "event": "Bought in Italy by Prince Adam Jerzy Czartoryski for his mother Izabela's collection at Puławy"
+        },
+        {
+          "date": "1830s–1882",
+          "event": "Hidden and moved to Paris after the November Uprising; later returned to Kraków"
+        },
+        {
+          "date": "1939–1945",
+          "event": "Seized during the German occupation; recovered by the Allies in 1945"
+        },
+        {
+          "date": "2016",
+          "event": "Czartoryski collection acquired by the Polish state"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Lady_with_an_Ermine_-_Leonardo_da_Vinci_-_Google_Art_Project.jpg",
+      "rights": "Public domain (Google Art Project, via Wikimedia Commons)",
+      "description": "One of only four surviving portraits of women by Leonardo. The turn of the sitter, echoed by the alert ermine (a Sforza emblem and a pun on Gallerani's name, Greek *galê*), was a radically new way of making a portrait move.",
+      "tags": [
+        "portrait",
+        "Milan"
+      ]
+    },
+    {
+      "id": "ginevra-de-benci",
+      "file": "assets/ginevra-de-benci.jpg",
+      "title": "Ginevra de' Benci",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1474–1478",
+      "medium": "Oil on panel",
+      "dimensions": {
+        "width": 37,
+        "height": 38.1
+      },
+      "collection": "National Gallery of Art, Washington",
+      "accession": "1967.6.1.a",
+      "credit": "Ailsa Mellon Bruce Fund",
+      "provenance": [
+        {
+          "date": "c. 1474",
+          "event": "Painted in Florence, probably around Ginevra's marriage to Luigi Niccolini"
+        },
+        {
+          "date": "by 1733",
+          "event": "Princes of Liechtenstein, Vienna and later Vaduz"
+        },
+        {
+          "date": "1967",
+          "event": "Purchased by the National Gallery of Art",
+          "note": "The only painting by Leonardo in the Americas"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Ginevra_de%27_Benci_-_Google_Art_Project.jpg",
+      "rights": "Public domain (Google Art Project, via Wikimedia Commons)",
+      "description": "Leonardo's earliest known portrait. The juniper bush behind the sitter (*ginepro*) plays on her name. The panel was cut down at the bottom, probably removing her hands.",
+      "tags": [
+        "portrait",
+        "Florence"
+      ]
+    },
+    {
+      "id": "la-belle-ferronniere",
+      "file": "assets/la-belle-ferronniere.jpg",
+      "title": "La Belle Ferronnière",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1490–1497",
+      "medium": "Oil on walnut panel",
+      "dimensions": {
+        "width": 45,
+        "height": 63
+      },
+      "collection": "Musée du Louvre, Paris",
+      "accession": "Inv. 778",
+      "provenance": [
+        {
+          "date": "1490s",
+          "event": "Painted in Milan; the sitter may be Lucrezia Crivelli"
+        },
+        {
+          "date": "16th–17th century",
+          "event": "French royal collection, recorded at Fontainebleau"
+        },
+        {
+          "date": "1797",
+          "event": "Musée du Louvre"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:La_Belle_Ferronni%C3%A8re_-_Google_Arts.jpg",
+      "rights": "Public domain (Google Arts & Culture, via Wikimedia Commons)",
+      "description": "The title comes from a later confusion with a mistress of Francis I who was married to an ironmonger (*ferronnier*). The parapet in the foreground and the sitter's sideways glance hold the viewer at a distance.",
+      "tags": [
+        "portrait",
+        "Milan",
+        "Louvre"
+      ]
+    },
+    {
+      "id": "self-portrait",
+      "file": "assets/self-portrait.jpg",
+      "title": "Presumed Self-Portrait",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1512",
+      "medium": "Red chalk on paper",
+      "dimensions": {
+        "width": 21.6,
+        "height": 33.3
+      },
+      "collection": "Biblioteca Reale, Turin",
+      "frame": "thin-white",
+      "mat": true,
+      "provenance": [
+        {
+          "date": "c. 1512",
+          "event": "Drawn, probably in Milan"
+        },
+        {
+          "date": "1839",
+          "event": "Acquired by King Charles Albert of Sardinia for the Biblioteca Reale, Turin"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_presumed_self-portrait_-_WGA12798.jpg",
+      "rights": "Public domain (Web Gallery of Art, via Wikimedia Commons)",
+      "description": "Long accepted as Leonardo's only self-portrait, though some scholars think it shows an older man drawn earlier. It is very fragile and rarely shown.",
+      "tags": [
+        "drawing",
+        "red chalk"
+      ]
+    },
+    {
+      "id": "annunciation",
+      "file": "assets/annunciation.jpg",
+      "title": "Annunciation",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1472–1476",
+      "medium": "Oil and tempera on panel",
+      "dimensions": {
+        "width": 217,
+        "height": 98
+      },
+      "collection": "Gallerie degli Uffizi, Florence",
+      "provenance": [
+        {
+          "date": "1470s",
+          "event": "Painted in Verrocchio's workshop, Florence"
+        },
+        {
+          "date": "until 1867",
+          "event": "Monastery of San Bartolomeo at Monteoliveto, near Florence"
+        },
+        {
+          "date": "1867",
+          "event": "Transferred to the Uffizi"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Annunciazione_-_Google_Art_Project.jpg",
+      "rights": "Public domain (Google Art Project, via Wikimedia Commons)",
+      "description": "An early work, still partly in the manner of Verrocchio's workshop. The perspective is calculated for a viewer standing to the right and below, which explains the oddly long right arm of the Virgin when seen straight on.",
+      "tags": [
+        "religious",
+        "Uffizi"
+      ]
+    },
+    {
+      "id": "virgin-of-the-rocks",
+      "file": "assets/virgin-of-the-rocks.jpg",
+      "title": "Virgin of the Rocks",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "1483–1486",
+      "medium": "Oil on panel, transferred to canvas",
+      "dimensions": {
+        "width": 122,
+        "height": 199
+      },
+      "collection": "Musée du Louvre, Paris",
+      "accession": "Inv. 777",
+      "provenance": [
+        {
+          "date": "1483",
+          "event": "Commissioned by the Confraternity of the Immaculate Conception, San Francesco Grande, Milan"
+        },
+        {
+          "date": "c. 1500",
+          "event": "Probably left Milan for France; replaced by a second version, now in London"
+        },
+        {
+          "date": "1625",
+          "event": "Recorded at Fontainebleau in the French royal collection"
+        },
+        {
+          "date": "1797",
+          "event": "Musée du Louvre"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Leonardo_Da_Vinci_-_Vergine_delle_Rocce_(Louvre).jpg",
+      "rights": "Public domain (via Wikimedia Commons)",
+      "tags": [
+        "religious",
+        "Louvre"
+      ]
+    },
+    {
+      "id": "adoration-of-the-magi",
+      "file": "assets/adoration-of-the-magi.jpg",
+      "title": "Adoration of the Magi",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "1481–1482 (unfinished)",
+      "medium": "Oil on panel",
+      "dimensions": {
+        "width": 243,
+        "height": 246
+      },
+      "collection": "Gallerie degli Uffizi, Florence",
+      "provenance": [
+        {
+          "date": "1481",
+          "event": "Commissioned by the Augustinian friars of San Donato a Scopeto"
+        },
+        {
+          "date": "1482",
+          "event": "Left unfinished when Leonardo moved to Milan; kept in the house of Amerigo de' Benci"
+        },
+        {
+          "date": "17th–18th century",
+          "event": "Medici collections"
+        },
+        {
+          "date": "1794",
+          "event": "Uffizi"
+        },
+        {
+          "date": "2011–2017",
+          "event": "Restored by the Opificio delle Pietre Dure"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Adorazione_dei_Magi_-_Google_Art_Project.jpg",
+      "rights": "Public domain (Google Art Project, via Wikimedia Commons)",
+      "description": "Never finished, so it shows how Leonardo built a picture: the underdrawing and brown underpainting reveal a swirl of figures around the Virgin and, behind them, ruined architecture and fighting horsemen.",
+      "tags": [
+        "religious",
+        "unfinished",
+        "Uffizi"
+      ]
+    },
+    {
+      "id": "saint-john-the-baptist",
+      "file": "assets/saint-john-the-baptist.jpg",
+      "title": "Saint John the Baptist",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1513–1516",
+      "medium": "Oil on walnut panel",
+      "dimensions": {
+        "width": 57,
+        "height": 69
+      },
+      "collection": "Musée du Louvre, Paris",
+      "accession": "Inv. 775",
+      "provenance": [
+        {
+          "date": "1519",
+          "event": "Probably among the works with Leonardo in France at his death"
+        },
+        {
+          "date": "1630",
+          "event": "Given by Louis XIII to Charles I of England"
+        },
+        {
+          "date": "1650s",
+          "event": "Sold after Charles I's execution; bought by the banker Everhard Jabach"
+        },
+        {
+          "date": "1662",
+          "event": "Acquired by Louis XIV"
+        },
+        {
+          "date": "1797",
+          "event": "Musée du Louvre"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Saint_John_the_Baptist_C2RMF_retouched.jpg",
+      "rights": "Public domain (photograph: C2RMF, via Wikimedia Commons)",
+      "tags": [
+        "religious",
+        "late work",
+        "Louvre"
+      ]
+    },
+    {
+      "id": "virgin-and-child-with-st-anne",
+      "file": "assets/virgin-and-child-with-st-anne.jpg",
+      "title": "The Virgin and Child with Saint Anne",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1503–1519",
+      "medium": "Oil on poplar panel",
+      "dimensions": {
+        "width": 112,
+        "height": 168
+      },
+      "collection": "Musée du Louvre, Paris",
+      "accession": "Inv. 776",
+      "provenance": [
+        {
+          "date": "1519",
+          "event": "Unfinished in Leonardo's studio at his death"
+        },
+        {
+          "date": "1629",
+          "event": "Acquired in Casale Monferrato by Cardinal Richelieu"
+        },
+        {
+          "date": "1636",
+          "event": "Given by Richelieu to Louis XIII"
+        },
+        {
+          "date": "2010–2012",
+          "event": "Cleaned and restored at the Louvre"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_Virgin_and_Child_with_St_Anne_C2RMF_retouched.jpg",
+      "rights": "Public domain (photograph: C2RMF, via Wikimedia Commons)",
+      "tags": [
+        "religious",
+        "Louvre"
+      ]
+    },
+    {
+      "id": "baptism-of-christ",
+      "file": "assets/baptism-of-christ.jpg",
+      "title": "The Baptism of Christ",
+      "artist": {
+        "name": "Andrea del Verrocchio and Leonardo da Vinci",
+        "life": "c. 1435–1488 and 1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1472–1475",
+      "medium": "Oil and tempera on panel",
+      "dimensions": {
+        "width": 151,
+        "height": 177
+      },
+      "collection": "Gallerie degli Uffizi, Florence",
+      "provenance": [
+        {
+          "date": "1470s",
+          "event": "Painted in Verrocchio's workshop for the Vallombrosan monastery of San Salvi, Florence"
+        },
+        {
+          "date": "1810",
+          "event": "Transferred to the Accademia, Florence"
+        },
+        {
+          "date": "1914",
+          "event": "Uffizi"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Andrea_del_Verrocchio,_Leonardo_da_Vinci_-_Baptism_of_Christ_-_Uffizi.jpg",
+      "rights": "Public domain (via Wikimedia Commons)",
+      "description": "According to Vasari, the young Leonardo painted the angel on the far left so well that Verrocchio gave up painting. The softly modelled angel and the hazy landscape are usually given to Leonardo.",
+      "tags": [
+        "religious",
+        "workshop",
+        "Uffizi"
+      ]
+    },
+    {
+      "id": "last-supper",
+      "file": "assets/last-supper.jpg",
+      "title": "The Last Supper",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "1495–1498",
+      "medium": "Tempera and oil on gesso, pitch and mastic (mural); shown as a reproduction",
+      "dimensions": {
+        "width": 880,
+        "height": 460
+      },
+      "collection": "Refectory of Santa Maria delle Grazie, Milan",
+      "frame": "none",
+      "provenance": [
+        {
+          "date": "1495",
+          "event": "Commissioned by Ludovico Sforza, Duke of Milan, for the convent refectory"
+        },
+        {
+          "date": "early 1500s",
+          "event": "Already deteriorating because of Leonardo's experimental technique"
+        },
+        {
+          "date": "1796",
+          "event": "Refectory used by Napoleonic troops"
+        },
+        {
+          "date": "1943",
+          "event": "Refectory bombed; the mural survived behind sandbags"
+        },
+        {
+          "date": "1978–1999",
+          "event": "Restoration led by Pinin Brambilla Barcilon"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Leonardo_da_Vinci_-_The_Last_Supper_high_res.jpg",
+      "rights": "Public domain (via Wikimedia Commons)",
+      "description": "The moment just after Christ says that one of the apostles will betray him. Leonardo groups the twelve in threes and makes the vanishing point of the room fall on Christ's head.",
+      "tags": [
+        "mural",
+        "Milan",
+        "religious"
+      ]
+    },
+    {
+      "id": "vitruvian-man",
+      "file": "assets/vitruvian-man.jpg",
+      "title": "Vitruvian Man",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1490",
+      "medium": "Pen and ink with wash over metalpoint on paper",
+      "dimensions": {
+        "width": 24.5,
+        "height": 34.4
+      },
+      "collection": "Gallerie dell'Accademia, Venice",
+      "accession": "Inv. 228",
+      "frame": "thin-white",
+      "mat": true,
+      "provenance": [
+        {
+          "date": "1519",
+          "event": "Inherited with Leonardo's papers by Francesco Melzi"
+        },
+        {
+          "date": "early 19th century",
+          "event": "Collection of the painter Giuseppe Bossi, Milan"
+        },
+        {
+          "date": "1822",
+          "event": "Acquired by the Gallerie dell'Accademia, Venice"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Da_Vinci_Vitruve_Luc_Viatour.jpg",
+      "rights": "Public domain (photograph: Luc Viatour, via Wikimedia Commons)",
+      "description": "An illustration of the proportions of the human body described by the Roman architect Vitruvius. The figure fits both a circle and a square, with the navel and the groin as their respective centres.",
+      "tags": [
+        "drawing",
+        "proportion",
+        "notebooks"
+      ]
+    },
+    {
+      "id": "studies-of-embryos",
+      "file": "assets/studies-of-embryos.jpg",
+      "title": "Studies of the Foetus in the Womb",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1510–1513",
+      "medium": "Red and black chalk, pen and ink wash on paper",
+      "dimensions": {
+        "width": 22,
+        "height": 30.5
+      },
+      "collection": "Royal Collection Trust, Windsor",
+      "accession": "RCIN 919102",
+      "frame": "thin-white",
+      "mat": true,
+      "provenance": [
+        {
+          "date": "1519",
+          "event": "Inherited by Francesco Melzi"
+        },
+        {
+          "date": "c. 1590",
+          "event": "Sculptor Pompeo Leoni, who bound the anatomical sheets into an album"
+        },
+        {
+          "date": "by 1690",
+          "event": "English Royal Collection"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Da_Vinci_Studies_of_Embryos_Luc_Viatour.jpg",
+      "rights": "Public domain (photograph: Luc Viatour, via Wikimedia Commons)",
+      "tags": [
+        "drawing",
+        "anatomy",
+        "notebooks"
+      ]
+    },
+    {
+      "id": "la-scapigliata",
+      "file": "assets/la-scapigliata.jpg",
+      "title": "Head of a Woman (La Scapigliata)",
+      "artist": {
+        "name": "Leonardo da Vinci",
+        "life": "1452–1519",
+        "nationality": "Italian"
+      },
+      "date": "c. 1506–1508",
+      "medium": "Umber, green amber and white lead on poplar panel",
+      "dimensions": {
+        "width": 21,
+        "height": 24.7
+      },
+      "collection": "Complesso Monumentale della Pilotta, Galleria Nazionale, Parma",
+      "provenance": [
+        {
+          "event": "Possibly the work recorded in the Gonzaga collection, Mantua, in 1627"
+        },
+        {
+          "date": "1839",
+          "event": "Acquired for the gallery in Parma"
+        }
+      ],
+      "source": "https://commons.wikimedia.org/wiki/File:Lascapigliata.jpg",
+      "rights": "Public domain (via Wikimedia Commons)",
+      "tags": [
+        "unfinished",
+        "panel"
+      ]
+    }
+  ],
+  "rooms": [
+    {
+      "id": "portraits",
+      "name": "Portraits",
+      "description": "Four women painted in Florence and Milan, and the face of the artist himself.",
+      "width": 13,
+      "depth": 10,
+      "height": 4.6,
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "ginevra-de-benci"
+            },
+            {
+              "artwork": "mona-lisa"
+            },
+            {
+              "artwork": "la-belle-ferronniere"
+            }
+          ]
+        },
+        "west": {
+          "artworks": [
+            {
+              "artwork": "lady-with-an-ermine"
+            }
+          ]
+        },
+        "south": {
+          "artworks": [
+            {
+              "artwork": "self-portrait"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "sacred",
+      "name": "Sacred Works",
+      "description": "Altarpieces from the workshop years in Florence to the late works in France.",
+      "width": 16,
+      "depth": 13,
+      "height": 6,
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "annunciation"
+            },
+            {
+              "artwork": "adoration-of-the-magi"
+            }
+          ]
+        },
+        "south": {
+          "artworks": [
+            {
+              "artwork": "virgin-and-child-with-st-anne"
+            },
+            {
+              "artwork": "virgin-of-the-rocks"
+            }
+          ]
+        },
+        "east": {
+          "artworks": [
+            {
+              "artwork": "saint-john-the-baptist"
+            }
+          ]
+        },
+        "west": {
+          "artworks": [
+            {
+              "artwork": "baptism-of-christ"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "refectory",
+      "name": "The Refectory and the Notebooks",
+      "description": "The Last Supper at full size, opposite drawings from Leonardo's notebooks.",
+      "width": 16,
+      "depth": 12,
+      "height": 6.5,
+      "wallColor": "#3c2a22",
+      "walls": {
+        "north": {
+          "artworks": [
+            {
+              "artwork": "last-supper"
+            }
+          ]
+        },
+        "south": {
+          "artworks": [
+            {
+              "artwork": "vitruvian-man"
+            },
+            {
+              "artwork": "studies-of-embryos"
+            },
+            {
+              "artwork": "la-scapigliata"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "display": {
+    "sizing": "true"
+  },
+  "entrance": {
+    "enabled": false
+  }
+}

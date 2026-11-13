@@ -1,0 +1,68 @@
+[
+  {
+    "id": "starry-night",
+    "original": true,
+    "commons": "File:Vincent van Gogh - Starry Night - Google Art Project.jpg",
+    "trace": "posterised"
+  },
+  {
+    "id": "great-wave",
+    "original": true,
+    "commons": "File:Tsunami by hokusai 19th century.jpg",
+    "trace": "posterised"
+  },
+  {
+    "id": "girl-with-a-pearl-earring",
+    "original": true,
+    "commons": "File:Meisje met de parel.jpg",
+    "trace": "posterised"
+  },
+  {
+    "id": "the-scream",
+    "original": true,
+    "commons": "File:Edvard Munch, 1893, The Scream, oil, tempera and pastel on cardboard, 91 x 73 cm, National Gallery of Norway.jpg",
+    "trace": "posterised"
+  },
+  {
+    "id": "birth-of-venus",
+    "original": true,
+    "commons": "File:La nascita di Venere (Botticelli).jpg",
+    "trace": "posterised"
+  },
+  {
+    "id": "migrant-mother",
+    "original": true,
+    "commons": "File:Lange-MigrantMother02.jpg",
+    "trace": "ink"
+  },
+  {
+    "id": "wanderer",
+    "original": true,
+    "commons": "File:Caspar David Friedrich - Wanderer above the sea of fog.jpg",
+    "trace": "ink"
+  },
+  {
+    "id": "first-flight",
+    "original": true,
+    "commons": "File:First flight3.jpg",
+    "trace": "ink"
+  },
+  {
+    "id": "sunflowers",
+    "original": true,
+    "commons": "File:Vincent van Gogh - Sunflowers (1888, National Gallery London).jpg",
+    "trace": "minimal"
+  },
+  {
+    "id": "red-fuji",
+    "original": true,
+    "commons": "File:Red Fuji southern wind clear morning.jpg",
+    "trace": "minimal"
+  },
+  {
+    "id": "milkmaid",
+    "original": true,
+    "commons": "File:Johannes Vermeer - Het melkmeisje - Google Art Project.jpg",
+    "trace": "minimal"
+  }
+]

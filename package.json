@@ -1,0 +1,23 @@
+{
+  "name": "vernissage",
+  "private": true,
+  "version": "0.4.0",
+  "type": "module",
+  "workspaces": ["packages/schema", "packages/viewer", "packages/generator", "packages/studio"],
+  "scripts": {
+    "build": "npm run build -w @vernissage/viewer && npm run build -w @vernissage/generator",
+    "dev": "npm run dev -w @vernissage/viewer",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p packages/schema && tsc --noEmit -p packages/viewer && tsc --noEmit -p packages/generator",
+    "demos": "npm run build && node packages/generator/dist/cli.js build demos/davinci --out out/davinci && node packages/generator/dist/cli.js build demos/loc-photographs --out out/loc-photographs && node packages/generator/dist/cli.js build demos/svg-masterpieces --out out/svg-masterpieces",
+    "studio": "npm run build && npm run start -w @vernissage/studio",
+    "fetch-demos": "tsx scripts/fetch-demo-assets.ts",
+    "vectorise": "tsx scripts/vectorise.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}
