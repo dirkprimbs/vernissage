@@ -362,12 +362,17 @@ let dirtyTitle = '';
 /** a close the user has already confirmed */
 let closing = false;
 
+/** development aid: VERNISSAGE_SCREENSHOT with VERNISSAGE_SIZE=1600x900 captures offscreen at that size */
+const shotSize = process.env.VERNISSAGE_SCREENSHOT && /^\d+x\d+$/.test(process.env.VERNISSAGE_SIZE ?? '') ? process.env.VERNISSAGE_SIZE!.split('x').map(Number) as [number, number] : undefined;
+
 async function createWindow() {
   win = new BrowserWindow({
-    width: 1500, height: 940, minWidth: 1140, minHeight: 640,
+    width: shotSize?.[0] ?? 1500, height: shotSize?.[1] ?? 940, minWidth: 1140, minHeight: 640, useContentSize: !!shotSize,
     title: 'Vernissage Studio',
     backgroundColor: '#17171a',
-    webPreferences: { preload: join(here, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true },
+    // screenshots render offscreen at an exact size, whatever the window manager would do with a real window
+    show: !shotSize,
+    webPreferences: { preload: join(here, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, offscreen: !!shotSize },
   });
   // closing the window closes the app. With unsaved changes, ask first instead of refusing silently.
   win.on('close', (e) => {

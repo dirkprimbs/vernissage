@@ -2,9 +2,13 @@
 
 Design a multi-room 3D art gallery on your desktop and publish it as a **static website**. Visitors walk through the rooms in first person, read museum-style wall labels, and can switch at any moment to a 2D **focus mode** that shows the artwork full-screen with its provenance, or to a searchable **portfolio** grid.
 
-- **Vernissage Studio** (Electron) is where you set up rooms, walls, artworks, provenance, lighting scenarios, gallery styles and surroundings, with a live 3D preview.
+- **Vernissage Studio** (Electron) is where you set up rooms, walls, artworks, provenance, lighting and surroundings, with a live 3D preview.
 - The **generator** (also available as a CLI) turns a project folder into a self-contained site: one `index.html`, one script and optimised images. It needs no server-side code, so you can upload the output to any static host.
 - The project ships with three demos: **Leonardo da Vinci**, **American Photographs** (Library of Congress) and **Masterpieces in Vector** (SVG traces).
+
+![The Refectory room of the Leonardo da Vinci demo at dusk: the Last Supper at full size on one wall, the Toronto skyline through the windows](docs/screenshots/hero.jpg)
+
+*The Leonardo da Vinci demo at dusk: the* Last Supper *at full size, and Toronto across the harbour.*
 
 ## Quick start
 
@@ -34,6 +38,18 @@ Hubs was multi-user. A Vernissage gallery is visited alone and in first person, 
 
 | | |
 |---|---|
+| ![Toronto at night through the gallery windows, the CN Tower lit red](docs/screenshots/skyline.jpg) | ![Snow falling over the lake shore outside the American Photographs demo](docs/screenshots/snow.jpg) |
+| The sky follows Toronto's time and weather: night… | …or snow, live from Environment Canada or chosen in the Light menu. |
+| ![A room of the American Photographs demo under a glazed roof lantern on a cloudy day](docs/screenshots/photographs.jpg) | ![The Masterpieces in Vector demo at night, works lit by spotlights](docs/screenshots/vector-night.jpg) |
+| Daylight through the roof lanterns by day… | …and spotlights once it is dark. |
+| ![Focus mode: the Mona Lisa beside its label, description and provenance timeline](docs/screenshots/focus.jpg) | ![The wall label close-up of the Mona Lisa with its full provenance](docs/screenshots/label.jpg) |
+| Focus mode: the work, its label and its history. | The wall label up close, with the full provenance. |
+| ![The portfolio view of the American Photographs demo: a grid of photographs grouped by room](docs/screenshots/portfolio.jpg) | |
+| The portfolio: every work on one page, filtered by room. | |
+
+
+| | |
+|---|---|
 | **3D gallery** | You explore in first person. Move with WASD or ↑/↓, turn with ←/→ or snap-turn with Q/E, look by dragging, zoom with the mouse wheel (it narrows the view like binoculars, up to about 4×; press the wheel or Esc to reset), teleport with right-click. Click the floor to walk there and click a work to select it. There is a touch joystick on phones (long-press to teleport) and a minimap you can click to walk to a room. |
 | **Labels** | Each work has a "tombstone" card beside or below it: artist, life dates, title, date, medium, dimensions, credit line and a one-line provenance. Click it, press **L** or choose *Label* in the object menu for a close-up with the full provenance and adjustable text size. |
 | **Sky and surroundings** | A glazed roof lantern in every room 5 m wide or more and picture windows on bare outside walls look out on a lake. The sky is drawn live: drifting clouds, the sun in its real place, stars and the moon in its real phase at night. The scenery is a grassy island on a **lake shore** (dock, woods, hills) or the **Toronto skyline** across the harbour: the CN Tower, the Rogers Centre, the bank towers and the condo wall along the waterfront, all reflected in the water, with windows lighting up at dusk, a ferry and sailboats. The skyline faces the side of the building with the most window area. |
@@ -48,6 +64,9 @@ Hubs was multi-user. A Vernissage gallery is visited alone and in first person, 
 With `environment.weather` set to `live` (the default), each visitor's browser asks Environment and Climate Change Canada's public GeoMet API for Toronto's current conditions when the gallery opens and every 15 minutes after that. This is a request to a third party; it carries no cookies and no referrer. Set a fixed weather in the studio (*Gallery → Surroundings*) or in `gallery.json` to switch it off: the request is then never made and visitors are not offered "Live" weather. The time of day needs no request.
 
 ## Studio
+
+![Vernissage Studio: the Walls pane of the da Vinci demo on the left, the live 3D preview on the right](docs/screenshots/studio.jpg)
+
 
 Start a **new gallery** (one tall room: three walls for art, a windowed wall onto Toronto, an entry door), start **from a Google Photos album**, copy a demo, or open a project folder. A new project may use a folder that already has files in it: the studio names what is there and asks before deleting it, and refuses folders such as your home folder, Documents or Desktop.
 
@@ -177,7 +196,7 @@ scripts/rebuild-sample.sh [project] [out]   # rebuild viewer + generator and reg
 VERNISSAGE_SITE=out/davinci npm run dev     # viewer dev server against a built site
 ```
 
-Studio development hooks: `VERNISSAGE_OPEN=<project>` opens a project at launch. `VERNISSAGE_SCREENSHOT=<png>` (optionally with `VERNISSAGE_JS` and `VERNISSAGE_WAIT`) saves a capture of the window and quits.
+Studio development hooks: `VERNISSAGE_OPEN=<project>` opens a project at launch (without adding it to the recent list). `VERNISSAGE_SCREENSHOT=<png>` (optionally with `VERNISSAGE_JS`, `VERNISSAGE_WAIT`, and `VERNISSAGE_SIZE=1600x900` to render offscreen at an exact size) saves a capture of the window and quits.
 
 ## Licence
 
