@@ -36,9 +36,11 @@
     st.previewBase = info.previewBase;
     studio.onMenu(async (cmd) => {
       if (cmd === 'save') save();
+      else if (cmd === 'save-and-close') { if (await save()) studio.closeWindow(true); }
+      else if (cmd === 'close-project') closeProject();
       else if (cmd.startsWith('open:')) try { const p = await studio.openProject(cmd.slice(5)); if (p) st.load(p); } catch (e) { st.notify((e as Error).message, 'error'); }
     });
-    window.addEventListener('beforeunload', (e) => { if (st.dirty) e.preventDefault(); });
+
     // Ctrl/Cmd+E folds the editor away and brings it back
     window.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') { e.preventDefault(); toggleEditor(); } });
   });
@@ -48,9 +50,19 @@
     if (!showEditor) showPreview = true; // something has to be on screen
   }
 
+  /** returns whether the project was saved */
   async function save() {
-    try { await st.save(); } catch (e) { st.notify((e as Error).message, 'error'); }
+    try { await st.save(); return true; } catch (e) { st.notify((e as Error).message, 'error'); return false; }
   }
+
+  /** back to the start screen, to open or create another project */
+  function closeProject() {
+    if (!st.gallery) return;
+    if (!st.dirty || confirm('Close this project without saving your changes?')) st.gallery = null;
+  }
+
+  // the app needs to know about unsaved changes so that closing the window can ask about them
+  $effect(() => { studio.setDirty(!!st.gallery && st.dirty, st.gallery?.title); });
 
   function issueTarget(path: string) {
     const [head, idx] = path.split('.');
@@ -75,7 +87,7 @@
         {#if st.issues.length - st.errors.length}· {st.issues.length - st.errors.length} warnings{/if}
       </button>
       {#if showEditor}<button class="ghost" onclick={() => (showPreview = !showPreview)}>{showPreview ? 'Hide' : 'Show'} preview</button>{/if}
-      <button class="ghost" onclick={() => { if (!st.dirty || confirm('Discard unsaved changes?')) st.gallery = null; }}>Close</button>
+      <button class="ghost" onclick={() => studio.closeWindow()} title="Close Vernissage Studio (File › Close project returns to the start screen)">Close</button>
       <button class="primary" disabled={!st.dirty} onclick={save}>Save</button>
     </header>
 

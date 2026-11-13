@@ -349,15 +349,43 @@ function registerIpc() {
   });
 
   handle('shell:reveal', async (p: string) => { shell.showItemInFolder(p); return true; });
+
+  ipcMain.on('state:dirty', (_e, d: { dirty: boolean; title?: string }) => { dirty = !!d?.dirty; dirtyTitle = d?.title ?? ''; });
+  // the window asks to be closed: `confirmed` once it has saved (or there was nothing to save)
+  ipcMain.on('window:close', (_e, confirmed?: boolean) => { if (confirmed) closing = true; win?.close(); });
 }
 
 // ---------- window ----------
+/** the open project has unsaved changes (reported by the window) */
+let dirty = false;
+let dirtyTitle = '';
+/** a close the user has already confirmed */
+let closing = false;
+
 async function createWindow() {
   win = new BrowserWindow({
     width: 1500, height: 940, minWidth: 1140, minHeight: 640,
     title: 'Vernissage Studio',
     backgroundColor: '#17171a',
     webPreferences: { preload: join(here, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true },
+  });
+  // closing the window closes the app. With unsaved changes, ask first instead of refusing silently.
+  win.on('close', (e) => {
+    if (!dirty || closing) return;
+    e.preventDefault();
+    void (async () => {
+      const r = await dialog.showMessageBox(win!, {
+        type: 'question', title: 'Unsaved changes',
+        message: `Save the changes to “${dirtyTitle || 'this gallery'}” before closing?`,
+        detail: 'If you do not save, your changes since the last save are lost.',
+        buttons: ['Save', 'Don’t save', 'Cancel'], defaultId: 0, cancelId: 2, noLink: true,
+      });
+      if (r.response === 2) return;
+      // the window saves its own work and then asks to close again (see window:close)
+      if (r.response === 0) { win?.webContents.send('menu', 'save-and-close'); return; }
+      closing = true;
+      win?.close();
+    })();
   });
   win.webContents.setWindowOpenHandler(({ url }) => { if (/^https?:/.test(url)) shell.openExternal(url); return { action: 'deny' }; });
   win.webContents.on('will-navigate', (e) => e.preventDefault());
@@ -368,6 +396,7 @@ app.whenReady().then(async () => {
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     { label: 'File', submenu: [
       { label: 'Save', accelerator: 'CmdOrCtrl+S', click: () => win?.webContents.send('menu', 'save') },
+      { label: 'Close project', accelerator: 'CmdOrCtrl+W', click: () => win?.webContents.send('menu', 'close-project') },
       { type: 'separator' }, { role: 'quit' },
     ] },
     { role: 'editMenu' },

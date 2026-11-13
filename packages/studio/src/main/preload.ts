@@ -33,6 +33,10 @@ const api = {
     ipcRenderer.on('import:progress', l);
     return () => ipcRenderer.removeListener('import:progress', l);
   },
+  /** tell the app whether there are unsaved changes, so closing the window can ask */
+  setDirty: (dirty: boolean, title?: string) => ipcRenderer.send('state:dirty', { dirty, title }),
+  /** close the window (and the app); `confirmed` skips the unsaved-changes question */
+  closeWindow: (confirmed?: boolean) => ipcRenderer.send('window:close', confirmed),
   onMenu: (cb: (cmd: string) => void) => { ipcRenderer.on('menu', (_e, cmd: string) => cb(cmd)); },
 };
 

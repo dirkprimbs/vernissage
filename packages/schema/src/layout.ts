@@ -133,8 +133,11 @@ export function computeFloorPlan(g: Pick<Gallery, 'rooms' | 'layout'>): FloorPla
     pr.room.doorways?.forEach((d) => doors.push({ roomId: pr.room.id, wall: d.wall, offset: d.offset, width: d.width, height: doorHeight(pr.room) }));
   });
 
-  // automatic connections: for each wall, the nearest facing room with enough overlap
-  const MAX_GAP = 8;
+  // automatic connections: for each wall, the nearest facing room with enough overlap.
+  // Rooms placed by hand connect only where they touch (no corridors across open ground); the automatic
+  // arrangements already keep their rooms a gap apart.
+  const custom = g.layout.mode === 'custom';
+  const MAX_GAP = custom ? roomGap(g) + 0.05 : 8;
   const linked = new Set<string>();
   for (const a of rooms) {
     if (a.room.doorways) continue;
@@ -156,9 +159,10 @@ export function computeFloorPlan(g: Pick<Gallery, 'rooms' | 'layout'>): FloorPla
       if (!best) continue;
       const key = [a.room.id, best.b.room.id].sort().join('|');
       if (linked.has(key)) continue;
-      // only connect rooms consecutive in tour order, plus linear neighbours; avoids a maze of doors in grids
+      // in the automatic arrangements only rooms consecutive in tour order connect (no maze of doors in a grid);
+      // rooms placed by hand connect wherever they touch
       const consecutive = Math.abs(a.index - best.b.index) === 1;
-      if (!consecutive) continue;
+      if (!consecutive && !custom) continue;
       linked.add(key);
       const mid = (best.lo + best.hi) / 2;
       const width = Math.min(DOOR_WIDTH, best.hi - best.lo - 0.6);
@@ -290,4 +294,134 @@ export function blockersOn(g: Pick<Gallery, 'entrance' | 'environment' | 'rooms'
   const e = entranceOf(g, plan);
   const doors = doorsOn(plan, roomId, side);
   return e && e.roomId === roomId && e.wall === side ? [...doors, e].sort((x, y) => x.offset - y.offset) : doors;
+}
+
+/** the space between two neighbouring rooms' interiors: the gap setting, but never less than two wall thicknesses */
+export function roomGap(g: Pick<Gallery, 'layout'>): number {
+  return Math.max(g.layout.gap, 2 * WALL_THICKNESS);
+}
+
+/** two rooms must share at least this much wall for a doorway to fit between them */
+export const MIN_SHARED = DOOR_WIDTH + 0.6;
+
+interface Box { x: number; z: number; w: number; d: number }
+const boxOf = (r: Room, c: Vec2): Box => ({ x: c.x, z: c.z, w: r.width, d: r.depth });
+/** closer than `gap` on both axes means the rooms would run into each other */
+function collide(a: Box, b: Box, gap: number) {
+  return Math.abs(a.x - b.x) < (a.w + b.w) / 2 + gap - 1e-6 && Math.abs(a.z - b.z) < (a.d + b.d) / 2 + gap - 1e-6;
+}
+
+/** can every room be reached from the first through doorways? */
+export function connected(plan: FloorPlan): boolean {
+  if (plan.rooms.length < 2) return true;
+  const seen = new Set([plan.rooms[0].room.id]);
+  const queue = [plan.rooms[0].room.id];
+  while (queue.length) {
+    const id = queue.shift()!;
+    for (const d of plan.doors) if (d.roomId === id && d.to && !seen.has(d.to)) { seen.add(d.to); queue.push(d.to); }
+  }
+  return seen.size === plan.rooms.length;
+}
+
+/**
+ * Places a room may take against the others: flush with one of their sides (a gap apart), sliding along it as far as
+ * a doorway still fits. Positions that line edges or centres up are marked, so snapping can prefer them.
+ */
+function dockings(moving: { w: number; d: number }, others: Box[], gap: number, step = 0.25): Array<{ x: number; z: number; aligned: boolean }> {
+  const out: Array<{ x: number; z: number; aligned: boolean }> = [];
+  const q = (v: number) => Math.round(v * 1000) / 1000;
+  for (const o of others) {
+    for (const axis of ['x', 'z'] as const) {
+      // docking east/west of o means a fixed x and a sliding z, and the other way round
+      const fixedSpan = axis === 'x' ? (o.w + moving.w) / 2 + gap : (o.d + moving.d) / 2 + gap;
+      const slideCentre = axis === 'x' ? o.z : o.x;
+      const reach = axis === 'x' ? (o.d + moving.d) / 2 - MIN_SHARED : (o.w + moving.w) / 2 - MIN_SHARED;
+      if (reach < 0) continue;
+      const own = axis === 'x' ? moving.d : moving.w, theirs = axis === 'x' ? o.d : o.w;
+      const aligned = [slideCentre, slideCentre - theirs / 2 + own / 2, slideCentre + theirs / 2 - own / 2].filter((v) => Math.abs(v - slideCentre) <= reach + 1e-9);
+      const slides = new Set(aligned.map(q));
+      for (let v = Math.ceil((slideCentre - reach) / step) * step; v <= slideCentre + reach + 1e-9; v += step) slides.add(q(v));
+      for (const sign of [-1, 1]) {
+        const fixed = (axis === 'x' ? o.x : o.z) + sign * fixedSpan;
+        for (const v of slides) {
+          const isAligned = aligned.some((a) => Math.abs(a - v) < 1e-6);
+          out.push(axis === 'x' ? { x: q(fixed), z: v, aligned: isAligned } : { x: v, z: q(fixed), aligned: isAligned });
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/** how strongly a neat alignment pulls, in metres */
+const ALIGN_PULL = 0.45;
+
+/**
+ * Where a room dragged towards `wanted` should go in free placement: docked flush against another room, never
+ * overlapping one, and only where every room can still be reached. Returns undefined if no such place exists
+ * (the room should then stay where it was).
+ */
+export function snapRoom(g: Gallery, id: string, wanted: Vec2): Vec2 | undefined {
+  const i = g.rooms.findIndex((r) => r.id === id);
+  if (i < 0) return undefined;
+  const gap = roomGap(g);
+  const custom = { ...g, layout: { ...g.layout, mode: 'custom' as const } };
+  const centres = computeFloorPlan(custom).rooms.map((r) => r.centre);
+  const others = g.rooms.map((r, k) => boxOf(r, centres[k])).filter((_, k) => k !== i);
+  const me = { w: g.rooms[i].width, d: g.rooms[i].depth };
+  const ranked = dockings(me, others, gap)
+    .filter((c) => !others.some((o) => collide({ ...me, x: c.x, z: c.z }, o, gap)))
+    .map((c) => ({ ...c, cost: Math.hypot(c.x - wanted.x, c.z - wanted.z) - (c.aligned ? ALIGN_PULL : 0) }))
+    .sort((a, b) => a.cost - b.cost);
+  for (const c of ranked) {
+    const rooms = g.rooms.map((r, k) => ({ ...r, position: k === i ? { x: c.x, z: c.z } : centres[k] }));
+    if (connected(computeFloorPlan({ ...custom, rooms }))) return { x: c.x, z: c.z };
+  }
+  return undefined;
+}
+
+/**
+ * After rooms change size in free placement: keep the first room where it is and move each following room, if it
+ * now overlaps an earlier one or no longer touches any, to the nearest place against the earlier rooms.
+ * Returns the new centres (or undefined when nothing had to move).
+ */
+export function settleRooms(g: Gallery): Vec2[] | undefined {
+  if (g.layout.mode !== 'custom' || g.rooms.length < 2) return undefined;
+  const gap = roomGap(g);
+  const centres = computeFloorPlan(g).rooms.map((r) => ({ ...r.centre }));
+  let moved = false;
+  for (let i = 1; i < g.rooms.length; i++) {
+    const me = boxOf(g.rooms[i], centres[i]);
+    const earlier = g.rooms.slice(0, i).map((r, k) => boxOf(r, centres[k]));
+    const touches = (b: Box) => earlier.some((o) => {
+      const dx = Math.abs(b.x - o.x) - (b.w + o.w) / 2, dz = Math.abs(b.z - o.z) - (b.d + o.d) / 2;
+      const sharedZ = (b.d + o.d) / 2 - Math.abs(b.z - o.z), sharedX = (b.w + o.w) / 2 - Math.abs(b.x - o.x);
+      return (Math.abs(dx - gap) < 0.06 && sharedZ >= MIN_SHARED) || (Math.abs(dz - gap) < 0.06 && sharedX >= MIN_SHARED);
+    });
+    if (!earlier.some((o) => collide(me, o, gap)) && touches(me)) continue;
+    const best = dockings(me, earlier, gap)
+      .filter((c) => !earlier.some((o) => collide({ ...me, x: c.x, z: c.z }, o, gap)))
+      .sort((a, b) => Math.hypot(a.x - me.x, a.z - me.z) - Math.hypot(b.x - me.x, b.z - me.z))[0];
+    if (best) { centres[i] = { x: best.x, z: best.z }; moved = true; }
+  }
+  return moved ? centres : undefined;
+}
+
+/** Problems with rooms placed by hand: rooms running into each other, and rooms no doorway leads to. */
+export function planIssues(g: Gallery): Array<{ path: string; message: string; severity: 'error' | 'warning' }> {
+  if (g.layout.mode !== 'custom') return [];
+  const out: Array<{ path: string; message: string; severity: 'error' | 'warning' }> = [];
+  const plan = computeFloorPlan(g);
+  const gap = roomGap(g);
+  const boxes = plan.rooms.map((pr) => boxOf(pr.room, pr.centre));
+  for (let i = 0; i < boxes.length; i++) for (let j = i + 1; j < boxes.length; j++) {
+    if (collide(boxes[i], boxes[j], gap - 0.05)) out.push({ path: `rooms.${j}.position`, message: `"${g.rooms[j].name}" runs into "${g.rooms[i].name}"`, severity: 'error' });
+  }
+  if (!connected(plan)) {
+    const seen = new Set([plan.rooms[0].room.id]);
+    const queue = [plan.rooms[0].room.id];
+    while (queue.length) { const id = queue.shift()!; for (const d of plan.doors) if (d.roomId === id && d.to && !seen.has(d.to)) { seen.add(d.to); queue.push(d.to); } }
+    plan.rooms.forEach((pr, k) => { if (!seen.has(pr.room.id)) out.push({ path: `rooms.${k}.position`, message: `no doorway leads to "${pr.room.name}": place it against another room`, severity: 'warning' }); });
+  }
+  return out;
 }

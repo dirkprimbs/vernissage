@@ -1,5 +1,5 @@
 import { starterRoom } from '@vernissage/schema';
-import { parseGallery, WALL_SIDES, type Gallery, type ValidationIssue, type WallSide } from '@vernissage/schema';
+import { parseGallery, planIssues, WALL_SIDES, type Gallery, type ValidationIssue, type WallSide } from '@vernissage/schema';
 import { studio, type Meta, type ProjectInfo } from './api';
 
 export type Pane = 'gallery' | 'plan' | 'walls' | 'library' | 'build';
@@ -47,7 +47,8 @@ class StudioState {
 
   validate() {
     if (!this.gallery) return;
-    this.issues = parseGallery($state.snapshot(this.gallery)).issues;
+    const r = parseGallery($state.snapshot(this.gallery));
+    this.issues = r.gallery ? [...r.issues, ...planIssues(r.gallery)] : r.issues;
   }
 
   async save() {

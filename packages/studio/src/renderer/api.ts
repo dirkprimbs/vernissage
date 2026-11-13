@@ -22,6 +22,8 @@ export interface StudioApi {
   pathForFile(f: File): string;
   onBuildProgress(cb: (p: { step: string; done: number; total: number }) => void): () => void;
   onImportProgress(cb: (p: { step: string; done: number; total: number }) => void): () => void;
+  setDirty(dirty: boolean, title?: string): void;
+  closeWindow(confirmed?: boolean): void;
   onMenu(cb: (cmd: string) => void): void;
 }
 

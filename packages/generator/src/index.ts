@@ -3,7 +3,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promi
 import { dirname, join, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  SITE_DATA_ELEMENT_ID, WALL_SIDES, blockersOn, computeFloorPlan, hangWall, migrate, parseGallery, resolveStyle,
+  SITE_DATA_ELEMENT_ID, WALL_SIDES, blockersOn, computeFloorPlan, hangWall, planIssues, migrate, parseGallery, resolveStyle,
   type ArtAsset, type Gallery, type SiteData, type StyleDef, type ValidationIssue,
 } from '@vernissage/schema';
 import { copyVariant, processImage } from './images';
@@ -63,7 +63,9 @@ export async function loadProject(projectDir: string): Promise<{ gallery: Galler
   // asset existence
   const missing = res.gallery.artworks.filter((a) => !existsSync(join(projectDir, a.file)));
   if (missing.length) throw new BuildError('Missing artwork files', missing.map((a) => ({ path: `artworks.${res.gallery!.artworks.indexOf(a)}.file`, message: `file not found: ${a.file}`, severity: 'error' as const })));
-  return { gallery: res.gallery, issues: res.issues };
+  const plan = planIssues(res.gallery);
+  if (plan.some((i) => i.severity === 'error')) throw new BuildError('Rooms run into each other', plan);
+  return { gallery: res.gallery, issues: [...res.issues, ...plan] };
 }
 
 async function dirSize(dir: string): Promise<number> {

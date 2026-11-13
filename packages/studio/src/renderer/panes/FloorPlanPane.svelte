@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { WALL_SIDES, computeFloorPlan, entranceOf, wallHasWindows, type FloorPlan } from '@vernissage/schema';
+  import { untrack } from 'svelte';
+  import { WALL_SIDES, computeFloorPlan, entranceOf, settleRooms, snapRoom, wallHasWindows, type FloorPlan, type Gallery } from '@vernissage/schema';
   import { st, newRoom } from '../state.svelte';
 
   const g = $derived(st.gallery!);
@@ -43,11 +44,15 @@
   }
   function addRoom() {
     const r = newRoom(g.rooms.map((x) => x.id), g.rooms.length + 1) as (typeof g.rooms)[number];
-    // in free placement the new room goes to the east of the last one, a doorway's width away
+    // in free placement the new room docks against the last one, to the east if there is room there
     const last = plan?.rooms[plan.rooms.length - 1];
-    if (g.layout.mode === 'custom' && last) r.position = { x: Math.round((last.maxX + g.layout.gap + r.width / 2) * 2) / 2, z: last.centre.z };
+    if (g.layout.mode === 'custom' && last) r.position = { x: last.maxX + r.width / 2 + 0.4, z: last.centre.z };
     g.rooms.push(r);
     st.room = r.id;
+    if (g.layout.mode === 'custom' && last) {
+      const at = snapRoom($state.snapshot(g) as Gallery, r.id, r.position!);
+      if (at) g.rooms[g.rooms.length - 1].position = at;
+    }
   }
   const entrance = $derived(plan ? entranceOf($state.snapshot(g) as typeof g, plan) : undefined);
   function svgPoint(e: PointerEvent) {
@@ -70,9 +75,21 @@
     if (!drag) return;
     const p = svgPoint(e);
     const r = g.rooms.find((x) => x.id === drag!.id);
-    const snap = (v: number) => Math.round(v * 2) / 2;
-    if (r?.position) { r.position.x = snap(drag.ox + p.x - drag.x); r.position.z = snap(drag.oz + p.z - drag.z); }
+    if (!r?.position) return;
+    // the room follows the pointer but only ever lands docked against another room, never inside one
+    const at = snapRoom($state.snapshot(g) as Gallery, r.id, { x: drag.ox + p.x - drag.x, z: drag.oz + p.z - drag.z });
+    if (at && (at.x !== r.position.x || at.z !== r.position.z)) { r.position.x = at.x; r.position.z = at.z; }
   }
+
+  // in free placement, resizing, adding or removing a room moves the rooms after it so they still touch and never overlap
+  const shapeKey = $derived(g.layout.mode === 'custom' ? g.rooms.map((r) => `${r.id}:${r.width}x${r.depth}`).join('|') + `|${g.layout.gap}` : '');
+  $effect(() => {
+    if (!shapeKey || drag) return;
+    untrack(() => {
+      const next = settleRooms($state.snapshot(g) as Gallery);
+      if (next) g.rooms.forEach((r, i) => { r.position = { x: next[i].x, z: next[i].z }; });
+    });
+  });
 </script>
 
 <h1>Floor plan</h1>
@@ -86,7 +103,7 @@
   {#if g.layout.mode === 'grid'}<label>Columns <input type="number" min="1" max="10" bind:value={g.layout.columns} /></label>{/if}
   <label>Gap between rooms (m) <input type="number" min="0.4" max="10" step="0.1" bind:value={g.layout.gap} /></label>
 </div>
-<p class="muted small">Drag a room to position it. Doorways are added automatically between rooms that follow each other and face each other across a gap of up to 8 m. Blue: windowed walls. Green: the entry door.</p>
+<p class="muted small">Drag a room to position it: it docks against the side of another room and slides along it, never into one or away from the others. Rooms that touch get a doorway between them. Blue: windowed walls. Green: the entry door.</p>
 
 <div class="plan-wrap">
   {#if plan}
