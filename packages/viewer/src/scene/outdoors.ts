@@ -40,7 +40,7 @@ export class Outdoors {
   private centre: THREE.Vector3;
   private calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  constructor(private renderer: THREE.WebGLRenderer, plan: FloorPlan, landscape: LandscapeId, private north: THREE.Vector3, initial: SkyState, quality: Quality) {
+  constructor(private renderer: THREE.WebGLRenderer, plan: FloorPlan, readonly landscape: LandscapeId, private north: THREE.Vector3, initial: SkyState, quality: Quality) {
     this.state = cloneState(initial);
     this.target = cloneState(initial);
     const b = plan.bounds;
@@ -123,6 +123,19 @@ export class Outdoors {
       this.scene.environmentIntensity = 0.9;
       old?.dispose();
     }
+  }
+
+  dispose() {
+    this.envTarget?.dispose();
+    this.pmrem.dispose();
+    this.lake.dispose();
+    this.scene.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m === this.lake.mesh) return;
+      m.geometry?.dispose();
+      const mats = Array.isArray(m.material) ? m.material : m.material ? [m.material] : [];
+      for (const mat of mats) { (mat as THREE.MeshStandardMaterial).map?.dispose(); (mat as THREE.MeshStandardMaterial).emissiveMap?.dispose(); mat.dispose(); }
+    });
   }
 
   /** draw the outdoors as seen by the visitor's camera */

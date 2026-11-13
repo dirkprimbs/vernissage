@@ -4,11 +4,20 @@
 
   let src = $state('');
   let status = $state('');
+  let frame = $state<HTMLIFrameElement>();
+  /** the preview page is up and takes edits without reloading */
+  let ready = false;
   let n = 0;
+  let lastKey = -1;
 
-  // keep the visitor in the same room across reloads
   $effect(() => {
-    const onMsg = (e: MessageEvent) => { if (e.data?.type === 'vernissage:room') st.previewRoom = e.data.id; };
+    const onMsg = (e: MessageEvent) => {
+      if (e.source !== frame?.contentWindow) return;
+      // keep the visitor in the same room across reloads
+      if (e.data?.type === 'vernissage:room') st.previewRoom = e.data.id;
+      else if (e.data?.type === 'vernissage:ready') ready = true;
+      else if (e.data?.type === 'vernissage:reload') { ready = false; st.previewKey += 1; }
+    };
     window.addEventListener('message', onMsg);
     return () => window.removeEventListener('message', onMsg);
   });
@@ -16,8 +25,10 @@
   $effect(() => {
     if (!st.gallery) return;
     const snap = JSON.stringify(st.gallery);
-    void st.previewKey;
-    status = 'Updating…';
+    const key = st.previewKey;
+    // a reload (the Reload button, or the page asking for one) starts over; ordinary edits go straight in
+    const reload = !ready || key !== lastKey;
+    status = reload ? 'Updating…' : '';
     const t = setTimeout(async () => {
       try {
         const data = JSON.parse(snap);
@@ -25,11 +36,18 @@
         if (Array.isArray(data.menu)) data.menu = data.menu.filter((l: { label?: string; url?: string }) => l.label?.trim() && /^https?:\/\/\S+\.\S+/.test(l.url ?? ''));
         const r = await studio.updatePreview(data);
         if (!r.ok) { status = 'Fix the errors to update the preview'; return; }
+        if (!reload && ready && frame?.contentWindow) {
+          frame.contentWindow.postMessage({ type: 'vernissage:data', site: r.site }, st.previewBase);
+          status = '';
+          return;
+        }
+        lastKey = key;
+        ready = false;
         const room = st.previewRoom && st.gallery?.rooms.some((x) => x.id === st.previewRoom) ? `#/room/${st.previewRoom}` : '#/';
-        src = `${r.url}?enter&v=${++n}${room}`;
+        src = `${r.url}?enter&studio&v=${++n}${room}`;
         status = '';
       } catch (e) { status = (e as Error).message; }
-    }, 700);
+    }, reload ? 500 : 120);
     return () => clearTimeout(t);
   });
 </script>
@@ -40,7 +58,7 @@
   <button class="ghost small" onclick={() => (st.previewKey += 1)}>Reload</button>
 </div>
 {#if src}
-  <iframe title="Gallery preview" {src}></iframe>
+  <iframe bind:this={frame} title="Gallery preview" {src}></iframe>
 {:else}
   <div class="preview-empty muted">{status || 'Preparing preview…'}</div>
 {/if}

@@ -50,6 +50,8 @@ export class LightingRig {
     if (this.def) this.apply(this.def);
   }
 
+  detachTorch(parent: THREE.Object3D) { parent.remove(this.torch, this.torch.target); }
+
   attachTorch(parent: THREE.Object3D) {
     parent.add(this.torch, this.torch.target);
     this.torch.position.set(0.25, 1.45, 0.1);

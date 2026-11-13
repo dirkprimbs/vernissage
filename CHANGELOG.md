@@ -15,6 +15,8 @@
 - **Menu bar:** up to eight links to other web pages (`menu`), shown at the top of the gallery and the portfolio; on narrow screens they fold into a Menu button.
 - **Portfolio button** in the gallery's toolbar (it was hidden in More). The portfolio keeps its room filter and drops the search field.
 - **Studio:** the editor has a fixed width and the preview takes the rest of the window. The start screen fits the window in two columns, and recent projects show the folder name first. Projects opened by the development hook no longer enter the recent list.
+- **Live preview without reloading.** Edits in the studio are sent into the running preview, which rebuilds the rooms in place (about 40 ms for a two-room gallery): you keep your position and view, loaded images are reused, and the outdoors is rebuilt only when the scenery or the building's footprint changes. The Reload button still reloads fully.
+- **Size sliders that behave.** Resizing one work no longer changes the others: a wall's common size is worked out as if every work were at its normal size. Only when the resized works no longer fit does everything shrink together, with a warning ("the wall is full: all works shown at 78% to fit"). Each work shows its actual size in cm beside its slider. Only the grip (⠿) and the thumbnail pick a work up for moving to another wall, so dragging a slider no longer drags the row.
 - Schema v5: `entrance`, `display.sizing`, `walls.<side>.windows`. Older projects are migrated and keep their behaviour.
 
 ## 0.3.0 — 2026-11-13

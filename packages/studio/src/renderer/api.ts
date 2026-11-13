@@ -14,7 +14,7 @@ export interface StudioApi {
   save(gallery: unknown): Promise<boolean>;
   importAssets(paths?: string[]): Promise<ImportedAsset[]>;
   assetMeta(files: string[]): Promise<Record<string, Meta>>;
-  updatePreview(gallery: unknown): Promise<{ ok: boolean; url?: string; issues: ValidationIssue[] }>;
+  updatePreview(gallery: unknown): Promise<{ ok: boolean; url?: string; issues: ValidationIssue[]; site?: unknown }>;
   chooseOutDir(): Promise<string | null>;
   build(opts: { outDir: string; basePath?: string; force?: boolean }): Promise<BuildReport>;
   openSite(dir: string): Promise<string>;

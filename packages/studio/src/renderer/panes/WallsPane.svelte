@@ -103,18 +103,21 @@
         <ol class="placements">
           {#each w.artworks as p, i (p.artwork)}
             {@const a = byId.get(p.artwork)}
-            <li draggable="true" ondragstart={(e) => startDrag(e, p.artwork)}>
-              {#if a}<img src={st.thumb(a.file)} alt="" />{/if}
+            {@const hw = res.works[i]}
+            <li class="hung">
+              <!-- only the grip and the thumbnail pick the work up, so the slider can be dragged freely -->
+              <span class="grip" draggable="true" ondragstart={(e) => startDrag(e, p.artwork)} title="Drag to another wall" aria-hidden="true">⠿</span>
+              {#if a}<img src={st.thumb(a.file)} alt="" draggable="true" ondragstart={(e) => startDrag(e, p.artwork)} />{/if}
               <button class="link" onclick={() => { st.artwork = p.artwork; st.pane = 'library'; }}>{a?.title ?? p.artwork}</button>
-              <span class="spacer"></span>
-              <label class="small size-row" title={auto ? 'Size compared with the other works on this wall' : 'Extra scale on top of the real size'}>Size
-                <input type="range" min="0.4" max="2.5" step="0.05" value={p.scale ?? 1} oninput={(e) => (p.scale = +e.currentTarget.value === 1 ? undefined : +e.currentTarget.value)} />
-                <output>{Math.round((p.scale ?? 1) * 100)}%</output>
-                {#if p.scale !== undefined}<button class="link small" onclick={() => (p.scale = undefined)}>reset</button>{/if}
-              </label>
               <button class="ghost small" onclick={() => move(side, i, -1)} disabled={i === 0} aria-label="Move left">←</button>
               <button class="ghost small" onclick={() => move(side, i, 1)} disabled={i === w.artworks.length - 1} aria-label="Move right">→</button>
               <button class="ghost small danger" onclick={() => st.unhang(p.artwork)} aria-label="Take down">✕</button>
+              <label class="small size-row" title={auto ? 'Size compared with the other works on this wall' : 'Extra scale on top of the real size'}>Size
+                <input type="range" min="0.4" max="2.5" step="0.05" value={p.scale ?? 1} aria-label="Size of {a?.title ?? p.artwork}" oninput={(e) => (p.scale = +e.currentTarget.value === 1 ? undefined : +e.currentTarget.value)} />
+                <output>{Math.round((p.scale ?? 1) * 100)}%</output>
+                {#if hw}<span class="actual" title="Size of the picture on the wall, without frame">{Math.round(hw.width * 100)} × {Math.round(hw.height * 100)} cm</span>{/if}
+                <button class="link small reset" style:visibility={p.scale === undefined ? 'hidden' : 'visible'} onclick={() => (p.scale = undefined)}>reset</button>
+              </label>
             </li>
           {:else}<li class="muted small">{w.windows ? 'A windowed wall: it shows the view' : 'Drop artworks here'}</li>{/each}
         </ol>

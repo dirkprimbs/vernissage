@@ -42,6 +42,28 @@ describe('auto sizing', () => {
     expect(works[2].width / works[0].width).toBeCloseTo(0.6, 2);
   });
 
+  it('resizing one work leaves the others alone while the wall has room', () => {
+    const before = auto([0.75, 0.75, 0.75], 12).works;
+    const after = auto([0.75, 0.75, 0.75], 12, [undefined, 1.4, undefined]);
+    expect(after.warnings).toEqual([]);
+    expect(after.works[0].width).toBeCloseTo(before[0].width, 6);
+    expect(after.works[2].width).toBeCloseTo(before[2].width, 6);
+    expect(after.works[1].width).toBeCloseTo(before[1].width * 1.4, 6);
+    const smaller = auto([0.75, 0.75, 0.75], 12, [0.5]);
+    expect(smaller.works[1].width).toBeCloseTo(before[1].width, 6);
+  });
+
+  it('shrinks everything together, and says so, only when the wall is full', () => {
+    const many = Array(7).fill(0.75);
+    const base = auto(many, 12).works;
+    const full = auto(many, 12, [2.5, 2.5]);
+    expect(full.warnings.join()).toMatch(/wall is full/);
+    expect(full.works[3].width).toBeLessThan(base[3].width);
+    expect(full.works[0].width / full.works[3].width).toBeCloseTo(2.5, 2);
+    const w = full.works;
+    for (let i = 1; i < w.length; i++) expect(w[i].offset - w[i].outerW / 2).toBeGreaterThan(w[i - 1].label.offset + w[i - 1].label.w / 2);
+  });
+
   it('keeps a lone work a picture, not a mural, and respects low ceilings', () => {
     expect(auto([0.37], 20).works[0].height).toBeLessThanOrEqual(1.75 + 1e-6);
     expect(auto([3.5], 20).works[0].width).toBeLessThanOrEqual(3.4 + 1e-6);

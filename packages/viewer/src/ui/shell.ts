@@ -334,6 +334,13 @@ export class Shell {
   }
 
   // ---------- room, notifications, progress, map ----------
+  /** the gallery's data changed (the studio's live preview): recount the tour, refresh what is open */
+  refresh() {
+    this.order = tourOrder(this.data).filter((id) => this.g3d.built.artworks.some((a) => a.id === id));
+    (this.roomChip.firstChild as HTMLElement).textContent = this.data.gallery.title;
+    if (this.side) this.renderSidebar();
+  }
+
   setRoom(r: PlacedRoom) {
     (this.roomChip.lastChild as HTMLElement).textContent = r.room.name;
     this.notify(`Entered ${r.room.name}`, r.room.description);

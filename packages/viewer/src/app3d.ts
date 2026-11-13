@@ -44,10 +44,14 @@ export class Gallery3D {
   readonly renderer: THREE.WebGLRenderer;
   readonly scene = new THREE.Scene();
   readonly camera = new THREE.PerspectiveCamera(60, 1, 0.05, 300);
-  readonly built: BuiltGallery;
-  readonly lighting: LightingRig;
+  built: BuiltGallery;
+  lighting: LightingRig;
   /** sky, lake, landscape and weather: a scene of its own, drawn behind the rooms */
-  readonly outdoors: Outdoors;
+  outdoors: Outdoors;
+  /** artwork images already loaded, by URL: a rebuild reuses them instead of loading again */
+  private texCache = new Map<string, THREE.Texture>();
+  private quality: Quality;
+  private lightingId: LightingId;
   readonly input: Input;
   /** the visitor's position on the floor; it also carries the night-tour torch */
   private body = new THREE.Object3D();
@@ -78,7 +82,9 @@ export class Gallery3D {
   private marker: TeleportMarker;
   private aimTarget?: THREE.Vector3;
 
-  constructor(private container: HTMLElement, private data: SiteData, style: StyleDef, quality: Quality, outside: { sun: SunPosition; weather: Weather }, private opts: Gallery3DOptions, private ev: Gallery3DEvents = {}) {
+  constructor(private container: HTMLElement, private data: SiteData, private style: StyleDef, quality: Quality, outside: { sun: SunPosition; weather: Weather }, private opts: Gallery3DOptions, private ev: Gallery3DEvents = {}) {
+    this.quality = quality;
+    this.lightingId = data.gallery.lighting.scenario;
     this.renderer = new THREE.WebGLRenderer({ antialias: quality !== 'low', powerPreference: 'high-performance' });
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -129,10 +135,10 @@ export class Gallery3D {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, cap));
   }
 
-  setQuality(q: Quality) { this.setPixelRatio(q); this.lighting.setQuality(q); this.outdoors.setQuality(q); this.resize(); }
+  setQuality(q: Quality) { this.quality = q; this.setPixelRatio(q); this.lighting.setQuality(q); this.outdoors.setQuality(q); this.resize(); }
   /** the sun's place and the weather outside; the sky eases over unless `snap` */
   setOutside(sun: SunPosition, weather: Weather, snap = false) { this.outdoors.set(skyState(sun, weather, this.built.outlook), snap); }
-  setLighting(id: LightingId) { this.lighting.apply(resolveLighting(id, id === this.data.gallery.lighting.scenario ? this.data.gallery.lighting.overrides : {})); }
+  setLighting(id: LightingId) { this.lightingId = id; this.lighting.apply(resolveLighting(id, id === this.data.gallery.lighting.scenario ? this.data.gallery.lighting.overrides : {})); }
   get selectedArtwork() { return this.selected; }
 
   /** entry-screen mode: the camera slowly circles the first room, input is off */
@@ -212,28 +218,96 @@ export class Gallery3D {
     this.camera.updateProjectionMatrix();
   }
 
+  /**
+   * Rebuild the rooms from `this.data` (changed in place by the caller) without reloading the page: the visitor
+   * keeps their position and view, loaded images are reused, and the outdoors is rebuilt only if the scenery or
+   * the building's footprint changed. Used by the studio's live preview.
+   */
+  rebuild(style: StyleDef) {
+    this.style = style;
+    const oldBuilt = this.built;
+    const sel = this.selected?.id;
+    const keepTex = new Set(this.texCache.values());
+    const free = (root: THREE.Object3D) => root.traverse((o) => {
+      const m = o as THREE.Mesh;
+      m.geometry?.dispose();
+      const mats = Array.isArray(m.material) ? m.material : m.material ? [m.material] : [];
+      for (const mat of mats) {
+        for (const t of [(mat as THREE.MeshStandardMaterial).map, (mat as THREE.MeshStandardMaterial).emissiveMap]) if (t && !keepTex.has(t)) t.dispose();
+        mat.dispose();
+      }
+    });
+
+    this.scene.remove(oldBuilt.root);
+    free(oldBuilt.root);
+    this.built = buildGallery(this.data, style, this.renderer);
+    this.scene.add(this.built.root);
+    this.pictures = [...this.built.artworks.flatMap((a) => [a.picture, ...a.group.children.filter((c) => c.userData.artworkId)]), ...(this.built.entrance?.meshes ?? [])];
+
+    // a fresh light rig for the new rooms; the torch moves over to it
+    this.scene.remove(this.lighting.group);
+    this.lighting.detachTorch(this.body);
+    free(this.lighting.group);
+    const scenario = this.data.gallery.lighting.scenario;
+    this.lighting = new LightingRig(this.built, this.scene, this.quality);
+    this.scene.add(this.lighting.group);
+    this.lighting.apply(resolveLighting(this.lightingId, this.lightingId === scenario ? this.data.gallery.lighting.overrides : {}));
+    this.lighting.attachTorch(this.body);
+
+    const a = oldBuilt.plan.bounds, b = this.built.plan.bounds;
+    const moved = [a.minX - b.minX, a.maxX - b.maxX, a.minZ - b.minZ, a.maxZ - b.maxZ].some((d) => Math.abs(d) > 0.01);
+    if (moved || this.outdoors.landscape !== this.data.gallery.environment.landscape || oldBuilt.outlook.distanceTo(this.built.outlook) > 0.01) {
+      const sky = this.outdoors.state;
+      this.outdoors.dispose();
+      this.outdoors = new Outdoors(this.renderer, this.built.plan, this.data.gallery.environment.landscape, this.built.outlook, sky, this.quality);
+    }
+
+    // stay where we are if that is still inside a room; otherwise start over at the entrance
+    this.path = []; this.arriveArt = undefined; this.hovered = undefined; this.near = undefined;
+    this.selected = undefined;
+    if (!roomAt(this.built.plan, this.position)) this.spawn();
+    else { const p = resolveCollision({ x: this.position.x, z: this.position.z }, RADIUS, this.built.segments); this.position.set(p.x, 0, p.z); }
+    // the same room under its new shape: no "Entered …" notice for a room the visitor never left
+    const same = this.room && this.built.plan.rooms.find((r) => r.room.id === this.room!.room.id);
+    this.room = same && roomAt(this.built.plan, this.position)?.room.id === same.room.id ? same : undefined;
+    if (sel && this.built.artworks.some((x) => x.id === sel)) this.select(sel);
+    else this.ev.onSelect?.(undefined);
+    this.ev.onNear?.(undefined);
+    this.pendingTex = [];
+    this.queueTextures();
+    if (!this.running) this.renderOnce();
+  }
+
   // ---------- texture streaming ----------
   private queueTextures() {
     const p = this.body.position;
-    this.pendingTex = [...this.built.artworks].filter((a) => a.asset).sort((a, b) => a.centre.distanceToSquared(p) - b.centre.distanceToSquared(p));
+    for (const a of this.built.artworks) { const t = a.asset && this.texCache.get(a.asset.texture); if (t) this.applyTexture(a, t); }
+    this.pendingTex = [...this.built.artworks].filter((a) => a.asset && !this.texCache.has(a.asset.texture)).sort((a, b) => a.centre.distanceToSquared(p) - b.centre.distanceToSquared(p));
     this.ev.onProgress?.(0, this.pendingTex.length);
     for (let i = 0; i < 4; i++) this.nextTexture();
+  }
+
+  private applyTexture(a: ArtworkInstance, tex: THREE.Texture) {
+    const m = a.picture.material;
+    m.map = tex;
+    m.emissiveMap = tex;
+    m.color.set('#ffffff');
+    m.needsUpdate = true;
   }
 
   private nextTexture() {
     const a = this.pendingTex.shift();
     if (!a) return;
     this.loadingTex++;
+    const url = a.asset!.texture;
     this.texLoader.load(
-      a.asset!.texture,
+      url,
       (tex) => {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
-        const m = a.picture.material;
-        m.map = tex;
-        m.emissiveMap = tex;
-        m.color.set('#ffffff');
-        m.needsUpdate = true;
+        this.texCache.set(url, tex);
+        // the gallery may have been rebuilt while this was loading: dress whatever now shows this image
+        for (const x of this.built.artworks) if (x.asset?.texture === url) this.applyTexture(x, tex);
         this.done();
       },
       undefined,

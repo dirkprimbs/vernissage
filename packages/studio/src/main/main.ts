@@ -318,7 +318,7 @@ function registerIpc() {
       } catch { /* skip broken image */ }
     }
     previewData = { gallery: { ...parsed.gallery, basePath: './' }, assets, build: { generator: 'Vernissage Studio preview', builtAt: new Date().toISOString() } };
-    return { ok: true, url: `http://127.0.0.1:${previewPort}/preview/`, issues: parsed.issues };
+    return { ok: true, url: `http://127.0.0.1:${previewPort}/preview/`, issues: parsed.issues, site: previewData };
   });
 
   handle('build:chooseOut', async () => {

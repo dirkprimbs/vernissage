@@ -45,7 +45,7 @@ async function boot() {
 
   const g = data.gallery;
   document.title = g.title;
-  const style = resolveStyle(g.style.preset, g.style.overrides as Partial<StyleDef>);
+  let style = resolveStyle(g.style.preset, g.style.overrides as Partial<StyleDef>);
   applyTheme(style);
 
   const key = (k: string) => `vernissage:${g.title}:${k}`;
@@ -65,6 +65,13 @@ async function boot() {
   };
 
   const params = new URLSearchParams(location.search);
+  /** running inside Vernissage Studio's preview, which sends edits as they happen */
+  const studio = params.has('studio') && window.parent !== window;
+  if (studio) window.addEventListener('message', (e) => {
+    if (e.source !== window.parent || e.data?.type !== 'vernissage:data' || !e.data.site?.gallery) return;
+    try { applyUpdate(e.data.site as SiteData); }
+    catch (err) { console.error(err); window.parent.postMessage({ type: 'vernissage:reload' }, '*'); }
+  });
   // browsers refuse WebGL textures from file:// pages, so local files get the portfolio only
   const fromFile = location.protocol === 'file:';
   const has3D = !fromFile && webglAvailable() && !params.has('no3d');
@@ -81,12 +88,13 @@ async function boot() {
     onClose: () => { location.hash = mode === 'portfolio' ? '#/portfolio' : '#/'; },
     onShowInGallery: has3D ? (id) => { location.hash = '#/'; queueMicrotask(() => { join(); g3d?.select(id, 'teleport'); }); } : undefined,
   });
-  const portfolio = new PortfolioView(data, {
-    onOpen: (id) => { location.hash = `#/art/${id}`; },
+  const portfolioEvents = {
+    onOpen: (id: string) => { location.hash = `#/art/${id}`; },
     onEnter3D: has3D ? () => { location.hash = '#/'; } : undefined,
-  });
+  };
+  let portfolio = new PortfolioView(data, portfolioEvents);
   portfolio.el.hidden = true;
-  const menu = siteMenu(data);
+  let menu = siteMenu(data);
   if (menu) { app.append(menu); document.body.classList.add('has-menu'); }
   const labels = new LabelView(data, style, {
     onInspect: (id) => { closeLabel(); location.hash = `#/art/${id}`; },
@@ -156,7 +164,35 @@ async function boot() {
     conditions.start();
     setInterval(() => shell?.drawMap(), 100);
     (window as unknown as { vernissage: Gallery3D }).vernissage = g3d;
+    if (studio) window.parent.postMessage({ type: 'vernissage:ready' }, '*');
     return g3d;
+  }
+
+  /**
+   * The studio's live preview: take the gallery as it is being edited and rebuild in place, so the visitor keeps
+   * their place and view instead of the page reloading on every change.
+   */
+  function applyUpdate(next: SiteData) {
+    const scenarioBefore = g.lighting.scenario;
+    for (const k of Object.keys(g)) delete (g as unknown as Record<string, unknown>)[k];
+    Object.assign(g, next.gallery);
+    data.assets = next.assets;
+    style = resolveStyle(g.style.preset, g.style.overrides as Partial<StyleDef>);
+    applyTheme(style);
+    document.title = g.title;
+    const fresh = new PortfolioView(data, portfolioEvents);
+    fresh.el.hidden = portfolio.el.hidden;
+    portfolio.el.replaceWith(fresh.el);
+    portfolio = fresh;
+    menu?.remove();
+    menu = siteMenu(data);
+    if (menu) app.append(menu);
+    document.body.classList.toggle('has-menu', !!menu);
+    if (!g3d) return;
+    g3d.rebuild(style);
+    // a different room lighting chosen in the studio shows at once
+    if (g.lighting.scenario !== scenarioBefore) { state.lighting = g.lighting.scenario; g3d.setLighting(state.lighting); }
+    shell?.refresh();
   }
 
   /** lobby → in the gallery */

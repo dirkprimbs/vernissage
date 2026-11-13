@@ -59,6 +59,8 @@ interface Item {
   frame: FrameDef; mat: number;
   labelPos: 'right' | 'below';
   lw: number; lh: number;
+  /** this work's own size factor (Placement.scale), already included in w and h */
+  own: number;
   manualOffset?: number; manualY?: number;
 }
 
@@ -94,7 +96,7 @@ export function hangWall(inp: HangInput): HangResult {
     const baseMat = art.mat === false ? 0 : art.mat === true ? Math.max(base.mat, 0.05) : base.mat;
     const mat = baseMat * (1 + (fs - 1) / 2);
     const ls = inp.labelScale ?? 1;
-    items.push({ art, w: w * sc, h: h * sc, frame, mat, labelPos: art.label, lw: LABEL_W * ls, lh: LABEL_H * ls, manualOffset: p.offset, manualY: p.height });
+    items.push({ art, w: w * sc, h: h * sc, frame, mat, labelPos: art.label, lw: LABEL_W * ls, lh: LABEL_H * ls, own: p.scale ?? 1, manualOffset: p.offset, manualY: p.height });
   }
   if (!items.length) return { works: [], warnings };
 
@@ -104,7 +106,12 @@ export function hangWall(inp: HangInput): HangResult {
   const longest = Math.max(...segs.map(([a, b]) => b - a));
 
   // per-item fit: no work may be taller than the wall allows or wider than the longest free stretch
-  const fit = inp.sizing === 'auto' ? autoFit(items, segs, maxH, inp.wall.hang) : items.map((it) => {
+  let fit: number[];
+  if (inp.sizing === 'auto') {
+    const r = autoFit(items, segs, maxH, inp.wall.hang);
+    fit = r.k;
+    if (r.squeezed) warnings.push(`the wall is full: all works shown at ${Math.round(r.squeezed * 100)}% to fit`);
+  } else fit = items.map((it) => {
     const { oh } = outer(it, 1);
     let s = 1;
     if (oh > maxH) s = Math.min(s, (maxH - 2 * (it.frame.width + it.mat)) / it.h);
@@ -150,24 +157,39 @@ function fitsStretches(widths: number[], segs: Array<[number, number]>, gap: num
  * Auto sizing: one common scale for the wall, as large as fits. Few works on a long wall come out large and
  * well apart; many works shrink and close up. Each work's own scale (Placement.scale) is already in its size.
  */
-function autoFit(items: Item[], segs: Array<[number, number]>, maxH: number, hang: Wall['hang']): number[] {
+/**
+ * Auto sizing: one common scale for the wall. It is chosen as if every work were at its normal size, so making
+ * one work larger or smaller leaves the others as they are. Only if the works no longer fit the wall does
+ * everything shrink together; `squeezed` then says by how much.
+ */
+function autoFit(items: Item[], segs: Array<[number, number]>, maxH: number, hang: Wall['hang']): { k: number[]; squeezed?: number } {
   const rows = hang === 'salon' ? Math.min(3, items.length) : hang === 'grid' && items.length > 4 ? 2 : 1;
-  const ok = (k: number) => {
-    for (const it of items) {
+  const longest = Math.max(...segs.map(([a, b]) => b - a));
+  /** do these works fit the wall at scale k? `limits`: also keep each work within the comfortable maximum */
+  const ok = (list: Item[], k: number, limits: boolean) => {
+    for (const it of list) {
       const { ow, oh } = outer(it, k);
-      if (it.h * k > AUTO_MAX_H || it.w * k > AUTO_MAX_W || oh * rows + 0.15 * (rows - 1) > maxH) return false;
-      if (ow > Math.max(...segs.map(([a, b]) => b - a)) - 2 * MIN_GAP) return false;
+      if (limits && (it.h * k > AUTO_MAX_H || it.w * k > AUTO_MAX_W)) return false;
+      if (oh * rows + 0.15 * (rows - 1) > maxH || ow > longest - 2 * MIN_GAP) return false;
     }
     // stacked hangs put several works in one column: count columns, not works
-    const perCol = rows;
     const widths: number[] = [];
-    for (let i = 0; i < items.length; i += perCol) widths.push(Math.max(...items.slice(i, i + perCol).map((it) => footprint(it, k))));
+    for (let i = 0; i < list.length; i += rows) widths.push(Math.max(...list.slice(i, i + rows).map((it) => footprint(it, k))));
     return fitsStretches(widths, segs, MIN_GAP + 0.35 * k);
   };
-  let lo = 0.12, hi = AUTO_MAX_K;
-  if (ok(hi)) lo = hi;
-  else for (let i = 0; i < 24; i++) { const mid = (lo + hi) / 2; if (ok(mid)) lo = mid; else hi = mid; }
-  return items.map(() => lo);
+  const largest = (list: Item[], hi: number, limits: boolean) => {
+    if (ok(list, hi, limits)) return hi;
+    let lo = 0.05;
+    for (let i = 0; i < 26; i++) { const mid = (lo + hi) / 2; if (ok(list, mid, limits)) lo = mid; else hi = mid; }
+    return lo;
+  };
+  // the wall's scale with everything at its normal size
+  const normal = items.map((it) => ({ ...it, w: it.w / it.own, h: it.h / it.own }));
+  const k = largest(normal, AUTO_MAX_K, true);
+  if (ok(items, k, false)) return { k: items.map(() => k) };
+  // the resized works do not fit: shrink all of them together, just enough
+  const fitted = largest(items, k, false);
+  return { k: items.map(() => fitted), squeezed: fitted / k };
 }
 
 function makeWork(it: Item, s: number, cx: number, cy: number, roomHeight: number): HungWork {
