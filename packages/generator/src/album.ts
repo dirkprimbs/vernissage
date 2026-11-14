@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import sharp from 'sharp';
@@ -87,27 +88,30 @@ export function formatDay(ms: number, tz = 0): string {
 }
 
 export interface ImportedPhoto extends AlbumPhoto, PhotoDetails { fileName?: string }
+type StoredPhoto = ImportedPhoto & { artId: string; file: string };
+
+/** The label a photo starts with: file name, day, camera and caption. `today` adds the provenance entries; without it there are none. */
+export function artworkFromPhoto(album: Album, p: StoredPhoto, sourceUrl: string, today?: number) {
+  const day = p.taken ? formatDay(p.taken, p.tz) : undefined;
+  return {
+    id: p.artId, file: p.file,
+    title: p.fileName ? p.fileName.replace(/\.[a-z0-9]{2,5}$/i, '') : p.artId,
+    artist: { name: album.owner ?? 'Unknown photographer' },
+    date: day,
+    medium: ['Digital photograph', p.camera].filter(Boolean).join(', '),
+    description: p.description,
+    source: sourceUrl,
+    mat: true,
+    provenance: today === undefined ? [] : [
+      ...(day || p.camera ? [{ date: day, event: p.camera ? `Photographed with ${p.camera}` : 'Photographed', note: p.settings }] : []),
+      { date: formatDay(today), event: `Added from the Google Photos album “${album.title}”`, note: p.fileName ? `Original file: ${p.fileName}, ${p.width} × ${p.height} px` : `${p.width} × ${p.height} px` },
+    ],
+  };
+}
 
 /** Turn an album's photos into a gallery: artworks with their labels filled in, rooms suggested for their number and shapes. */
 export function galleryFromAlbum(album: Album, photos: Array<ImportedPhoto & { artId: string; file: string }>, sourceUrl: string, today = Date.now()): GalleryInput {
-  const artist = album.owner ?? 'Unknown photographer';
-  const artworks = photos.map((p) => {
-    const day = p.taken ? formatDay(p.taken, p.tz) : undefined;
-    return {
-      id: p.artId, file: p.file,
-      title: p.fileName ? p.fileName.replace(/\.[a-z0-9]{2,5}$/i, '') : p.artId,
-      artist: { name: artist },
-      date: day,
-      medium: ['Digital photograph', p.camera].filter(Boolean).join(', '),
-      description: p.description,
-      source: sourceUrl,
-      mat: true,
-      provenance: [
-        ...(day || p.camera ? [{ date: day, event: p.camera ? `Photographed with ${p.camera}` : 'Photographed', note: p.settings }] : []),
-        { date: formatDay(today), event: `Added from the Google Photos album “${album.title}”`, note: p.fileName ? `Original file: ${p.fileName}, ${p.width} × ${p.height} px` : `${p.width} × ${p.height} px` },
-      ],
-    };
-  });
+  const artworks = photos.map((p) => artworkFromPhoto(album, p, sourceUrl, today));
   const days = photos.map((p) => p.taken).filter((t): t is number => !!t).sort((a, b) => a - b);
   const years = days.length ? [...new Set([new Date(days[0]).getUTCFullYear(), new Date(days[days.length - 1]).getUTCFullYear()])].join('–') : '';
   return {
@@ -130,67 +134,82 @@ export interface ImportOptions {
   fetch?: typeof fetch;
 }
 
-/** Download a public album into `projectDir` (assets/ and gallery.json) and return the gallery. */
-export async function importAlbum(url: string, projectDir: string, opts: ImportOptions = {}): Promise<{ gallery: GalleryInput; album: Album; skipped: string[] }> {
-  url = url.trim();
+const HEADERS = { 'user-agent': UA, 'accept-language': 'en' };
+const stem = (fileName: string) => fileName.replace(/\.[a-z0-9]{2,5}$/i, '');
+
+async function openAlbum(url: string, get: typeof fetch): Promise<Album> {
   if (!ALBUM_URL.test(url)) throw new Error('Paste the link of a shared Google Photos album (it starts with https://photos.app.goo.gl/ or https://photos.google.com/share/).');
-  const get = opts.fetch ?? fetch;
-  const size = opts.size ?? 4096;
-  const headers = { 'user-agent': UA, 'accept-language': 'en' };
-  opts.onProgress?.('Reading the album', 0, 1);
-  const res = await get(url, { headers, redirect: 'follow' });
+  const res = await get(url, { headers: HEADERS, redirect: 'follow' });
   if (!res.ok) throw new Error(`Google Photos answered ${res.status} for this link.`);
   const album = parseAlbumPage(await res.text(), res.url);
   if (!album.photos.length) throw new Error('The album has no photos.');
+  return album;
+}
+
+/** the download link names the original file; asking for its headers is enough */
+async function originalName(p: AlbumPhoto, get: typeof fetch): Promise<string | undefined> {
+  const head = await get(`${p.url}=d`, { method: 'HEAD', headers: HEADERS });
+  const cd = head.headers.get('content-disposition') ?? '';
+  const star = /filename\*=UTF-8''([^;]+)/i.exec(cd), plain = /filename="?([^";]+)"?/i.exec(cd);
+  if (star) { try { return decodeURIComponent(star[1]); } catch { /* keep the plain one */ } }
+  return plain?.[1];
+}
+
+/** a few at a time: polite to the server, and still quick */
+async function pooled<T>(items: T[], f: (item: T, i: number) => Promise<void>) {
+  const queue = items.map((x, i) => [x, i] as const);
+  await Promise.all(Array.from({ length: 3 }, async () => { for (let j = queue.shift(); j; j = queue.shift()) await f(j[0], j[1]); }));
+}
+
+/** Fetch one photo with its caption and camera data into `assets`. `taken` holds the ids already in use. */
+async function storePhoto(album: Album, p: AlbumPhoto, i: number, assets: string, taken: Set<string>, size: number, get: typeof fetch): Promise<StoredPhoto> {
+  let details: PhotoDetails = {};
+  if (album.id) {
+    const page = await get(`https://photos.google.com/share/${album.id}/photo/${p.id}${album.key ? `?key=${album.key}` : ''}`, { headers: HEADERS });
+    if (page.ok) details = parsePhotoPage(await page.text());
+  }
+  const fileName = await originalName(p, get);
+  const img = await get(`${p.url}=w${size}-h${size}`, { headers: HEADERS });
+  if (!img.ok) throw new Error(`image ${img.status}`);
+  let bytes: Buffer = Buffer.from(await img.arrayBuffer());
+  const type = img.headers.get('content-type') ?? '';
+  let ext = type.includes('png') ? '.png' : '.jpg';
+  // anything that is not a JPEG or PNG (WebP, HEIC, GIF) is stored as a JPEG
+  if (!/jpe?g|png/.test(type)) { bytes = await sharp(bytes).rotate().jpeg({ quality: 92 }).toBuffer(); ext = '.jpg'; }
+  // very heavy renditions are re-compressed: a gallery wall does not need 15 MB per picture
+  else if (ext === '.jpg' && bytes.length > 3.5e6) bytes = await sharp(bytes).rotate().jpeg({ quality: 88, mozjpeg: true }).toBuffer();
+  const meta = await sharp(bytes).metadata();
+  const turned = (meta.orientation ?? 1) >= 5;
+  const base = slug(fileName ? stem(fileName) : `photo-${i + 1}`);
+  let artId = base;
+  // never reuse an id or write over a file that is already there
+  for (let n = 2; taken.has(artId) || existsSync(join(assets, artId + ext)); n++) artId = `${base}-${n}`;
+  taken.add(artId);
+  await writeFile(join(assets, artId + ext), bytes);
+  return {
+    ...p, ...details, fileName, artId, file: `assets/${artId}${ext}`,
+    width: (turned ? meta.height : meta.width) ?? p.width, height: (turned ? meta.width : meta.height) ?? p.height,
+  };
+}
+
+/** Download a public album into `projectDir` (assets/ and gallery.json) and return the gallery. */
+export async function importAlbum(url: string, projectDir: string, opts: ImportOptions = {}): Promise<{ gallery: GalleryInput; album: Album; skipped: string[] }> {
+  url = url.trim();
+  const get = opts.fetch ?? fetch;
+  opts.onProgress?.('Reading the album', 0, 1);
+  const album = await openAlbum(url, get);
   const assets = join(projectDir, 'assets');
   await mkdir(assets, { recursive: true });
 
-  const out: Array<ImportedPhoto & { artId: string; file: string } | undefined> = [];
+  const out: Array<StoredPhoto | undefined> = [];
   const skipped: string[] = [];
   const taken = new Set<string>();
   let done = 0;
-  const one = async (p: AlbumPhoto, i: number) => {
-    try {
-      let details: PhotoDetails = {};
-      if (album.id) {
-        const page = await get(`https://photos.google.com/share/${album.id}/photo/${p.id}${album.key ? `?key=${album.key}` : ''}`, { headers });
-        if (page.ok) details = parsePhotoPage(await page.text());
-      }
-      // the download link names the original file; asking for its headers is enough
-      let fileName: string | undefined;
-      const head = await get(`${p.url}=d`, { method: 'HEAD', headers });
-      const cd = head.headers.get('content-disposition') ?? '';
-      const star = /filename\*=UTF-8''([^;]+)/i.exec(cd), plain = /filename="?([^";]+)"?/i.exec(cd);
-      if (star) { try { fileName = decodeURIComponent(star[1]); } catch { /* keep the plain one */ } }
-      fileName ??= plain?.[1];
-      const img = await get(`${p.url}=w${size}-h${size}`, { headers });
-      if (!img.ok) throw new Error(`image ${img.status}`);
-      let bytes: Buffer = Buffer.from(await img.arrayBuffer());
-      const type = img.headers.get('content-type') ?? '';
-      let ext = type.includes('png') ? '.png' : '.jpg';
-      // anything that is not a JPEG or PNG (WebP, HEIC, GIF) is stored as a JPEG
-      if (!/jpe?g|png/.test(type)) { bytes = await sharp(bytes).rotate().jpeg({ quality: 92 }).toBuffer(); ext = '.jpg'; }
-      // very heavy renditions are re-compressed: a gallery wall does not need 15 MB per picture
-      else if (ext === '.jpg' && bytes.length > 3.5e6) bytes = await sharp(bytes).rotate().jpeg({ quality: 88, mozjpeg: true }).toBuffer();
-      const meta = await sharp(bytes).metadata();
-      const turned = (meta.orientation ?? 1) >= 5;
-      const base = slug(fileName ? fileName.replace(/\.[a-z0-9]{2,5}$/i, '') : `photo-${i + 1}`);
-      let artId = base;
-      for (let n = 2; taken.has(artId); n++) artId = `${base}-${n}`;
-      taken.add(artId);
-      await writeFile(join(assets, artId + ext), bytes);
-      out[i] = {
-        ...p, ...details, fileName, artId, file: `assets/${artId}${ext}`,
-        width: (turned ? meta.height : meta.width) ?? p.width, height: (turned ? meta.width : meta.height) ?? p.height,
-      };
-    } catch (e) {
-      skipped.push(`photo ${i + 1}: ${(e as Error).message}`);
-    }
+  await pooled(album.photos, async (p, i) => {
+    try { out[i] = await storePhoto(album, p, i, assets, taken, opts.size ?? 4096, get); }
+    catch (e) { skipped.push(`photo ${i + 1}: ${(e as Error).message}`); }
     opts.onProgress?.('Fetching photos', ++done, album.photos.length);
-  };
-  // a few at a time: polite to the server, and still quick
-  const queue = album.photos.map((p, i) => [p, i] as const);
-  await Promise.all(Array.from({ length: 3 }, async () => { for (let j = queue.shift(); j; j = queue.shift()) await one(j[0], j[1]); }));
+  });
 
   const photos = out.filter((p): p is NonNullable<typeof p> => !!p);
   if (!photos.length) throw new Error(`None of the album's photos could be fetched. ${skipped[0] ?? ''}`);
@@ -201,4 +220,61 @@ export async function importAlbum(url: string, projectDir: string, opts: ImportO
   await writeFile(join(projectDir, 'gallery.json'), JSON.stringify(gallery, null, 2) + '\n');
   await writeFile(join(projectDir, '.gitignore'), '.cache/\n');
   return { gallery, album, skipped };
+}
+
+export interface ListedPhoto extends AlbumPhoto {
+  fileName?: string;
+  /** what the photo's id would be in a gallery: compare with the gallery's ids and file names to see whether it is already there */
+  key: string;
+  /** a small preview as a data: URL, when asked for */
+  thumb?: string;
+}
+
+/** What is in a public album now, without downloading the photos: for choosing which ones to add to a gallery. */
+export async function listAlbum(url: string, opts: ImportOptions & { thumbs?: number } = {}): Promise<{ album: Album; photos: ListedPhoto[] }> {
+  url = url.trim();
+  const get = opts.fetch ?? fetch;
+  opts.onProgress?.('Reading the album', 0, 1);
+  const album = await openAlbum(url, get);
+  const photos: ListedPhoto[] = [];
+  let done = 0;
+  await pooled(album.photos, async (p, i) => {
+    let fileName: string | undefined, thumb: string | undefined;
+    try { fileName = await originalName(p, get); } catch { /* listed without its name */ }
+    if (opts.thumbs) {
+      try {
+        const r = await get(`${p.url}=w${opts.thumbs}-h${opts.thumbs}`, { headers: HEADERS });
+        if (r.ok) thumb = `data:${r.headers.get('content-type') ?? 'image/jpeg'};base64,${Buffer.from(await r.arrayBuffer()).toString('base64')}`;
+      } catch { /* listed without a preview */ }
+    }
+    photos[i] = { ...p, fileName, key: slug(fileName ? stem(fileName) : `photo-${i + 1}`), thumb };
+    opts.onProgress?.('Reading the album', ++done, album.photos.length);
+  });
+  return { album, photos };
+}
+
+/**
+ * Add chosen photos of a public album to an existing project: the images go into its assets/ folder and the
+ * artwork entries are returned for the caller to add to the gallery. Nothing already in the project is touched.
+ */
+export async function addFromAlbum(url: string, projectDir: string, photoIds: string[], takenIds: Iterable<string>, opts: ImportOptions = {}): Promise<{ album: Album; artworks: Array<ReturnType<typeof artworkFromPhoto> & { width: number; height: number }>; skipped: string[] }> {
+  url = url.trim();
+  const get = opts.fetch ?? fetch;
+  const album = await openAlbum(url, get);
+  const wanted = new Set(photoIds);
+  const chosen = album.photos.map((p, i) => [p, i] as const).filter(([p]) => wanted.has(p.id));
+  if (!chosen.length) throw new Error('None of the chosen photos are in the album any more.');
+  const assets = join(projectDir, 'assets');
+  await mkdir(assets, { recursive: true });
+  const taken = new Set(takenIds);
+  const out: Array<StoredPhoto | undefined> = [];
+  const skipped: string[] = [];
+  let done = 0;
+  await pooled(chosen, async ([p, i], k) => {
+    try { out[k] = await storePhoto(album, p, i, assets, taken, opts.size ?? 4096, get); }
+    catch (e) { skipped.push(`photo ${i + 1}: ${(e as Error).message}`); }
+    opts.onProgress?.('Fetching photos', ++done, chosen.length);
+  });
+  const stored = out.filter((p): p is StoredPhoto => !!p);
+  return { album, artworks: stored.map((p) => ({ ...artworkFromPhoto(album, p, url), width: p.width, height: p.height })), skipped };
 }

@@ -195,3 +195,20 @@ legend { color: var(--muted); font-size: 12px; }
   .walls-layout { grid-template-columns: 1fr; }
   .tray { position: static; max-height: none; }
 }
+
+/* ---------- add from a Google Photos album ---------- */
+.album-picker { width: min(760px, 92vw); max-height: 88vh; padding: 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--fg); display: none; flex-direction: column; gap: 10px; }
+.album-picker[open] { display: flex; }
+.album-picker::backdrop { background: rgba(0, 0, 0, .55); }
+.album-picker h1, .album-picker p { margin: 0; }
+.album-picker .row { display: flex; align-items: center; gap: 8px; }
+.album-picker .row input { flex: 1; min-width: 0; }
+.album-picker .spacer { flex: 1; }
+.ap-grid { list-style: none; margin: 0; padding: 4px; display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; overflow: auto; min-height: 120px; border: 1px solid var(--line); border-radius: 10px; }
+.ap-grid label { position: relative; display: grid; gap: 4px; padding: 4px; border: 2px solid transparent; border-radius: 9px; cursor: pointer; }
+.ap-grid label.on { border-color: var(--accent); }
+.ap-grid label.have { cursor: default; opacity: .45; }
+.ap-grid input { position: absolute; top: 10px; left: 10px; }
+.ap-grid label.have input { display: none; }
+.ap-grid img, .ap-blank { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; background: #0c0c0e; }
+.ap-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }

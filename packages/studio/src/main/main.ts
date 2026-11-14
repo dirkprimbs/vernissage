@@ -7,7 +7,7 @@ import { basename, dirname, extname, join, normalize, relative, resolve, sep } f
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { migrate, parseGallery, publishedGallery, resolveStyle, SCHEMA_VERSION, starterRoom, type ArtAsset, type SiteData, type StyleDef } from '@vernissage/schema';
-import { BuildError, buildSite, importAlbum, renderIndexHtml } from '@vernissage/generator';
+import { BuildError, addFromAlbum, buildSite, importAlbum, listAlbum, renderIndexHtml } from '@vernissage/generator';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const packaged = app.isPackaged;
@@ -289,6 +289,30 @@ function registerIpc() {
       out.push({ id: name, file: `assets/${basename(dest)}`, title: titleFromFile(p), ...meta });
     }
     return out;
+  });
+
+  // what a shared album holds now, for choosing photos to add; `known` are the gallery's ids and file names
+  handle('album:list', async (url: string, known: string[]) => {
+    if (!projectDir) throw new Error('No project open');
+    const progress = (step: string, done: number, total: number) => win?.webContents.send('import:progress', { step, done, total });
+    const { album, photos } = await listAlbum(url ?? '', { thumbs: 240, onProgress: progress });
+    const have = new Set(known);
+    return {
+      title: album.title, truncated: album.truncated,
+      photos: photos.map((p) => ({ id: p.id, name: p.fileName ?? p.key, thumb: p.thumb, width: p.width, height: p.height, inGallery: have.has(p.key) })),
+    };
+  });
+
+  handle('album:add', async (url: string, photoIds: string[], takenIds: string[]) => {
+    if (!projectDir) throw new Error('No project open');
+    const progress = (step: string, done: number, total: number) => win?.webContents.send('import:progress', { step, done, total });
+    const r = await addFromAlbum(url ?? '', projectDir, photoIds ?? [], takenIds ?? [], { onProgress: progress });
+    const artworks = [];
+    for (const a of r.artworks) {
+      const { width: _w, height: _h, ...art } = a;
+      artworks.push({ art, meta: await imageMeta(join(projectDir, a.file)) });
+    }
+    return { artworks, skipped: r.skipped };
   });
 
   handle('assets:meta', async (files: string[]) => {

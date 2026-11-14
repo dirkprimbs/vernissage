@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { parseGallery } from '@vernissage/schema';
-import { formatDay, galleryFromAlbum, parseAlbumPage, parsePhotoPage } from '../src/album';
+import { mkdtemp, readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import sharp from 'sharp';
+import { addFromAlbum, formatDay, galleryFromAlbum, listAlbum, parseAlbumPage, parsePhotoPage } from '../src/album';
 
 // pages shaped like Google Photos' own, with made-up content
 const block = (key: string, data: unknown) => `<script nonce="x">AF_initDataCallback({key: '${key}', hash: '1', data:${JSON.stringify(data)}, sideChannel: {}});</script>`;
@@ -49,5 +53,43 @@ describe('Google Photos album pages', () => {
     expect(parsed.gallery!.environment.landscape).toBe('toronto');
     const walls = parsed.gallery!.rooms.flatMap((r) => Object.values(r.walls));
     expect(walls.find((w) => w.artworks.some((p) => p.artwork === 'img-001'))!.artworks).toHaveLength(1);
+  });
+});
+
+describe('adding to an existing gallery', () => {
+  const link = 'https://photos.app.goo.gl/abc';
+  const names: Record<string, string> = { A1: 'P1010001.JPG', A2: 'Harbour Pano.jpg' };
+  /** a stand-in for Google Photos: the album page, photo pages, file names and images */
+  const fakeFetch = (async (input: string | URL | Request, init?: RequestInit) => {
+    const u = String(input);
+    if (u === link) { const r = new Response(albumHtml); Object.defineProperty(r, 'url', { value: 'https://photos.google.com/share/ALBUM?key=KEY' }); return r; }
+    if (u.includes('/photo/')) return new Response(photoHtml);
+    const id = /pw\/(\w+)=/.exec(u)![1];
+    if (init?.method === 'HEAD') return new Response(null, { headers: { 'content-disposition': `attachment; filename="${names[id]}"` } });
+    const jpg = await sharp({ create: { width: 40, height: 30, channels: 3, background: '#789' } }).jpeg().toBuffer();
+    return new Response(new Uint8Array(jpg), { headers: { 'content-type': 'image/jpeg' } });
+  }) as typeof fetch;
+
+  it('lists the album with the key each photo would have in a gallery', async () => {
+    const { album, photos } = await listAlbum(link, { fetch: fakeFetch, thumbs: 64 });
+    expect(album.title).toBe('Harbour Walk');
+    expect(photos.map((p) => p.key)).toEqual(['p1010001', 'harbour-pano']);
+    expect(photos[0].thumb).toMatch(/^data:image\/jpeg;base64,/);
+  });
+
+  it('fetches only the chosen photos and never writes over what is there', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'vernissage-album-'));
+    await mkdir(join(dir, 'assets'));
+    await writeFile(join(dir, 'assets/p1010001.jpg'), 'edited by hand');
+    const r = await addFromAlbum(link, dir, ['A2'], ['p1010001'], { fetch: fakeFetch });
+    expect(r.skipped).toEqual([]);
+    expect(r.artworks).toHaveLength(1);
+    expect(r.artworks[0]).toMatchObject({ id: 'harbour-pano', file: 'assets/harbour-pano.jpg', title: 'Harbour Pano', artist: { name: 'Ada Example' }, provenance: [], width: 40, height: 30 });
+    expect((await readdir(join(dir, 'assets'))).sort()).toEqual(['harbour-pano.jpg', 'p1010001.jpg']);
+    expect(await readFile(join(dir, 'assets/p1010001.jpg'), 'utf8')).toBe('edited by hand');
+    // a photo whose name is taken gets a new id and its own file
+    const again = await addFromAlbum(link, dir, ['A1'], ['p1010001', 'harbour-pano'], { fetch: fakeFetch });
+    expect(again.artworks[0]).toMatchObject({ id: 'p1010001-2', file: 'assets/p1010001-2.jpg' });
+    expect(await readFile(join(dir, 'assets/p1010001.jpg'), 'utf8')).toBe('edited by hand');
   });
 });

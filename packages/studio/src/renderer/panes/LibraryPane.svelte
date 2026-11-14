@@ -2,6 +2,7 @@
   import { FRAMES, WALL_SIDES, type WallSide } from '@vernissage/schema';
   import { studio, type ImportedAsset } from '../api';
   import { st, uniqueId } from '../state.svelte';
+  import AlbumPicker from '../AlbumPicker.svelte';
 
   const g = $derived(st.gallery!);
   const art = $derived(g.artworks.find((a) => a.id === st.artwork) ?? g.artworks[0]);
@@ -11,6 +12,7 @@
   const auto = $derived(g.display.sizing === 'auto');
   let filter = $state('');
   let dropping = $state(false);
+  let picking = $state(false);
   const shown = $derived(g.artworks.filter((a) => !filter || `${a.title} ${a.artist.name} ${a.description ?? ''}`.toLowerCase().includes(filter.toLowerCase())));
   const unhung = $derived(g.artworks.filter((a) => !st.placementOf(a.id)).length);
   /** every wall a work can hang on */
@@ -84,12 +86,15 @@
   const sameArtist = $derived(!!art && g.artworks.every((a) => a.artist.name === art.artist.name));
 </script>
 
+{#if picking}<AlbumPicker onclose={() => (picking = false)} />{/if}
+
 <div class="lib" class:dropping ondragover={(e) => { if (e.dataTransfer?.types.includes('Files')) { e.preventDefault(); dropping = true; } }} ondragleave={() => (dropping = false)} ondrop={onDrop} role="region" aria-label="Artworks">
   <div class="lib-top">
     <h1>Artworks</h1>
     <span class="muted small">{g.artworks.length} work{g.artworks.length === 1 ? '' : 's'}{unhung ? ` · ${unhung} not hung` : ''}</span>
     <span class="spacer"></span>
     {#if g.artworks.length > 8}<input class="lib-filter" type="search" placeholder="Filter…" bind:value={filter} aria-label="Filter artworks" />{/if}
+    <button onclick={() => (picking = true)}>+ Add from Photos album…</button>
     <button class="primary" onclick={() => importFiles()}>+ Add images…</button>
   </div>
 
