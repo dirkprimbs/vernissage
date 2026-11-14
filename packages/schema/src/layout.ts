@@ -425,3 +425,13 @@ export function planIssues(g: Gallery): Array<{ path: string; message: string; s
   }
   return out;
 }
+
+/**
+ * Walls of a room that are marked as window walls but carry a doorway to another room. Such a wall faces the
+ * neighbouring room, so its windows would not be drawn; a new room starts with these walls closed instead.
+ */
+export function windowedDoorWalls(g: Pick<Gallery, 'rooms'>, plan: FloorPlan, roomId: string): WallSide[] {
+  const room = g.rooms.find((r) => r.id === roomId);
+  if (!room) return [];
+  return WALL_SIDES.filter((side) => room.walls[side].windows === true && doorsOn(plan, roomId, side).some((d) => d.to));
+}

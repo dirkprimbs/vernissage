@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {
   pointOnWall, resolveCollision, resolveLighting, roomAt,
-  type LightingId, type SunPosition, type Weather, type PlacedRoom, type SiteData, type StyleDef,
+  type LightingId, type SunPosition, type Weather, type PlacedRoom, type SiteData, type StyleDef, type WallSide,
 } from '@vernissage/schema';
 import { buildGallery, type ArtworkInstance, type BuiltGallery } from './scene/build';
 import { Outdoors } from './scene/outdoors';
@@ -16,6 +16,8 @@ export interface Gallery3DOptions {
   accent: string;
   /** circle the first room behind the entry screen */
   orbit: boolean;
+  /** a click on a work selects it without walking there (the studio's preview, while the editor is open) */
+  stay?: () => boolean;
 }
 
 export interface Gallery3DEvents {
@@ -27,6 +29,10 @@ export interface Gallery3DEvents {
   onLabel?: (artId: string) => void;
   /** the entry door was clicked from close by */
   onExit?: (url: string) => void;
+  /** a wall was clicked, away from the works on it */
+  onWall?: (roomId: string, side: WallSide) => void;
+  /** a work was clicked (not its label) */
+  onPick?: (artId: string) => void;
   /** an artwork was selected (object menu) or deselected */
   onSelect?: (art: ArtworkInstance | undefined) => void;
   onTeleport?: () => void;
@@ -356,6 +362,18 @@ export class Gallery3D {
     return true;
   }
 
+  /** Jump straight to a spot on the floor (a click on the map), keeping the direction of view. False outside the rooms. */
+  teleportTo(x: number, z: number) {
+    if (!roomAt(this.built.plan, new THREE.Vector3(x, 0, z))) return false;
+    this.resetZoom();
+    this.path = [];
+    this.arriveArt = undefined;
+    // not inside a wall: the spot is nudged clear of them
+    const p = resolveCollision({ x, z }, RADIUS, this.built.segments);
+    this.body.position.set(p.x, 0, p.z);
+    return true;
+  }
+
   /** walk (with door routing) to a world point; optionally face an artwork on arrival */
   walkTo(target: THREE.Vector3, art?: ArtworkInstance) {
     this.resetZoom();
@@ -411,7 +429,7 @@ export class Gallery3D {
   private targetYaw?: number;
 
   // ---------- input ----------
-  private pick(x: number, y: number): { art?: ArtworkInstance; label?: boolean; door?: boolean; floor?: THREE.Vector3 } {
+  private pick(x: number, y: number): { art?: ArtworkInstance; label?: boolean; door?: boolean; floor?: THREE.Vector3; wall?: { roomId: string; side: WallSide } } {
     const r = this.renderer.domElement.getBoundingClientRect();
     const ndc = new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
     this.ray.setFromCamera(ndc, this.camera);
@@ -422,11 +440,12 @@ export class Gallery3D {
     const id = hit.object.userData.artworkId as string | undefined;
     if (id) return { art: this.built.artworks.find((a) => a.id === id), label: !!hit.object.userData.label };
     if (this.built.floors.includes(hit.object as THREE.Mesh)) return { floor: hit.point };
+    if (hit.object.userData.wall) return { wall: hit.object.userData.wall };
     return {};
   }
 
   private tap(x: number, y: number) {
-    const { art, label, door, floor } = this.pick(x, y);
+    const { art, label, door, floor, wall } = this.pick(x, y);
     const e = this.built.entrance;
     if (door && e) {
       // from across the room the first click walks to the door; from close by it opens
@@ -437,10 +456,12 @@ export class Gallery3D {
       this.ev.onLabel?.(art.id);
     } else if (art) {
       const close = art.viewpoint.distanceTo(this.position) < 2.2 || art.centre.distanceTo(this.camera.position) < 4.5;
-      this.select(art.id, close ? 'none' : 'walk');
+      this.select(art.id, close || this.opts.stay?.() ? 'none' : 'walk');
+      this.ev.onPick?.(art.id);
     } else {
       if (this.selected) this.select(undefined);
       if (floor) this.walkTo(floor);
+      else if (wall) this.ev.onWall?.(wall.roomId, wall.side);
     }
   }
 

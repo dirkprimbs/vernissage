@@ -8,7 +8,9 @@ export interface AlbumListing { title: string; truncated: boolean; photos: Array
 export interface AlbumArtwork { art: Gallery['artworks'][number] & { id: string; file: string }; meta: Meta }
 
 export interface StudioApi {
-  info(): Promise<{ demos: Array<{ id: string; name: string; description: string }>; recent: string[]; previewBase: string }>;
+  info(): Promise<{ demos: Array<{ id: string; name: string; description: string }>; recent: string[]; previewBase: string; version: string; seenVersion: string | null; returning: boolean }>;
+  /** remember that this version's changes have been shown */
+  markSeen(): Promise<boolean>;
   openProject(dir?: string): Promise<ProjectInfo | null>;
   newProject(title: string): Promise<ProjectInfo | null>;
   fromDemo(id: string): Promise<ProjectInfo | null>;

@@ -27,6 +27,10 @@ class StudioState {
   basePath = $state('');
   meta = $state<Record<string, Meta>>({});
   pane = $state<Pane>('gallery');
+  /** the wall picked in the preview, for the wall editor to show; `n` counts the picks */
+  wallFocus = $state<{ side: 'north' | 'east' | 'south' | 'west'; n: number } | null>(null);
+  /** the studio's own version */
+  version = $state('');
   room = $state<string | null>(null);
   artwork = $state<string | null>(null);
   previewBase = $state('');

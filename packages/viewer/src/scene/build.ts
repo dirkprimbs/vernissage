@@ -1,11 +1,11 @@
 import * as THREE from 'three';
 import {
-  WALL_SIDES, WALL_THICKNESS, freeSegments, blockersOn, computeFloorPlan, doorsOn, entranceOf, hangWall, pointOnWall, wallHasWindows, collisionSegments,
+  WALL_SIDES, WALL_THICKNESS, freeSegments, blockersOn, computeFloorPlan, doorsOn, entranceOf, hangWall, pointOnWall, roomPlants, wallHasWindows, collisionSegments,
   type ArtAsset, type Artwork, type FloorPlan, type HungWork, type Segment, type SiteData, type StyleDef, type WallFrame,
 } from '@vernissage/schema';
 import { floorTexture, lightPoolTexture, wallTexture, worldUV } from './textures';
 import { labelTexture } from './labels';
-import { buildPlants, type EmptyStretch } from './environment';
+import { buildPlants } from './environment';
 
 export interface ArtworkInstance {
   id: string;
@@ -125,7 +125,6 @@ export function buildGallery(data: SiteData, style: StyleDef, renderer: THREE.We
   const entrance = entranceOf(g, plan);
   let door: BuiltGallery['entrance'];
   const artworksById = new Map(g.artworks.map((a) => [a.id, a]));
-  const emptyStretches: EmptyStretch[] = [];
   const instances: ArtworkInstance[] = [];
   let artIndex = 0;
 
@@ -158,7 +157,7 @@ export function buildGallery(data: SiteData, style: StyleDef, renderer: THREE.We
         const lintelH = H - d.height;
         if (lintelH > 0.01) {
           const c = pointOnWall(w, d.offset, -T / 2);
-          addBox(d.width, lintelH, T, new THREE.Vector3(c.x, d.height + lintelH / 2, c.z), ry, sideMat.mat, sideMat.tile, true);
+          addBox(d.width, lintelH, T, new THREE.Vector3(c.x, d.height + lintelH / 2, c.z), ry, sideMat.mat, sideMat.tile, true).userData.wall = { roomId: room.id, side };
         }
         cur = b;
       }
@@ -166,7 +165,8 @@ export function buildGallery(data: SiteData, style: StyleDef, renderer: THREE.We
       const piece = (a: number, b: number, y0: number, y1: number) => {
         if (b - a < 0.01 || y1 - y0 < 0.01) return;
         const c = pointOnWall(w, (a + b) / 2, -T / 2);
-        addBox(b - a, y1 - y0, T, new THREE.Vector3(c.x, (y0 + y1) / 2, c.z), ry, sideMat.mat, sideMat.tile, true);
+        // a click on the wall can tell which wall it is (the studio's preview opens it in the wall editor)
+        addBox(b - a, y1 - y0, T, new THREE.Vector3(c.x, (y0 + y1) / 2, c.z), ry, sideMat.mat, sideMat.tile, true).userData.wall = { roomId: room.id, side };
       };
       const head = Math.min(H - 0.45, 2.9);
       const isEntrance = entrance?.roomId === room.id && entrance.wall === side;
@@ -231,15 +231,6 @@ export function buildGallery(data: SiteData, style: StyleDef, renderer: THREE.We
         ...g.display,
       });
       res.warnings.forEach((m) => warnings.push(`${room.name} / ${side}: ${m}`));
-      // stretches of this wall between doors with nothing hung on them (a windowed wall is not bare: it has its view)
-      if (!wallHasWindows(g, room, side)) {
-        for (const [a, b] of freeSegments(w.length, blockersOn(g, plan, room.id, side))) {
-          const used = res.works.some((hw) => hw.offset + hw.outerW / 2 > a && hw.offset - hw.outerW / 2 < b);
-          if (used || b - a < 2.2) continue;
-          const p = pointOnWall(w, (a + b) / 2, 0.5);
-          emptyStretches.push({ x: p.x, z: p.z, length: b - a });
-        }
-      }
       for (const hw of res.works) {
         artIndex++;
         const art = artworksById.get(hw.artworkId)!;
@@ -271,12 +262,8 @@ export function buildGallery(data: SiteData, style: StyleDef, renderer: THREE.We
     }
   }
 
-  if (env.plants) {
-    // each work reaches half its framed width either side of its centre, and its label a little further
-    const hung = instances.map((a) => ({ x: a.centre.x, z: a.centre.z, reach: Math.max(a.hung.outerW / 2, Math.abs(a.hung.label.offset - a.hung.offset) + a.hung.label.w / 2) }));
-    if (door) hung.push({ x: door.inside.x - door.normal.x * 1.6, z: door.inside.z - door.normal.z * 1.6, reach: 0.7 });
-    root.add(buildPlants(plan, hung, emptyStretches));
-  }
+  // placed by hand where a room has its own list, by the automatic rule elsewhere
+  if (env.plants) root.add(buildPlants(roomPlants(g, plan, { aspect: (id) => { const a = data.assets[id]; return a ? a.width / a.height : undefined; }, styleFrame: style.frame }).values()));
   if (outlook.lengthSq() > 1e-6) outlook.normalize(); else outlook.set(0, 0, -1);
 
   return { root, plan, segments: collisionSegments(plan), occluders, floors, artworks: instances, warnings, style, skylights, outlook, entrance: door };

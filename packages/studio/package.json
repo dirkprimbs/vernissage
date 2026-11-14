@@ -1,6 +1,6 @@
 {
   "name": "@vernissage/studio",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "description": "Vernissage Studio \u2014 design 3D galleries and export them as static websites",
   "author": "Vernissage",

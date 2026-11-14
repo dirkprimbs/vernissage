@@ -29,6 +29,8 @@ export interface HungWork {
   label: { offset: number; y: number; w: number; h: number; position: 'right' | 'below' };
   /** < 1 when the work was shrunk to fit the room */
   fitScale: number;
+  /** which free stretch of the wall the work hangs on (0 = left of the first door) */
+  stretch: number;
 }
 
 export interface HangInput {
@@ -51,6 +53,8 @@ export interface HangInput {
 export interface HangResult {
   works: HungWork[];
   warnings: string[];
+  /** the works did not fit the wall at their own sizes and were all made smaller together */
+  squeezed?: boolean;
 }
 
 interface Item {
@@ -61,6 +65,8 @@ interface Item {
   lw: number; lh: number;
   /** this work's own size factor (Placement.scale), already included in w and h */
   own: number;
+  /** the free stretch the work is to hang on (Placement.stretch) */
+  pin?: number;
   manualOffset?: number; manualY?: number;
 }
 
@@ -96,7 +102,7 @@ export function hangWall(inp: HangInput): HangResult {
     const baseMat = art.mat === false ? 0 : art.mat === true ? Math.max(base.mat, 0.05) : base.mat;
     const mat = baseMat * (1 + (fs - 1) / 2);
     const ls = inp.labelScale ?? 1;
-    items.push({ art, w: w * sc, h: h * sc, frame, mat, labelPos: art.label, lw: LABEL_W * ls, lh: LABEL_H * ls, own: p.scale ?? 1, manualOffset: p.offset, manualY: p.height });
+    items.push({ art, w: w * sc, h: h * sc, frame, mat, labelPos: art.label, lw: LABEL_W * ls, lh: LABEL_H * ls, own: p.scale ?? 1, pin: p.stretch, manualOffset: p.offset, manualY: p.height });
   }
   if (!items.length) return { works: [], warnings };
 
@@ -107,9 +113,11 @@ export function hangWall(inp: HangInput): HangResult {
 
   // per-item fit: no work may be taller than the wall allows or wider than the longest free stretch
   let fit: number[];
+  let squeezed = false;
   if (inp.sizing === 'auto') {
     const r = autoFit(items, segs, maxH, inp.wall.hang);
     fit = r.k;
+    squeezed = !!r.squeezed;
     if (r.squeezed) warnings.push(`the wall is full: all works shown at ${Math.round(r.squeezed * 100)}% to fit`);
   } else fit = items.map((it) => {
     const { oh } = outer(it, 1);
@@ -126,37 +134,68 @@ export function hangWall(inp: HangInput): HangResult {
   else if (inp.wall.hang === 'grid') placed = hangGrid(items, fit, segs, inp.roomHeight, warnings, inp.artScale ?? 1);
   else placed = hangCentred(items, fit, segs, inp.roomHeight, warnings);
 
+  placed.forEach((hw) => {
+    const at = segs.findIndex(([a, b]) => hw.offset >= a && hw.offset <= b);
+    hw.stretch = at >= 0 ? at : segs.reduce((best, [a, b], k) => (Math.abs((a + b) / 2 - hw.offset) < Math.abs((segs[best][0] + segs[best][1]) / 2 - hw.offset) ? k : best), 0);
+  });
   // manual overrides
   placed.forEach((hw, i) => {
     const it = items[i];
     if (it.manualOffset !== undefined) { const d = it.manualOffset - hw.offset; hw.offset += d; hw.label.offset += d; }
     if (it.manualY !== undefined) { const d = it.manualY - hw.y; hw.y += d; hw.label.y += d; }
   });
-  return { works: placed, warnings };
+  return { works: placed, warnings, squeezed: squeezed || warnings.some((w) => w.startsWith(CROWDED)) };
 }
+
+/**
+ * The size factor closest to `wanted` that the work at `index` can have without the wall's other works having
+ * to give way: resizing one work is then never paid for by its neighbours. A wall that is already too full
+ * only lets its works get smaller.
+ */
+export function largestScale(inp: HangInput, index: number, wanted: number): number {
+  const current = inp.wall.artworks[index]?.scale ?? 1;
+  if (wanted <= current) return wanted;
+  const squeezedAt = (s: number) => !!hangWall({ ...inp, wall: { ...inp.wall, artworks: inp.wall.artworks.map((p, i) => (i === index ? { ...p, scale: s } : p)) } }).squeezed;
+  if (!squeezedAt(wanted)) return wanted;
+  if (squeezedAt(current)) return current;
+  let lo = current, hi = wanted;
+  for (let i = 0; i < 20; i++) { const mid = (lo + hi) / 2; if (squeezedAt(mid)) hi = mid; else lo = mid; }
+  return Math.max(current, Math.floor(lo * 100) / 100);
+}
+
+const CROWDED = 'wall is crowded';
 
 /** largest picture height and width auto sizing will choose, in metres */
 const AUTO_MAX_H = 1.75, AUTO_MAX_W = 3.4;
 /** the common scale never goes above this: a lone work on a long wall stays a picture, not a mural */
 const AUTO_MAX_K = 1.3;
 
-/** Would these block widths fit the free stretches with a gap between them (the same greedy fill as distribute)? */
-function fitsStretches(widths: number[], segs: Array<[number, number]>, gap: number): boolean {
-  let si = 0, used = gap;
-  for (const w of widths) {
-    while (used + w + gap > segs[si][1] - segs[si][0] + 1e-6) {
-      if (++si >= segs.length) return false;
-      used = gap;
+/**
+ * Which free stretch each block goes on: in order, filling a stretch before moving to the next. A block pinned
+ * to a stretch (Placement.stretch) goes there, as long as that keeps the order. `fits`: nothing overflows.
+ */
+function assign(widths: number[], pins: Array<number | undefined>, segs: Array<[number, number]>, gap: number): { groups: number[][]; fits: boolean } {
+  const groups: number[][] = segs.map(() => []);
+  const len = (k: number) => segs[k][1] - segs[k][0];
+  let si = 0, used = gap, fits = true;
+  widths.forEach((w, i) => {
+    const pin = pins[i];
+    if (pin !== undefined) {
+      const to = Math.min(Math.max(pin, si), segs.length - 1);
+      if (to !== si) { si = to; used = gap; }
+      if (used + w + gap > len(si) + 1e-6) fits = false;
+    } else {
+      while (used + w + gap > len(si) + 1e-6) {
+        if (si >= segs.length - 1) { fits = false; break; }
+        si++; used = gap;
+      }
     }
+    groups[si].push(i);
     used += w + gap;
-  }
-  return true;
+  });
+  return { groups, fits };
 }
 
-/**
- * Auto sizing: one common scale for the wall, as large as fits. Few works on a long wall come out large and
- * well apart; many works shrink and close up. Each work's own scale (Placement.scale) is already in its size.
- */
 /**
  * Auto sizing: one common scale for the wall. It is chosen as if every work were at its normal size, so making
  * one work larger or smaller leaves the others as they are. Only if the works no longer fit the wall does
@@ -166,29 +205,30 @@ function autoFit(items: Item[], segs: Array<[number, number]>, maxH: number, han
   const rows = hang === 'salon' ? Math.min(3, items.length) : hang === 'grid' && items.length > 4 ? 2 : 1;
   const longest = Math.max(...segs.map(([a, b]) => b - a));
   /** do these works fit the wall at scale k? `limits`: also keep each work within the comfortable maximum */
-  const ok = (list: Item[], k: number, limits: boolean) => {
+  const ok = (list: Item[], k: number, limits: boolean, gap = MIN_GAP + 0.35 * k) => {
     for (const it of list) {
       const { ow, oh } = outer(it, k);
       if (limits && (it.h * k > AUTO_MAX_H || it.w * k > AUTO_MAX_W)) return false;
       if (oh * rows + 0.15 * (rows - 1) > maxH || ow > longest - 2 * MIN_GAP) return false;
     }
     // stacked hangs put several works in one column: count columns, not works
-    const widths: number[] = [];
-    for (let i = 0; i < list.length; i += rows) widths.push(Math.max(...list.slice(i, i + rows).map((it) => footprint(it, k))));
-    return fitsStretches(widths, segs, MIN_GAP + 0.35 * k);
+    const widths: number[] = [], pins: Array<number | undefined> = [];
+    for (let i = 0; i < list.length; i += rows) { widths.push(Math.max(...list.slice(i, i + rows).map((it) => footprint(it, k)))); pins.push(list[i].pin); }
+    return assign(widths, pins, segs, gap).fits;
   };
-  const largest = (list: Item[], hi: number, limits: boolean) => {
-    if (ok(list, hi, limits)) return hi;
+  const largest = (list: Item[], hi: number, limits: boolean, gap?: number) => {
+    if (ok(list, hi, limits, gap)) return hi;
     let lo = 0.05;
-    for (let i = 0; i < 26; i++) { const mid = (lo + hi) / 2; if (ok(list, mid, limits)) lo = mid; else hi = mid; }
+    for (let i = 0; i < 26; i++) { const mid = (lo + hi) / 2; if (ok(list, mid, limits, gap)) lo = mid; else hi = mid; }
     return lo;
   };
   // the wall's scale with everything at its normal size
   const normal = items.map((it) => ({ ...it, w: it.w / it.own, h: it.h / it.own }));
   const k = largest(normal, AUTO_MAX_K, true);
-  if (ok(items, k, false)) return { k: items.map(() => k) };
+  // resized works may use up the generous spacing: the others only give way when the wall is truly full
+  if (ok(items, k, false, MIN_GAP)) return { k: items.map(() => k) };
   // the resized works do not fit: shrink all of them together, just enough
-  const fitted = largest(items, k, false);
+  const fitted = largest(items, k, false, MIN_GAP);
   return { k: items.map(() => fitted), squeezed: fitted / k };
 }
 
@@ -202,7 +242,7 @@ function makeWork(it: Item, s: number, cx: number, cy: number, roomHeight: numbe
     position === 'right'
       ? { offset: cx + ow / 2 + LABEL_GAP + LW / 2, y: Math.min(Math.max(bottom + LH / 2 + 0.05, 1.05), 1.45, roomHeight - 0.5), w: LW, h: LH, position }
       : { offset: cx, y: bottom - LABEL_GAP - LH / 2, w: LW, h: LH, position };
-  return { artworkId: it.art.id, offset: cx, y: cy, width: it.w * s, height: it.h * s, outerW: ow, outerH: oh, frame: it.frame, mat: it.mat, label, fitScale: s };
+  return { artworkId: it.art.id, offset: cx, y: cy, width: it.w * s, height: it.h * s, outerW: ow, outerH: oh, frame: it.frame, mat: it.mat, label, fitScale: s, stretch: 0 };
 }
 
 function clampY(y: number, oh: number, roomHeight: number) {
@@ -210,25 +250,19 @@ function clampY(y: number, oh: number, roomHeight: number) {
 }
 
 /** Distribute "blocks" with widths over the free segments, evenly spaced. Returns centre offsets of each block. */
-function distribute(widths: number[], segs: Array<[number, number]>, warnings: string[]): { centres: number[]; scale: number } {
+function distribute(widths: number[], segs: Array<[number, number]>, warnings: string[], pins: Array<number | undefined> = []): { centres: number[]; scale: number } {
   const total = segs.reduce((s, [a, b]) => s + (b - a), 0);
   const need = widths.reduce((a, b) => a + b, 0) + MIN_GAP * (widths.length + segs.length);
   let scale = 1;
   if (need > total) {
     scale = Math.max(0.2, (total - MIN_GAP * (widths.length + segs.length)) / widths.reduce((a, b) => a + b, 0));
-    warnings.push(`wall is crowded: works scaled to ${Math.round(scale * 100)}%`);
+    warnings.push(`${CROWDED}: works scaled to ${Math.round(scale * 100)}%`);
   }
   const ws = widths.map((w) => w * scale);
-  // greedy assignment, proportional to segment length
-  const groups: number[][] = segs.map(() => []);
-  let si = 0, used = MIN_GAP;
-  ws.forEach((w, i) => {
-    while (si < segs.length - 1 && used + w + MIN_GAP > segs[si][1] - segs[si][0] + 1e-6) { si++; used = MIN_GAP; }
-    groups[si].push(i);
-    used += w + MIN_GAP;
-  });
-  // if everything ended in the first segment and there are two segments (door in middle), balance
-  if (segs.length === 2 && groups[1].length === 0 && groups[0].length > 1) {
+  const { groups } = assign(ws, pins, segs, MIN_GAP);
+  // if everything ended in the first segment and there are two segments (door in middle), balance;
+  // not when a work was given its side by hand
+  if (segs.length === 2 && groups[1].length === 0 && groups[0].length > 1 && !pins.some((p) => p !== undefined)) {
     const half = Math.ceil(groups[0].length / 2);
     const len1 = segs[1][1] - segs[1][0];
     const moved = groups[0].slice(half);
@@ -248,7 +282,7 @@ function distribute(widths: number[], segs: Array<[number, number]>, warnings: s
 
 function hangCentred(items: Item[], fit: number[], segs: Array<[number, number]>, H: number, warnings: string[]): HungWork[] {
   const widths = items.map((it, i) => footprint(it, fit[i]));
-  const { centres, scale } = distribute(widths, segs, warnings);
+  const { centres, scale } = distribute(widths, segs, warnings, items.map((it) => it.pin));
   return items.map((it, i) => {
     const s = fit[i] * scale;
     const { ow, oh } = outer(it, s);
@@ -270,7 +304,7 @@ function hangSalon(items: Item[], fit: number[], segs: Array<[number, number]>, 
   });
   if (cur.length) cols.push(cur);
   const colW = cols.map((c) => Math.max(...c.map((i) => footprint(items[i], fit[i]))));
-  const { centres, scale } = distribute(colW, segs, warnings);
+  const { centres, scale } = distribute(colW, segs, warnings, cols.map((c) => items[c[0]].pin));
   const out: HungWork[] = [];
   cols.forEach((c, ci) => {
     const hs = c.map((i) => outer(items[i], fit[i] * scale).oh);
@@ -301,7 +335,7 @@ function hangGrid(items: Item[], fit: number[], segs: Array<[number, number]>, H
   const out: HungWork[] = [];
   for (let r = 0; r < rows; r++) {
     const idx = items.map((_, i) => i).slice(r * perRow, (r + 1) * perRow);
-    const { centres, scale } = distribute(idx.map((i) => footprint(items[i], norm[i])), segs, warnings);
+    const { centres, scale } = distribute(idx.map((i) => footprint(items[i], norm[i])), segs, warnings, idx.map((i) => items[i].pin));
     const cy = rows === 1 ? EYE_LINE : EYE_LINE + (r === 0 ? 1 : -1) * (cellH / 2 + 0.15);
     idx.forEach((i, k) => {
       const s = norm[i] * scale;

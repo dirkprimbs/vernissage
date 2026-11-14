@@ -10,6 +10,7 @@ async function call<T>(channel: string, ...args: unknown[]): Promise<T> {
 
 const api = {
   info: () => call('app:info'),
+  markSeen: () => call('app:seen'),
   openProject: (dir?: string) => call('project:open', dir),
   newProject: (title: string) => call('project:new', title),
   fromDemo: (id: string) => call('project:fromDemo', id),

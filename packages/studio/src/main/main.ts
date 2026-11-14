@@ -35,7 +35,7 @@ let previewPort = 0;
 const siteServers = new Map<string, number>();
 
 // ---------- settings ----------
-interface Settings { recent: string[]; outDirs: Record<string, string> }
+interface Settings { recent: string[]; outDirs: Record<string, string>; /** the newest version whose changes this person has been shown */ seenVersion?: string }
 const settingsFile = () => join(app.getPath('userData'), 'settings.json');
 async function loadSettings(): Promise<Settings> {
   try { return { recent: [], outDirs: {}, ...JSON.parse(await readFile(settingsFile(), 'utf8')) }; } catch { return { recent: [], outDirs: {} }; }
@@ -217,7 +217,23 @@ function handle(channel: string, fn: (...args: any[]) => unknown) {
 }
 
 function registerIpc() {
-  handle('app:info', async () => ({ demos: DEMOS, recent: (await loadSettings()).recent.filter((d) => existsSync(join(d, 'gallery.json'))), previewBase: `http://127.0.0.1:${previewPort}` }));
+  handle('app:info', async () => {
+    const s = await loadSettings();
+    // screenshots taken with the development hook are not covered by "what's new" (VERNISSAGE_NEWS=<version> shows it as if that version was seen last)
+    const quiet = !!process.env.VERNISSAGE_SCREENSHOT && !process.env.VERNISSAGE_NEWS;
+    return {
+      demos: DEMOS, recent: s.recent.filter((d) => existsSync(join(d, 'gallery.json'))), previewBase: `http://127.0.0.1:${previewPort}`,
+      version: app.getVersion(), seenVersion: quiet ? app.getVersion() : process.env.VERNISSAGE_NEWS ?? s.seenVersion ?? null,
+      // someone with projects behind them has used the studio before
+      returning: s.recent.length > 0 || Object.keys(s.outDirs).length > 0,
+    };
+  });
+  handle('app:seen', async () => {
+    if (process.env.VERNISSAGE_SCREENSHOT) return true;
+    const s = await loadSettings();
+    if (s.seenVersion !== app.getVersion()) { s.seenVersion = app.getVersion(); await saveSettings(s); }
+    return true;
+  });
 
   handle('project:open', async (dir?: string) => {
     if (!dir) {
@@ -400,7 +416,8 @@ async function createWindow() {
   });
   // closing the window closes the app. With unsaved changes, ask first instead of refusing silently.
   win.on('close', (e) => {
-    if (!dirty || closing) return;
+    // the development hook leaves the project as it found it: no question, no save
+    if (!dirty || closing || process.env.VERNISSAGE_SCREENSHOT) return;
     e.preventDefault();
     void (async () => {
       const r = await dialog.showMessageBox(win!, {

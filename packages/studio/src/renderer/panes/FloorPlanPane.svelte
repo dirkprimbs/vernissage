@@ -1,7 +1,8 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { WALL_SIDES, computeFloorPlan, entranceOf, settleRooms, snapRoom, wallHasWindows, type FloorPlan, type Gallery } from '@vernissage/schema';
+  import { WALL_SIDES, computeFloorPlan, entranceOf, windowedDoorWalls, settleRooms, snapRoom, wallHasWindows, type FloorPlan, type Gallery } from '@vernissage/schema';
   import { st, newRoom } from '../state.svelte';
+  import PlantsEditor from '../PlantsEditor.svelte';
 
   const g = $derived(st.gallery!);
   const plan = $derived.by((): FloorPlan | null => { try { return computeFloorPlan($state.snapshot(g) as typeof g); } catch { return null; } });
@@ -53,6 +54,12 @@
       const at = snapRoom($state.snapshot(g) as Gallery, r.id, r.position!);
       if (at) g.rooms[g.rooms.length - 1].position = at;
     }
+    // a new room's wall with a doorway faces the next room: windows would not show there, so it starts closed and can take art
+    try {
+      const made = g.rooms[g.rooms.length - 1];
+      const snap = $state.snapshot(g) as Gallery;
+      for (const side of windowedDoorWalls(snap, computeFloorPlan(snap), made.id)) made.walls[side].windows = false;
+    } catch { /* the plan cannot be worked out yet */ }
   }
   const entrance = $derived(plan ? entranceOf($state.snapshot(g) as typeof g, plan) : undefined);
   function svgPoint(e: PointerEvent) {
@@ -168,4 +175,5 @@
       <label>Centre z (m) <input type="number" step="0.5" bind:value={sel.position.z} /></label>
     {/if}
   </div>
+  <PlantsEditor roomId={sel.id} />
 {/if}

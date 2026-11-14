@@ -67,6 +67,8 @@ export const Placement = z.object({
   height: z.number().optional(),
   /** size relative to the other works (auto sizing), or extra scale on top of true size */
   scale: z.number().positive().max(5).optional(),
+  /** on a wall divided by doors: which free stretch the work hangs on, counted from the left (0 = left of the first door). Unset: works fill the stretches in order */
+  stretch: z.number().int().min(0).optional(),
 });
 
 export const Wall = z.object({
@@ -97,6 +99,8 @@ export const Room = z.object({
   wallColor: hex.optional(),
   /** used only when layout.mode = custom; room centre in metres */
   position: z.object({ x: z.number(), z: z.number() }).optional(),
+  /** potted plants placed by hand, in metres from the room's centre (x east, z south); `size` 1 is about 1.3 m tall. Unset: plants are placed automatically */
+  plants: z.array(z.object({ x: z.number(), z: z.number(), size: z.number().min(0.4).max(2.5).optional() })).max(40).optional(),
   /** optional explicit doorways; when omitted, doorways are generated between neighbouring rooms */
   doorways: z.array(Doorway).optional(),
   walls: z

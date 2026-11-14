@@ -6,3 +6,4 @@ export * from './migrate';
 export * from './site';
 export * from './sun';
 export * from './suggest';
+export * from './plants';

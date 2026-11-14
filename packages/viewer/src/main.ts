@@ -67,8 +67,11 @@ async function boot() {
   const params = new URLSearchParams(location.search);
   /** running inside Vernissage Studio's preview, which sends edits as they happen */
   const studio = params.has('studio') && window.parent !== window;
+  /** the studio's editor is open beside the preview: a click on a work shows its entry there */
+  let editing = studio;
   if (studio) window.addEventListener('message', (e) => {
     if (e.source !== window.parent) return;
+    if (e.data?.type === 'vernissage:editing') { editing = !!e.data.on; return; }
     // the studio's artworks editor asks to see a work
     if (e.data?.type === 'vernissage:goto' && typeof e.data.art === 'string') { if (location.hash.startsWith('#/art') || mode !== '3d') location.hash = '#/'; queueMicrotask(() => { if (!joined) join(); g3d?.select(e.data.art, 'teleport'); }); return; }
     if (e.data?.type !== 'vernissage:data' || !e.data.site?.gallery) return;
@@ -141,10 +144,12 @@ async function boot() {
 
   function ensure3D(): Gallery3D {
     if (g3d) return g3d;
-    g3d = new Gallery3D(stage, data, style, state.quality, conditions.now(), { teleport: g.navigation.teleport, accent: style.ui.accent, orbit: g.navigation.lobbyOrbit }, {
+    g3d = new Gallery3D(stage, data, style, state.quality, conditions.now(), { teleport: g.navigation.teleport, accent: style.ui.accent, orbit: g.navigation.lobbyOrbit, stay: () => editing }, {
       onRoom: (r) => { shell?.setRoom(r); if (window.parent !== window) window.parent.postMessage({ type: 'vernissage:room', id: r.room.id }, '*'); },
       onNear: (a) => shell?.setNear(a),
       onSelect: (a) => shell?.setSelected(a),
+      onWall: (roomId, side) => { if (editing) window.parent.postMessage({ type: 'vernissage:wall', room: roomId, side }, '*'); },
+      onPick: (id) => { if (editing) window.parent.postMessage({ type: 'vernissage:art', id }, '*'); },
       onOpen: (id) => { location.hash = `#/art/${id}`; },
       onLabel: (id) => openLabel(id),
       onExit: (url) => {

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { doorsOn, WALL_SIDES, type FloorPlan, type LandscapeId } from '@vernissage/schema';
+import { doorsOn, WALL_SIDES, type FloorPlan, type LandscapeId, type PlantSpot } from '@vernissage/schema';
 import { canvas, rng, shade, speckle, toTexture } from './textures';
 import { buildSkyline } from './skyline';
 
@@ -248,39 +248,15 @@ function plant(seed: number): THREE.Group {
   return g;
 }
 
-/** what hangs on the walls, for keeping plants out of its way: a point on the wall and how far it reaches either side */
-export interface WallObject { x: number; z: number; reach: number }
-/** a stretch of closed wall with nothing on it: its middle, a little out from the wall, and its length */
-export interface EmptyStretch { x: number; z: number; length: number }
-
-/** Plants in room corners that are next to neither a doorway nor an artwork. */
-export function buildPlants(plan: FloorPlan, hung: WallObject[] = [], empty: EmptyStretch[] = []): THREE.Group {
+/** The potted plants of the gallery, at the spots worked out for each room (see roomPlants). */
+export function buildPlants(spots: Iterable<PlantSpot[]>): THREE.Group {
   const g = new THREE.Group();
   g.name = 'plants';
   let seed = 1;
-  for (const pr of plan.rooms) {
-    const { room, centre } = pr;
-    const hw = room.width / 2 - 0.55, hd = room.depth / 2 - 0.55;
-    const doorNear = (x: number, z: number) => WALL_SIDES.some((side) => doorsOn(plan, room.id, side).some((d) => {
-      const w = pr.walls[side];
-      const px = w.start.x + w.along.x * d.offset, pz = w.start.z + w.along.z * d.offset;
-      return Math.hypot(px - x, pz - z) < d.width / 2 + 1.0;
-    }));
-    for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
-      const x = centre.x + sx * hw, z = centre.z + sz * hd;
-      // a plant needs about a metre clear of any picture or label, or it crowds it
-      if (doorNear(x, z) || hung.some((o) => Math.hypot(o.x - x, o.z - z) < o.reach + 1.1)) continue;
-      const p = plant(seed++);
-      p.position.set(x, 0, z);
-      p.scale.setScalar(Math.min(1.25, room.height / 3.6));
-      g.add(p);
-    }
-  }
-  // a bare stretch of wall gets a plant in its middle; a long one gets a larger plant
-  for (const e of empty) {
+  for (const room of spots) for (const s of room) {
     const p = plant(seed++);
-    p.position.set(e.x, 0, e.z);
-    p.scale.setScalar(Math.min(1.6, 1.05 + e.length * 0.07));
+    p.position.set(s.x, 0, s.z);
+    p.scale.setScalar(s.scale);
     g.add(p);
   }
   return g;

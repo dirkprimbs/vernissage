@@ -1,5 +1,21 @@
 # Changelog
 
+What changed, newest first. The studio shows the entries someone has not seen yet when they open a newer
+version, so keep each one short and plain. Headings read `## version — date — title` (the title is optional).
+
+## 0.6.0 — 2026-11-14 — Adding from an album, finer control
+
+- **What's new:** the studio shows its version next to its name. After an update it lists once what changed since you last opened it; click the version to read the whole changelog.
+- **Add from Photos album:** the Artworks pane can add photos from a shared Google Photos album to a gallery you already have. Photos already in the gallery are marked, you tick the ones you want, and nothing you edited is touched.
+- **Click a work in the preview** to open its entry in the Artworks pane, instead of walking to it. Click a wall anywhere beside the works to open that wall of that room in the Walls pane. With the editor folded away, clicks behave as they do for visitors.
+- **Size slider:** changing one work's size never changes the others on the wall. The slider stops where the wall is full; shrink another work or move one to make room.
+- **Choosing what to hang:** in the Walls pane, tick works in *Not hung yet* and hang just those in the room, in place of the button that hung everything.
+- **Either side of a door:** on a wall with a door, ← and → in the Walls pane now take a work past the door, so you decide which side it hangs on. The list shows where the door is.
+- **New rooms:** a wall that gets the doorway to the next room starts without windows, since they would not show there.
+- **Plants by hand:** the Rooms pane shows the selected room's plants on a plan of the room. Click the floor to add one, drag to move, select to resize or remove; *Back to automatic* undoes it (`plants` on a room in `gallery.json`).
+- **Fix: two plants side by side.** A bare stretch of wall gets no plant when another plant of the same room stands within about 2.6 m, such as the one in the corner next to it. Plants and pictures in the next room no longer affect a room's plants.
+- **Map:** a click on the small map jumps straight to that spot, for visitors too.
+
 ## 0.5.0 — 2026-11-14
 
 - **Contact link:** a gallery can name a contact address (`contact`, *Contact address* under Menu bar in the studio). The menu bar then ends with a *Contact* link that opens an email to it (*Kontakt* when the gallery's `locale` is German). It shows even when the menu has no other links.

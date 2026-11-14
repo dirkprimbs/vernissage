@@ -9,11 +9,17 @@
   import LibraryPane from './panes/LibraryPane.svelte';
   import BuildPane from './panes/BuildPane.svelte';
   import Preview from './Preview.svelte';
+  import Changelog from './Changelog.svelte';
+  import { parseChangelog, whatsNew, type Entry } from './changelog';
+  import changelogText from '../../../../CHANGELOG.md?raw';
 
   let showIssues = $state(false);
   let showPreview = $state(true);
   /** the editor (navigation and settings) can be folded away to test-drive the gallery in the whole window */
   let showEditor = $state(true);
+  /** the changelog dialog: what is new since the last visit, or all of it */
+  let news = $state<{ entries: Entry[]; heading: string } | null>(null);
+  const changelog = parseChangelog(changelogText);
 
   const panes: Array<{ id: Pane; label: string; hint: string }> = [
     { id: 'gallery', label: 'Gallery', hint: 'Title, light, entry door' },
@@ -34,6 +40,11 @@
   onMount(async () => {
     const info = await studio.info();
     st.previewBase = info.previewBase;
+    st.version = info.version;
+    // after an update: what changed since this person last opened the studio
+    const unseen = whatsNew(changelog, info.seenVersion, info.returning, info.version);
+    if (unseen.length) news = { entries: unseen, heading: 'What’s new in Vernissage Studio' };
+    void studio.markSeen();
     studio.onMenu(async (cmd) => {
       if (cmd === 'save') save();
       else if (cmd === 'save-and-close') { if (await save()) studio.closeWindow(true); }
@@ -73,13 +84,16 @@
   }
 </script>
 
+{#if news}<Changelog entries={news.entries} heading={news.heading} onclose={() => (news = null)} />{/if}
+
 {#if !st.gallery}
-  <Start />
+  <Start onchangelog={() => (news = { entries: changelog, heading: 'Changelog' })} />
 {:else}
   <div class="shell" class:no-preview={!showPreview} class:no-editor={!showEditor}>
     <header class="top">
       <button class="ghost fold" onclick={toggleEditor} title="{showEditor ? 'Hide' : 'Show'} the editor (Ctrl+E)" aria-expanded={showEditor} aria-label="{showEditor ? 'Hide' : 'Show'} the editor">{showEditor ? '⟨' : '⟩'} {showEditor ? 'Hide editor' : 'Edit'}</button>
       <div class="brand">Vernissage <span>Studio</span></div>
+      <button class="link small version" onclick={() => (news = { entries: changelog, heading: 'Changelog' })} title="What changed in each version">v{st.version}</button>
       <div class="project" title={st.dir}>{st.gallery.title}{#if st.dirty}<span class="dot" title="Unsaved changes">●</span>{/if}</div>
       <div class="spacer"></div>
       <button class="ghost issues" class:bad={st.errors.length} onclick={() => (showIssues = !showIssues)}>
@@ -115,7 +129,7 @@
     </main>
     {/if}
 
-    {#if showPreview}<aside class="preview"><Preview /></aside>{/if}
+    {#if showPreview}<aside class="preview"><Preview editing={showEditor} /></aside>{/if}
   </div>
 {/if}
 

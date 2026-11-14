@@ -13,6 +13,9 @@
   let filter = $state('');
   let dropping = $state(false);
   let picking = $state(false);
+  let strip = $state<HTMLElement>();
+  // the work being edited stays in view in the strip (it may have been chosen in the preview)
+  $effect(() => { void art?.id; queueMicrotask(() => strip?.querySelector('button.active')?.scrollIntoView({ block: 'nearest' })); });
   const shown = $derived(g.artworks.filter((a) => !filter || `${a.title} ${a.artist.name} ${a.description ?? ''}`.toLowerCase().includes(filter.toLowerCase())));
   const unhung = $derived(g.artworks.filter((a) => !st.placementOf(a.id)).length);
   /** every wall a work can hang on */
@@ -104,7 +107,7 @@
       <span>Click to choose JPG, PNG or SVG files, or drop them anywhere on this page.</span>
     </button>
   {:else}
-    <ul class="lib-strip" aria-label="All artworks">
+    <ul class="lib-strip" aria-label="All artworks" bind:this={strip}>
       {#each shown as a (a.id)}
         <li>
           <button class:active={a.id === art?.id} class:loose={!st.placementOf(a.id)} onclick={() => (st.artwork = a.id)} title="{a.title}{st.placementOf(a.id) ? '' : ' (not hung)'}" aria-label={a.title} aria-pressed={a.id === art?.id}>

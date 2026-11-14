@@ -41,7 +41,7 @@ export class Shell {
   private notes = h('div', { class: 'notifications', 'aria-live': 'polite' });
   private hint = h('button', { class: 'hint', type: 'button', hidden: true });
   private objectMenu = h('div', { class: 'object-menu-container', hidden: true });
-  private minimap = h('canvas', { class: 'minimap', width: 220, height: 220, 'aria-label': 'Map — click a room to walk there' }) as HTMLCanvasElement;
+  private minimap = h('canvas', { class: 'minimap', width: 220, height: 220, 'aria-label': 'Map: click a spot to jump there', title: 'Click a spot to jump there' }) as HTMLCanvasElement;
   private progress = h('div', { class: 'progress' }, h('span'));
   private pop?: { el: HTMLElement; anchor: HTMLElement };
   private side?: SidebarId;
@@ -403,8 +403,8 @@ export class Shell {
     const r = this.minimap.getBoundingClientRect();
     const x = ((e.clientX - r.left) * (this.minimap.width / r.width) - m.ox) / m.s;
     const z = ((e.clientY - r.top) * (this.minimap.height / r.height) - m.oz) / m.s;
-    const room = this.g3d.built.plan.rooms.find((pr) => x >= pr.minX && x <= pr.maxX && z >= pr.minZ && z <= pr.maxZ);
-    if (room) { this.g3d.walkToRoom(room.room.id); this.notify(`Walking to ${room.room.name}`); }
+    // straight to the spot that was clicked, not a walk through the rooms
+    this.g3d.teleportTo(x, z);
   }
 
   setVisible(v: boolean) { this.el.hidden = !v; if (!v) this.closePop(); }

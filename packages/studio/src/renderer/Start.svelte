@@ -3,6 +3,7 @@
   import { studio } from './api';
   import { st } from './state.svelte';
 
+  let { onchangelog }: { onchangelog: () => void } = $props();
   let demos = $state<Array<{ id: string; name: string; description: string }>>([]);
   let recent = $state<string[]>([]);
   let title = $state('My Gallery');
@@ -37,7 +38,8 @@
 <div class="start">
   <div class="start-card">
     <h1>Vernissage <span>Studio</span></h1>
-    <p class="muted">Design a 3D gallery, hang your art, and export it as a static website.</p>
+    <p class="muted">Design a 3D gallery, hang your art, and export it as a static website.
+      {#if st.version}<button class="link small version" onclick={onchangelog} title="What changed in each version">v{st.version}</button>{/if}</p>
 
     <div class="start-cols">
       <div>
