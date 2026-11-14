@@ -23,16 +23,15 @@ You do not need to be a developer. Download the installer for your computer from
 
 The warnings on Windows and macOS appear because the installers are not signed with a paid developer certificate. The studio does not update itself: install a newer release over the old one, and it tells you what changed.
 
-## Quick start
+## Your first gallery
 
-```bash
-npm install
-npm run studio                     # build everything and open Vernissage Studio
-npm run demos                      # build the three demo sites into out/
-node packages/generator/dist/cli.js serve out/davinci   # http://127.0.0.1:8080/
-```
+1. **Open Vernissage Studio** from the Start menu (Windows), Applications (Mac) or your app launcher (Linux).
+2. **Start a gallery:** a new one, one made from a shared Google Photos album, or a copy of a demo to look around in. The studio asks for a folder to keep it in.
+3. **Add your pictures** in *Artworks*, hang them in *Walls*, and walk through the result in the live preview on the right.
+4. **Build the website** in *Build*: choose an output folder and press build. *Open in browser* shows it on your computer.
+5. **Publish it** by uploading that folder to any web host. It is plain files; nothing needs to run on the server.
 
-Requires Node 20+ (developed on Node 26). The studio's first launch downloads the Electron binary.
+Everything is done in the studio. The command line further down is for developers and for automating builds.
 
 ## Look and feel
 
@@ -97,7 +96,7 @@ Settings without a control in the studio (display scales, focus-mode layouts, ti
 
 ### From a Google Photos album
 
-Paste the link of an album **shared by link** (`https://photos.app.goo.gl/…`) on the start screen, or run `node packages/generator/dist/cli.js import-album <link> <new-folder>`. The importer:
+Paste the link of an album **shared by link** (`https://photos.app.goo.gl/…`) on the start screen (developers can also run `import-album` from the command line, see below). The importer:
 
 - downloads each photo (longest side 4096 px; videos are skipped);
 - suggests rooms from the number and shapes of the photos and hangs them in album order. A panorama (wider than 2.2 : 1) gets a wall to itself, so no smaller pictures compete with it;
@@ -107,7 +106,6 @@ Paste the link of an album **shared by link** (`https://photos.app.goo.gl/…`) 
 
 Google offers no interface for public albums, so the importer reads the album's web pages, as a browser would. If Google changes those pages the import can stop working. Only the first page of a very long album (a few hundred photos) is read.
 
-Packaging: `npm run dist -w @vernissage/studio` builds the installers for the system it runs on into `release/` (AppImage and .deb on Linux, a .dmg on macOS, an installer .exe on Windows). Installers for all three are built by GitHub when a version tag is pushed (`.github/workflows/release.yml`) and collected in a draft release; see *Development*.
 
 ## Project folder
 
@@ -158,7 +156,7 @@ my-gallery/
 
 The full schema, with defaults, is in [`packages/schema/src/model.ts`](packages/schema/src/model.ts). The generator, the viewer and the studio all validate against it. Errors and warnings (missing provenance, works shrunk to fit a wall, …) name the exact field.
 
-## CLI
+## Command line (for developers)
 
 ```bash
 node packages/generator/dist/cli.js validate <project>
@@ -199,6 +197,17 @@ Every image is public domain or CC0. `npm run fetch-demos` re-downloads them fro
 
 ## Development
 
+To run from the source code instead of an installer:
+
+```bash
+npm install
+npm run studio                     # build everything and open Vernissage Studio
+npm run demos                      # build the three demo sites into out/
+node packages/generator/dist/cli.js serve out/davinci   # http://127.0.0.1:8080/
+```
+
+Requires Node 20+ (developed on Node 26). The studio's first launch downloads the Electron binary.
+
 ```
 packages/schema     config schema, presets (styles, lighting, frames), floor-plan and hanging maths
 packages/viewer     the static site's runtime (three.js + DOM UI), built with Vite into one IIFE
@@ -219,6 +228,8 @@ VERNISSAGE_SITE=out/davinci npm run dev     # viewer dev server against a built 
 Studio development hooks: `VERNISSAGE_OPEN=<project>` opens a project at launch (without adding it to the recent list). `VERNISSAGE_SCREENSHOT=<png>` (optionally with `VERNISSAGE_JS`, `VERNISSAGE_WAIT`, and `VERNISSAGE_SIZE=1600x900` to render offscreen at an exact size) saves a capture of the window and quits.
 
 ### Releasing
+
+`npm run dist -w @vernissage/studio` builds the installers for the system it runs on into `release/` (AppImage and .deb on Linux, a .dmg on macOS, an installer .exe on Windows). Installers for all three are built by GitHub:
 
 1. Bump the version (root and studio `package.json`, `GENERATOR`) and add the `CHANGELOG.md` entry; a test checks they agree.
 2. Tag and push: `git tag v0.7.2 && git push origin v0.7.2`.
