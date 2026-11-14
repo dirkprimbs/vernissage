@@ -306,8 +306,10 @@ export class Gallery3D {
     if (!a) return;
     this.loadingTex++;
     const url = a.asset!.texture;
-    this.texLoader.load(
-      url,
+    // A failed download (a deploy still uploading, a dropped connection) is tried again, past the browser's cache,
+    // rather than leaving an empty frame until the next visit.
+    const attempt = (n: number) => this.texLoader.load(
+      n ? `${url}${url.includes('?') ? '&' : '?'}retry=${n}` : url,
       (tex) => {
         tex.colorSpace = THREE.SRGBColorSpace;
         tex.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
@@ -317,8 +319,13 @@ export class Gallery3D {
         this.done();
       },
       undefined,
-      () => this.done(),
+      () => {
+        if (n < 3) { setTimeout(() => attempt(n + 1), 1500 * (n + 1)); return; }
+        console.warn(`Vernissage: could not load ${url}`);
+        this.done();
+      },
     );
+    attempt(0);
   }
 
   private done() {
