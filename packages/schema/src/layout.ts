@@ -35,6 +35,8 @@ export interface DoorOpening {
   height: number;
   /** id of the room on the other side (if any) */
   to?: string;
+  /** not a door: the room's pinboard, which art keeps clear of in the same way */
+  pinboard?: boolean;
 }
 
 /** A short passage that bridges the gap between two facing doorways. */
@@ -292,8 +294,47 @@ export function entranceOf(g: Pick<Gallery, 'entrance' | 'environment' | 'rooms'
 /** Everything on a wall that artworks must keep clear of: doorways to other rooms and the entry door. */
 export function blockersOn(g: Pick<Gallery, 'entrance' | 'environment' | 'rooms'>, plan: FloorPlan, roomId: string, side: WallSide): DoorOpening[] {
   const e = entranceOf(g, plan);
-  const doors = doorsOn(plan, roomId, side);
-  return e && e.roomId === roomId && e.wall === side ? [...doors, e].sort((x, y) => x.offset - y.offset) : doors;
+  const out = [...doorsOn(plan, roomId, side)];
+  if (e && e.roomId === roomId && e.wall === side) out.push(e);
+  const board = pinboardOf(g, plan, roomId);
+  if (board && board.wall === side) out.push({ roomId, wall: side, offset: board.offset, width: board.width, height: board.y + board.height / 2, pinboard: true });
+  return out.sort((x, y) => x.offset - y.offset);
+}
+
+/** a pinboard's size in metres, the height of its centre, and its distance from the door it hangs beside */
+export const PINBOARD = { width: 2, height: 1.3, y: 1.6, gap: 0.3 };
+export interface PlacedPinboard { roomId: string; wall: WallSide; /** centre along the wall */ offset: number; width: number; height: number; /** centre height */ y: number }
+
+/**
+ * Where a room's pinboard hangs: beside its door (the entry door first, then the doorways to other rooms), on
+ * the side with more wall, narrower if it has to be. A room without a usable door gets it at the start of its
+ * first closed wall.
+ */
+export function pinboardOf(g: Pick<Gallery, 'entrance' | 'environment' | 'rooms'>, plan: FloorPlan, roomId: string): PlacedPinboard | undefined {
+  const pr = plan.rooms.find((r) => r.room.id === roomId);
+  if (!pr?.room.pinboard) return undefined;
+  const e = entranceOf(g, plan);
+  const mine = e && e.roomId === roomId ? [e] : [];
+  const doors = [...mine, ...WALL_SIDES.flatMap((s) => doorsOn(plan, roomId, s))];
+  const height = Math.min(PINBOARD.height, pr.room.height - 1.3);
+  const y = Math.min(PINBOARD.y, pr.room.height - 0.3 - height / 2);
+  const place = (wall: WallSide, a: number, width: number): PlacedPinboard => ({ roomId, wall, offset: a + width / 2, width, height, y });
+  for (const width of [PINBOARD.width, 1.5, 1.1]) {
+    for (const d of doors) {
+      if (pr.room.walls[d.wall].windows === true) continue;
+      const len = pr.walls[d.wall].length;
+      const others = [...mine, ...doorsOn(plan, roomId, d.wall)].filter((o) => o.wall === d.wall && o.offset !== d.offset);
+      const free = (a: number) => a >= 0.25 && a + width <= len - 0.25 && !others.some((o) => a + width > o.offset - o.width / 2 - PINBOARD.gap && a < o.offset + o.width / 2 + PINBOARD.gap);
+      const right = d.offset + d.width / 2 + PINBOARD.gap, left = d.offset - d.width / 2 - PINBOARD.gap - width;
+      // the side with more wall first
+      for (const a of len - right >= left + width ? [right, left] : [left, right]) if (free(a)) return place(d.wall, a, width);
+    }
+  }
+  for (const side of WALL_SIDES) {
+    if (wallHasWindows(g, pr.room, side) || doors.some((d) => d.wall === side) || pr.walls[side].length < 1.8) continue;
+    return place(side, 0.4, Math.min(PINBOARD.width, pr.walls[side].length - 0.8));
+  }
+  return undefined;
 }
 
 /** the space between two neighbouring rooms' interiors: the gap setting, but never less than two wall thicknesses */

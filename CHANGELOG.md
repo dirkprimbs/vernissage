@@ -3,6 +3,13 @@
 What changed, newest first. The studio shows the entries someone has not seen yet when they open a newer
 version, so keep each one short and plain. Headings read `## version — date — title` (the title is optional).
 
+## 0.7.0 — 2026-11-14 — Pinboards
+
+- **Pinboard:** a room can have a cork board next to its door (Rooms pane, *Pinboard*). Art keeps clear of it.
+- **Instant photos:** pictures added to the board hang as instant photos in mini, square or wide format, with a short line written on the white border.
+- **Notes:** paper notes in five colours. The text is Markdown, so a note can carry links; a click on a note opens it large with the links working.
+- **Moving and turning the cards:** drag a card in the preview to give it its place; turn the mouse wheel while holding it to rotate it (or use the *Turned* slider). Where cards overlap, the order of the list decides which lies on top; ↑ and ↓ change it, and a card dropped onto another goes right after it in the list. A click on the board or a card in the preview opens its entry in the editor. Visitors can drag the cards too; they stay on the board, and each visitor's arrangement is kept in their own browser.
+
 ## 0.6.0 — 2026-11-14 — Adding from an album, finer control
 
 - **What's new:** the studio shows its version next to its name. After an update it lists once what changed since you last opened it; click the version to read the whole changelog.

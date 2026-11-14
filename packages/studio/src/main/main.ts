@@ -6,7 +6,7 @@ import { homedir } from 'node:os';
 import { basename, dirname, extname, join, normalize, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import { migrate, parseGallery, publishedGallery, resolveStyle, SCHEMA_VERSION, starterRoom, type ArtAsset, type SiteData, type StyleDef } from '@vernissage/schema';
+import { migrate, parseGallery, pinAssetKey, publishedGallery, resolveStyle, SCHEMA_VERSION, starterRoom, type ArtAsset, type SiteData, type StyleDef } from '@vernissage/schema';
 import { BuildError, addFromAlbum, buildSite, importAlbum, listAlbum, renderIndexHtml } from '@vernissage/generator';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -355,6 +355,13 @@ function registerIpc() {
         const svg = /\.svg$/i.test(a.file);
         const raster = svg ? url.replace(/^project\//, 'raster/') : url;
         assets[a.id] = { thumb: raster, texture: raster, full: url, kind: svg ? 'svg' : 'raster', ...m };
+      } catch { /* skip broken image */ }
+    }
+    for (const room of parsed.gallery.rooms) for (const p of room.pinboard?.items ?? []) {
+      if (p.kind !== 'photo' || !existsSync(join(projectDir, p.file))) continue;
+      try {
+        const url = `project/${p.file.split('/').map(encodeURIComponent).join('/')}`;
+        assets[pinAssetKey(room.id, p.id)] = { thumb: url, texture: url, full: url, kind: 'raster', ...(await imageMeta(join(projectDir, p.file))) };
       } catch { /* skip broken image */ }
     }
     previewData = { gallery: { ...publishedGallery(parsed.gallery), basePath: './' }, assets, build: { generator: 'Vernissage Studio preview', builtAt: new Date().toISOString() } };

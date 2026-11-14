@@ -13,6 +13,13 @@ export class Input {
   /** right mouse button / long press: aim a teleport */
   onAim?: (phase: 'start' | 'move' | 'end' | 'cancel', x: number, y: number) => void;
   onKey?: (key: string, e: KeyboardEvent) => void;
+  /** a press that may pick something up (a card on a pinboard): return true to take the drag away from looking around */
+  onGrab?: (x: number, y: number) => boolean;
+  onGrabMove?: (x: number, y: number) => void;
+  /** the wheel turned while something is held: one step either way */
+  onGrabTurn?: (step: number) => void;
+  /** `tap`: the pointer hardly moved, so it was a click on the thing rather than a move */
+  onGrabEnd?: (x: number, y: number, tap: boolean) => void;
   /** middle (wheel) button pressed */
   onMiddle?: () => void;
   enabled = true;
@@ -23,6 +30,8 @@ export class Input {
   private pinch = 0;
   private stickEl?: HTMLElement;
   private aiming = -1;
+  private grabbing = -1;
+  private grabDist = 0;
   private longPress = 0;
   private abort = new AbortController();
 
@@ -49,6 +58,12 @@ export class Input {
         this.onAim('start', e.clientX, e.clientY);
         return;
       }
+      if (e.button === 0 && this.pointers.size === 0 && this.onGrab?.(e.clientX, e.clientY)) {
+        this.grabbing = e.pointerId;
+        this.grabDist = 0;
+        this.last = { x: e.clientX, y: e.clientY };
+        return;
+      }
       if (e.pointerType === 'touch' && this.onAim) {
         clearTimeout(this.longPress);
         const x = e.clientX, y = e.clientY;
@@ -64,6 +79,12 @@ export class Input {
     }, sig);
     el.addEventListener('pointermove', (e) => {
       if (e.pointerId === this.aiming) { this.onAim?.('move', e.clientX, e.clientY); return; }
+      if (e.pointerId === this.grabbing) {
+        this.grabDist += Math.abs(e.clientX - this.last.x) + Math.abs(e.clientY - this.last.y);
+        this.last = { x: e.clientX, y: e.clientY };
+        if (this.grabDist >= 6) this.onGrabMove?.(e.clientX, e.clientY);
+        return;
+      }
       if (!this.dragging || !this.pointers.has(e.pointerId)) return;
       this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (this.pointers.size === 2) {
@@ -80,6 +101,11 @@ export class Input {
     }, sig);
     const up = (e: PointerEvent) => {
       clearTimeout(this.longPress);
+      if (e.pointerId === this.grabbing) {
+        this.grabbing = -1;
+        this.onGrabEnd?.(e.clientX, e.clientY, this.grabDist < 6 && e.type !== 'pointercancel');
+        return;
+      }
       if (e.pointerId === this.aiming) {
         this.aiming = -1;
         this.pointers.delete(e.pointerId);
@@ -95,8 +121,13 @@ export class Input {
       }
     };
     el.addEventListener('pointerup', up, sig);
-    el.addEventListener('pointercancel', (e) => { if (e.pointerId === this.aiming) { up(e); return; } clearTimeout(this.longPress); this.pointers.delete(e.pointerId); this.dragging = this.pointers.size > 0; }, sig);
-    el.addEventListener('wheel', (e) => { e.preventDefault(); this.zoom += Math.sign(e.deltaY) * 0.5; }, { passive: false, signal: this.abort.signal });
+    el.addEventListener('pointercancel', (e) => { if (e.pointerId === this.aiming || e.pointerId === this.grabbing) { up(e); return; } clearTimeout(this.longPress); this.pointers.delete(e.pointerId); this.dragging = this.pointers.size > 0; }, sig);
+    el.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      // while a card is held the wheel turns it; that also makes the press a move, not a click
+      if (this.grabbing !== -1) { this.grabDist = Math.max(this.grabDist, 6); this.onGrabTurn?.(Math.sign(e.deltaY)); return; }
+      this.zoom += Math.sign(e.deltaY) * 0.5;
+    }, { passive: false, signal: this.abort.signal });
     el.addEventListener('contextmenu', (e) => e.preventDefault(), sig);
     // keep the browser's middle-click autoscroll / paste off the canvas
     el.addEventListener('mousedown', (e) => { if (e.button === 1) e.preventDefault(); }, sig);

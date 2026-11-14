@@ -252,3 +252,22 @@ legend { color: var(--muted); font-size: 12px; }
 .plants-key .k.work { background: #e6b450; } .plants-key .k.door { background: #111114; outline: 1px solid var(--line); } .plants-key .k.window { background: #6fb7e8; }
 .plants-key .k.plant { width: 10px; height: 10px; border-radius: 50%; background: #4d9a57; }
 .plants-tools { align-items: end; }
+
+/* ---------- a room's pinboard ---------- */
+.pin-list { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 6px; }
+.pin-list li { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+.pin-list li.muted { display: block; }
+.pin-list img, .pin-swatch { width: 56px; height: 56px; object-fit: cover; border-radius: 4px; border: 4px solid #f7f5ef; border-bottom-width: 12px; box-sizing: border-box; background: #0c0c0e; }
+.pin-swatch { border: 0; display: block; }
+.pin-fields { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 8px 10px; }
+.pin-fields label { display: grid; gap: 3px; font-size: 12px; color: var(--muted); }
+.pin-fields textarea { resize: vertical; font: inherit; }
+.pin-actions { display: grid; gap: 6px; justify-items: end; }
+.elevation .pinboard { fill: #b98a57; stroke: #7a5a3a; stroke-width: 0.05; }
+.pin-list li { grid-template-columns: 56px minmax(0, 1fr) auto; }
+.pin-turn { grid-column: 2; display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.pin-turn input { width: 180px; flex: none; padding: 0; }
+.pin-list .pin-actions { grid-row: 1; grid-column: 3; }
+.pin-order { display: flex; gap: 4px; }
+.pin-list li.picked { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.pin-head { scroll-margin-top: 8px; }

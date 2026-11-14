@@ -9,6 +9,7 @@ import { Shell } from './ui/shell';
 import { EntryModal, LoadingScreen } from './ui/entry';
 import { Gallery3D } from './app3d';
 import { LabelView } from './ui/label';
+import { PinView } from './ui/pin';
 import { siteMenu } from './ui/menu';
 import { Conditions, type ConditionsChoice } from './conditions';
 import type { Quality } from './scene/lighting';
@@ -109,10 +110,23 @@ async function boot() {
     onInspect: (id) => { closeLabel(); location.hash = `#/art/${id}`; },
     onClose: () => closeLabel(),
   });
-  app.append(portfolio.el, focus.el, labels.el);
+  const pinView = new PinView(data, () => closePin());
+  app.append(portfolio.el, focus.el, labels.el, pinView.el);
+  /** where this visitor moved the cards on the pinboards: kept in their browser, per room and card */
+  const pinPlaces = store<Record<string, Record<string, [number, number, number?, number?]>>>(key('pins'), {});
   function openLabel(id: string) {
     labels.show(id);
     if (g3d) { g3d.input.enabled = false; g3d.input.keys.clear(); }
+  }
+  function openPin(roomId: string, id: string) {
+    pinView.show(roomId, id);
+    if (pinView.open && g3d) { g3d.input.enabled = false; g3d.input.keys.clear(); }
+  }
+  function closePin() {
+    if (!pinView.open) return;
+    pinView.hide();
+    if (g3d && joined && !focus.isOpen) g3d.input.enabled = true;
+    g3d?.renderer.domElement.focus();
   }
   function closeLabel() {
     if (!labels.open) return;
@@ -144,10 +158,22 @@ async function boot() {
 
   function ensure3D(): Gallery3D {
     if (g3d) return g3d;
-    g3d = new Gallery3D(stage, data, style, state.quality, conditions.now(), { teleport: g.navigation.teleport, accent: style.ui.accent, orbit: g.navigation.lobbyOrbit, stay: () => editing }, {
+    g3d = new Gallery3D(stage, data, style, state.quality, conditions.now(), { teleport: g.navigation.teleport, accent: style.ui.accent, orbit: g.navigation.lobbyOrbit, stay: () => editing, pins: (roomId) => (studio ? {} : pinPlaces.get()[roomId] ?? {}) }, {
       onRoom: (r) => { shell?.setRoom(r); if (window.parent !== window) window.parent.postMessage({ type: 'vernissage:room', id: r.room.id }, '*'); },
       onNear: (a) => shell?.setNear(a),
       onSelect: (a) => shell?.setSelected(a),
+      // with the studio's editor open, a click shows the card's entry there; otherwise it opens the close-up
+      onPin: (roomId, id) => { if (editing) window.parent.postMessage({ type: 'vernissage:pinboard', room: roomId, id }, '*'); else openPin(roomId, id); },
+      onBoard: (roomId) => { if (editing) window.parent.postMessage({ type: 'vernissage:pinboard', room: roomId }, '*'); },
+      onPinMoved: (roomId, id, x, y, tilt, over) => {
+        // in the studio the new place becomes the gallery's own; a visitor's stays in their browser
+        if (studio) { window.parent.postMessage({ type: 'vernissage:pin', room: roomId, id, x, y, tilt, over }, '*'); return; }
+        const all = pinPlaces.get();
+        // the card handled last lies on top, also on the next visit
+        const last = Math.max(0, ...Object.values(all[roomId] ?? {}).map((p) => p[3] ?? 0));
+        (all[roomId] ??= {})[id] = [Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000, Math.round(tilt), last + 1];
+        pinPlaces.set(all);
+      },
       onWall: (roomId, side) => { if (editing) window.parent.postMessage({ type: 'vernissage:wall', room: roomId, side }, '*'); },
       onPick: (id) => { if (editing) window.parent.postMessage({ type: 'vernissage:art', id }, '*'); },
       onOpen: (id) => { location.hash = `#/art/${id}`; },

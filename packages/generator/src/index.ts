@@ -3,7 +3,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promi
 import { dirname, join, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  SITE_DATA_ELEMENT_ID, WALL_SIDES, blockersOn, computeFloorPlan, hangWall, planIssues, migrate, parseGallery, publishedGallery, resolveStyle,
+  SITE_DATA_ELEMENT_ID, WALL_SIDES, blockersOn, computeFloorPlan, hangWall, planIssues, migrate, parseGallery, pinAssetKey, publishedGallery, resolveStyle,
   type ArtAsset, type Gallery, type SiteData, type StyleDef, type ValidationIssue,
 } from '@vernissage/schema';
 import { copyVariant, processImage } from './images';
@@ -11,7 +11,7 @@ import { copyVariant, processImage } from './images';
 export { sanitizeSvg, processImage } from './images';
 export { importAlbum, listAlbum, addFromAlbum, type ListedPhoto, parseAlbumPage, parsePhotoPage, galleryFromAlbum, formatDay, type Album, type AlbumPhoto, type ImportOptions } from './album';
 
-export const GENERATOR = 'Vernissage 0.6.0';
+export const GENERATOR = 'Vernissage 0.7.0';
 const MARKER = '.vernissage-site';
 
 export interface BuildOptions {
@@ -63,6 +63,8 @@ export async function loadProject(projectDir: string): Promise<{ gallery: Galler
   // asset existence
   const missing = res.gallery.artworks.filter((a) => !existsSync(join(projectDir, a.file)));
   if (missing.length) throw new BuildError('Missing artwork files', missing.map((a) => ({ path: `artworks.${res.gallery!.artworks.indexOf(a)}.file`, message: `file not found: ${a.file}`, severity: 'error' as const })));
+  const pins = res.gallery.rooms.flatMap((r, ri) => (r.pinboard?.items ?? []).flatMap((p, pi) => (p.kind === 'photo' && !existsSync(join(projectDir, p.file)) ? [{ path: `rooms.${ri}.pinboard.items.${pi}.file`, message: `file not found: ${p.file}`, severity: 'error' as const }] : [])));
+  if (pins.length) throw new BuildError('Missing pinboard photos', pins);
   const plan = planIssues(res.gallery);
   if (plan.some((i) => i.severity === 'error')) throw new BuildError('Rooms run into each other', plan);
   return { gallery: res.gallery, issues: [...res.issues, ...plan] };
@@ -166,6 +168,22 @@ export async function buildSite(projectDir: string, outDir: string, opts: BuildO
     }
   };
   await Promise.all(Array.from({ length: 4 }, worker));
+
+  // the photos on the rooms' pinboards: a texture for the board and the full picture for the close-up
+  for (const room of gallery.rooms) for (const p of room.pinboard?.items ?? []) {
+    if (p.kind !== 'photo') continue;
+    const { dir, info, cached: hit } = await processImage(join(projectDir, p.file), cacheRoot);
+    hit ? cached++ : processed++;
+    const name = `pin-${room.id}-${p.id}`, dest = join(outDir, 'art', name);
+    await mkdir(dest, { recursive: true });
+    const ext = extname(info.full);
+    await Promise.all([
+      // an instant photo is small on the wall: the thumbnail is texture enough
+      copyVariant(dir, info.thumb, join(dest, 'thumb.webp')),
+      copyVariant(dir, info.full, join(dest, `full${ext}`)),
+    ]);
+    assets[pinAssetKey(room.id, p.id)] = { thumb: `art/${name}/thumb.webp`, texture: `art/${name}/thumb.webp`, full: `art/${name}/full${ext}`, kind: info.kind, width: info.width, height: info.height, color: info.color };
+  }
 
   // viewer + data
   progress('Writing site', 0, 1);

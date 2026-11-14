@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import {
-  WALL_SIDES, WALL_THICKNESS, freeSegments, blockersOn, computeFloorPlan, doorsOn, entranceOf, hangWall, pointOnWall, roomPlants, wallHasWindows, collisionSegments,
+  WALL_SIDES, WALL_THICKNESS, freeSegments, blockersOn, computeFloorPlan, doorsOn, entranceOf, hangWall, pointOnWall, pinboardOf, roomPlants, wallHasWindows, collisionSegments,
   type ArtAsset, type Artwork, type FloorPlan, type HungWork, type Segment, type SiteData, type StyleDef, type WallFrame,
 } from '@vernissage/schema';
 import { floorTexture, lightPoolTexture, wallTexture, worldUV } from './textures';
 import { labelTexture } from './labels';
 import { buildPlants } from './environment';
+import { buildPinboard, type BuiltPinboard } from './pinboard';
 
 export interface ArtworkInstance {
   id: string;
@@ -43,6 +44,8 @@ export interface BuiltGallery {
   skylights: Skylight[];
   /** the horizontal direction most windows face; the scenery treats it as north */
   outlook: THREE.Vector3;
+  /** the rooms' pinboards, with the cards visitors can move */
+  pinboards: BuiltPinboard[];
   /** the entry door: what to click, where to stand in front of it, and where it leads */
   entrance?: { meshes: THREE.Object3D[]; leaf: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>; inside: THREE.Vector3; normal: THREE.Vector3; url: string };
 }
@@ -66,7 +69,10 @@ const T = WALL_THICKNESS;
 
 function rotY(w: { normal: { x: number; z: number } }) { return Math.atan2(w.normal.x, w.normal.z); }
 
-export function buildGallery(data: SiteData, style: StyleDef, renderer: THREE.WebGLRenderer): BuiltGallery {
+/** what the scene needs to know about pinboards: where a visitor left the cards, and when a card's drawing changed */
+export interface PinHooks { saved?: (roomId: string) => Record<string, [number, number, number?, number?]>; onChange?: () => void }
+
+export function buildGallery(data: SiteData, style: StyleDef, renderer: THREE.WebGLRenderer, pinHooks: PinHooks = {}): BuiltGallery {
   const g = data.gallery;
   const plan = computeFloorPlan(g);
   const root = new THREE.Group();
@@ -239,6 +245,12 @@ export function buildGallery(data: SiteData, style: StyleDef, renderer: THREE.We
     }
   }
 
+  const pinboards: BuiltPinboard[] = [];
+  for (const pr of plan.rooms) {
+    const at = pinboardOf(g, plan, pr.room.id);
+    if (at) pinboards.push(buildPinboard(root, pr, at, data, pinHooks.saved?.(pr.room.id), pinHooks.onChange));
+  }
+
   // passages between rooms
   for (const p of plan.passages) {
     const len = p.axis === 'x' ? p.maxX - p.minX : p.maxZ - p.minZ;
@@ -266,7 +278,7 @@ export function buildGallery(data: SiteData, style: StyleDef, renderer: THREE.We
   if (env.plants) root.add(buildPlants(roomPlants(g, plan, { aspect: (id) => { const a = data.assets[id]; return a ? a.width / a.height : undefined; }, styleFrame: style.frame }).values()));
   if (outlook.lengthSq() > 1e-6) outlook.normalize(); else outlook.set(0, 0, -1);
 
-  return { root, plan, segments: collisionSegments(plan), occluders, floors, artworks: instances, warnings, style, skylights, outlook, entrance: door };
+  return { root, plan, segments: collisionSegments(plan), occluders, floors, artworks: instances, warnings, style, skylights, outlook, pinboards, entrance: door };
 }
 
 /** Ceiling with a rectangular opening, a short light well and a glazed top with bars. */

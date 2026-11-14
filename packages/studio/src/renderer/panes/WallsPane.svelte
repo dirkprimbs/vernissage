@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { WALL_SIDES, blockersOn, freeSegments, computeFloorPlan, entranceOf, hangWall, largestScale, resolveStyle, type HangInput, type HangResult, type StyleDef, type WallSide } from '@vernissage/schema';
+  import { WALL_SIDES, blockersOn, freeSegments, pinboardOf, computeFloorPlan, entranceOf, hangWall, largestScale, resolveStyle, type HangInput, type HangResult, type StyleDef, type WallSide } from '@vernissage/schema';
   import { st } from '../state.svelte';
 
   const g = $derived(st.gallery!);
@@ -96,6 +96,7 @@
   const wallLen = (s: WallSide) => (s === 'north' || s === 'south' ? room.width : room.depth);
   const auto = $derived(g.display.sizing === 'auto');
   const entrance = $derived(plan ? entranceOf($state.snapshot(g) as typeof g, plan) : undefined);
+  const board = $derived(plan ? pinboardOf($state.snapshot(g) as typeof g, plan, room.id) : undefined);
   /** closed walls that carry art come first; a windowed wall is for the view */
   function setWindows(side: WallSide, on: boolean) {
     const w = room.walls[side];
@@ -131,6 +132,9 @@
           {#each plan?.doors.filter((d) => d.roomId === room.id && d.wall === side) ?? [] as d}
             <rect x={d.offset - d.width / 2} y={H - d.height} width={d.width} height={d.height} fill="#00000055" />
           {/each}
+          {#if board && board.wall === side}
+            <rect class="pinboard" x={board.offset - board.width / 2} y={H - board.y - board.height / 2} width={board.width} height={board.height}><title>Pinboard</title></rect>
+          {/if}
           {#if entrance && entrance.roomId === room.id && entrance.wall === side}
             <rect x={entrance.offset - entrance.width / 2} y={H - entrance.height} width={entrance.width} height={entrance.height} fill="#2b2f33" stroke="#3fbf6f" stroke-width="0.04" />
           {/if}
@@ -151,7 +155,7 @@
             {@const a = byId.get(p.artwork)}
             {@const hw = res.works[i]}
             <!-- the list reads left to right along the wall: a door between two works shows as a row of its own -->
-            {#each Array(Math.max(0, (hw?.stretch ?? 0) - (i ? res.works[i - 1]?.stretch ?? 0 : 0))) as _}<li class="door-row muted small" aria-label="Door">door</li>{/each}
+            {#each Array(Math.max(0, (hw?.stretch ?? 0) - (i ? res.works[i - 1]?.stretch ?? 0 : 0))) as _}<li class="door-row muted small">door or pinboard</li>{/each}
             <li class="hung">
               <!-- only the grip and the thumbnail pick the work up, so the slider can be dragged freely -->
               <span class="grip" draggable="true" ondragstart={(e) => startDrag(e, p.artwork)} title="Drag to another wall" aria-hidden="true">⠿</span>
@@ -169,7 +173,7 @@
               {#if limited === p.artwork}<p class="muted small size-note">The largest that fits beside the other works. For more, make another work smaller or move one to another wall.</p>{/if}
             </li>
           {:else}<li class="muted small">{w.windows ? 'A windowed wall: it shows the view' : 'Drop artworks here'}</li>{/each}
-          {#if w.artworks.length}{#each Array(Math.max(0, res.stretches - 1 - (res.works[res.works.length - 1]?.stretch ?? 0))) as _}<li class="door-row muted small" aria-label="Door">door</li>{/each}{/if}
+          {#if w.artworks.length}{#each Array(Math.max(0, res.stretches - 1 - (res.works[res.works.length - 1]?.stretch ?? 0))) as _}<li class="door-row muted small">door or pinboard</li>{/each}{/if}
         </ol>
         {#if res.stretches > 1 && w.artworks.length}<p class="muted small door-hint">← and → move a work along the wall, and past the door when it is next to it.</p>{/if}
       </section>

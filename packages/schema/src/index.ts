@@ -7,3 +7,4 @@ export * from './site';
 export * from './sun';
 export * from './suggest';
 export * from './plants';
+export * from './pinboard';

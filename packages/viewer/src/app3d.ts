@@ -3,7 +3,8 @@ import {
   pointOnWall, resolveCollision, resolveLighting, roomAt,
   type LightingId, type SunPosition, type Weather, type PlacedRoom, type SiteData, type StyleDef, type WallSide,
 } from '@vernissage/schema';
-import { buildGallery, type ArtworkInstance, type BuiltGallery } from './scene/build';
+import { buildGallery, type ArtworkInstance, type BuiltGallery, type PinHooks } from './scene/build';
+import type { BuiltPinboard, PinInstance } from './scene/pinboard';
 import { Outdoors } from './scene/outdoors';
 import { skyState } from './scene/sky';
 import { LightingRig, type Quality } from './scene/lighting';
@@ -18,6 +19,9 @@ export interface Gallery3DOptions {
   orbit: boolean;
   /** a click on a work selects it without walking there (the studio's preview, while the editor is open) */
   stay?: () => boolean;
+  /** where this visitor left the cards of a room's pinboard, by card id */
+  /** each card: x, y, angle, and a number that grows with every card handled (the highest lies on top) */
+  pins?: (roomId: string) => Record<string, [number, number, number?, number?]>;
 }
 
 export interface Gallery3DEvents {
@@ -29,6 +33,12 @@ export interface Gallery3DEvents {
   onLabel?: (artId: string) => void;
   /** the entry door was clicked from close by */
   onExit?: (url: string) => void;
+  /** a card on a pinboard was clicked */
+  onPin?: (roomId: string, id: string) => void;
+  /** a card on a pinboard was moved or turned: its new place (fractions of the board), its angle (degrees clockwise), and the topmost card it now lies over */
+  onPinMoved?: (roomId: string, id: string, x: number, y: number, tilt: number, over?: string) => void;
+  /** a pinboard was clicked beside its cards */
+  onBoard?: (roomId: string) => void;
   /** a wall was clicked, away from the works on it */
   onWall?: (roomId: string, side: WallSide) => void;
   /** a work was clicked (not its label) */
@@ -87,6 +97,13 @@ export class Gallery3D {
   private lobbyT = 0;
   private marker: TeleportMarker;
   private aimTarget?: THREE.Vector3;
+  /** the pinboard card being dragged, and where on the card it was taken hold of */
+  private grabbed?: { board: BuiltPinboard; pin: PinInstance; dx: number; dy: number };
+  private pinHooks: PinHooks = {
+    saved: (roomId) => this.opts.pins?.(roomId) ?? {},
+    // a card's drawing arrives late (its picture, the handwriting face): show it even while nothing moves
+    onChange: () => { if (this.built && !this.running) requestAnimationFrame(() => this.renderOnce()); },
+  };
 
   constructor(private container: HTMLElement, private data: SiteData, private style: StyleDef, quality: Quality, outside: { sun: SunPosition; weather: Weather; hour: number }, private opts: Gallery3DOptions, private ev: Gallery3DEvents = {}) {
     this.quality = quality;
@@ -104,9 +121,9 @@ export class Gallery3D {
     this.scene.environmentIntensity = 0.35;
     pmrem.dispose();
 
-    this.built = buildGallery(data, style, this.renderer);
+    this.built = buildGallery(data, style, this.renderer, this.pinHooks);
     this.scene.add(this.built.root);
-    this.pictures = [...this.built.artworks.flatMap((a) => [a.picture, ...a.group.children.filter((c) => c.userData.artworkId)]), ...(this.built.entrance?.meshes ?? [])];
+    this.pictures = this.clickable();
 
     this.lighting = new LightingRig(this.built, this.scene, quality);
     this.scene.add(this.lighting.group);
@@ -126,6 +143,11 @@ export class Gallery3D {
 
     this.input = new Input(this.renderer.domElement);
     this.input.onTap = (x, y) => this.tap(x, y);
+    this.input.onGrab = (x, y) => this.grab(x, y);
+    this.input.onGrabMove = (x, y) => this.dragPin(x, y);
+    this.input.onGrabEnd = (_x, _y, tap) => this.dropPin(tap);
+    // each notch of the wheel turns the held card by five degrees
+    this.input.onGrabTurn = (step) => { const g = this.grabbed; if (g) { g.board.turn(g.pin, step * 5); if (!this.running) this.renderOnce(); } };
     this.input.onKey = (k, e) => this.key(k, e);
     this.input.onMiddle = () => this.resetZoom();
     if (opts.teleport) this.input.onAim = (phase, x, y) => this.aim(phase, x, y);
@@ -250,9 +272,9 @@ export class Gallery3D {
 
     this.scene.remove(oldBuilt.root);
     free(oldBuilt.root);
-    this.built = buildGallery(this.data, style, this.renderer);
+    this.built = buildGallery(this.data, style, this.renderer, this.pinHooks);
     this.scene.add(this.built.root);
-    this.pictures = [...this.built.artworks.flatMap((a) => [a.picture, ...a.group.children.filter((c) => c.userData.artworkId)]), ...(this.built.entrance?.meshes ?? [])];
+    this.pictures = this.clickable();
 
     // a fresh light rig for the new rooms; the torch moves over to it
     this.scene.remove(this.lighting.group);
@@ -429,7 +451,56 @@ export class Gallery3D {
   private targetYaw?: number;
 
   // ---------- input ----------
-  private pick(x: number, y: number): { art?: ArtworkInstance; label?: boolean; door?: boolean; floor?: THREE.Vector3; wall?: { roomId: string; side: WallSide } } {
+  /** everything a click can land on: works and their labels, the entry door, pinboards and their cards */
+  private clickable(): THREE.Object3D[] {
+    return [
+      ...this.built.artworks.flatMap((a) => [a.picture, ...a.group.children.filter((c) => c.userData.artworkId)]),
+      ...(this.built.entrance?.meshes ?? []),
+      ...this.built.pinboards.flatMap((b) => [...b.pins.map((p) => p.mesh), ...b.group.children.filter((c) => c.userData.pinboard)]),
+    ];
+  }
+
+  /** where on a pinboard the pointer is, as fractions of the board (it may lie outside it) */
+  private boardPoint(board: BuiltPinboard, x: number, y: number): { x: number; y: number } | undefined {
+    const r = this.renderer.domElement.getBoundingClientRect();
+    this.ray.setFromCamera(new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1), this.camera);
+    const normal = new THREE.Vector3(0, 0, 1).transformDirection(board.group.matrixWorld);
+    const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(normal, board.cork.getWorldPosition(new THREE.Vector3()));
+    const hit = this.ray.ray.intersectPlane(plane, new THREE.Vector3());
+    if (!hit) return undefined;
+    const p = board.group.worldToLocal(hit);
+    return { x: p.x / board.width + 0.5, y: 0.5 - p.y / board.height };
+  }
+
+  /** a press on a pinboard card picks it up */
+  private grab(x: number, y: number): boolean {
+    if (this.lobby) return false;
+    const { pin } = this.pick(x, y);
+    if (!pin) return false;
+    const at = this.boardPoint(pin.board, x, y);
+    this.grabbed = { ...pin, dx: at ? at.x - pin.pin.x : 0, dy: at ? at.y - pin.pin.y : 0 };
+    this.path = [];
+    this.renderer.domElement.style.cursor = 'grabbing';
+    return true;
+  }
+  private dragPin(x: number, y: number) {
+    const g = this.grabbed;
+    const at = g && this.boardPoint(g.board, x, y);
+    if (!g || !at) return;
+    // the board keeps its cards: place() holds them inside its edge
+    g.board.place(g.pin, at.x - g.dx, at.y - g.dy);
+    if (!this.running) this.renderOnce();
+  }
+  private dropPin(tap: boolean) {
+    const g = this.grabbed;
+    this.grabbed = undefined;
+    this.renderer.domElement.style.cursor = '';
+    if (!g) return;
+    if (tap) this.ev.onPin?.(g.board.roomId, g.pin.id);
+    else this.ev.onPinMoved?.(g.board.roomId, g.pin.id, g.pin.x, g.pin.y, g.pin.tilt, g.board.under(g.pin)?.id);
+  }
+
+  private pick(x: number, y: number): { art?: ArtworkInstance; label?: boolean; door?: boolean; floor?: THREE.Vector3; wall?: { roomId: string; side: WallSide }; pin?: { board: BuiltPinboard; pin: PinInstance }; board?: string } {
     const r = this.renderer.domElement.getBoundingClientRect();
     const ndc = new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, -((y - r.top) / r.height) * 2 + 1);
     this.ray.setFromCamera(ndc, this.camera);
@@ -437,6 +508,13 @@ export class Gallery3D {
     const hit = hits[0];
     if (!hit) return {};
     if (hit.object.userData.entrance) return { door: true };
+    if (hit.object.userData.pin) {
+      const board = this.built.pinboards.find((b) => b.roomId === hit.object.userData.pin.roomId);
+      const pin = board?.pins.find((p) => p.mesh === hit.object);
+      return board && pin ? { pin: { board, pin } } : {};
+    }
+    // the cork itself: not a click on the wall behind it
+    if (hit.object.userData.pinboard) return { board: hit.object.userData.pinboard as string };
     const id = hit.object.userData.artworkId as string | undefined;
     if (id) return { art: this.built.artworks.find((a) => a.id === id), label: !!hit.object.userData.label };
     if (this.built.floors.includes(hit.object as THREE.Mesh)) return { floor: hit.point };
@@ -445,7 +523,7 @@ export class Gallery3D {
   }
 
   private tap(x: number, y: number) {
-    const { art, label, door, floor, wall } = this.pick(x, y);
+    const { art, label, door, floor, wall, board } = this.pick(x, y);
     const e = this.built.entrance;
     if (door && e) {
       // from across the room the first click walks to the door; from close by it opens
@@ -462,6 +540,7 @@ export class Gallery3D {
       if (this.selected) this.select(undefined);
       if (floor) this.walkTo(floor);
       else if (wall) this.ev.onWall?.(wall.roomId, wall.side);
+      else if (board) this.ev.onBoard?.(board);
     }
   }
 
@@ -474,12 +553,12 @@ export class Gallery3D {
 
   private hover(e: PointerEvent) {
     if (e.buttons || this.lobby) return;
-    const { art, label, door } = this.pick(e.clientX, e.clientY);
+    const { art, label, door, pin } = this.pick(e.clientX, e.clientY);
     this.setHover(art);
     const ent = this.built.entrance;
     if (ent) ent.leaf.material.emissiveIntensity = door ? 0.35 : 0;
-    this.renderer.domElement.style.cursor = art ? (label ? 'zoom-in' : 'pointer') : door ? 'pointer' : '';
-    this.renderer.domElement.title = art ? (label ? `Read the label: ${art.art.title}` : `${art.art.title} — ${art.art.artist.name}`) : door && ent ? `Leave through the door: ${ent.url}` : '';
+    this.renderer.domElement.style.cursor = art ? (label ? 'zoom-in' : 'pointer') : door ? 'pointer' : pin ? 'grab' : '';
+    this.renderer.domElement.title = art ? (label ? `Read the label: ${art.art.title}` : `${art.art.title} — ${art.art.artist.name}`) : door && ent ? `Leave through the door: ${ent.url}` : pin ? 'Drag to move it, turn the mouse wheel while holding it to rotate it, click to look closer' : '';
   }
 
   private key(k: string, e: KeyboardEvent) {

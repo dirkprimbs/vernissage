@@ -17,6 +17,11 @@ export const TIME_IDS = ['live', 'dawn', 'day', 'dusk', 'night'] as const;
 /** weather outside: Toronto's current weather, or a fixed one */
 export const WEATHER_IDS = ['live', 'clear', 'cloudy', 'rain', 'storm', 'snow', 'fog'] as const;
 export const LANDSCAPE_IDS = ['lake', 'toronto'] as const;
+/** instant-photo formats for pictures on a pinboard */
+export const PIN_FORMATS = ['mini', 'square', 'wide'] as const;
+export const NOTE_COLORS = ['yellow', 'pink', 'blue', 'green', 'white'] as const;
+export type PinFormat = (typeof PIN_FORMATS)[number];
+export type NoteColor = (typeof NOTE_COLORS)[number];
 export type TimeId = (typeof TIME_IDS)[number];
 export type WeatherId = (typeof WEATHER_IDS)[number];
 export type Phase = Exclude<TimeId, 'live'>;
@@ -89,6 +94,16 @@ export const Doorway = z.object({
 
 const emptyWall = () => Wall.parse({});
 
+/** where something is pinned: its centre as a fraction of the board (0 0 = top left), and how far it is turned, in degrees (clockwise). Unset: laid out automatically, a little askew */
+const pinPlace = { x: z.number().min(0).max(1).optional(), y: z.number().min(0).max(1).optional(), tilt: z.number().min(-180).max(180).optional() };
+/** a picture shown as an instant photo, with a short line written on its white border */
+export const PinPhoto = z.object({ id, kind: z.literal('photo'), file: z.string().min(1), format: z.enum(PIN_FORMATS).default('mini'), caption: z.string().max(60).optional(), ...pinPlace });
+/** a paper note; the text is Markdown, so it can carry links */
+export const PinNote = z.object({ id, kind: z.literal('note'), text: z.string().max(2000).default(''), color: z.enum(NOTE_COLORS).default('yellow'), ...pinPlace });
+export const PinItem = z.discriminatedUnion('kind', [PinPhoto, PinNote]);
+/** a cork board next to the room's door; visitors can move what is pinned to it */
+export const Pinboard = z.object({ items: z.array(PinItem).max(60).default([]) });
+
 export const Room = z.object({
   id,
   name: z.string().min(1),
@@ -101,6 +116,8 @@ export const Room = z.object({
   position: z.object({ x: z.number(), z: z.number() }).optional(),
   /** potted plants placed by hand, in metres from the room's centre (x east, z south); `size` 1 is about 1.3 m tall. Unset: plants are placed automatically */
   plants: z.array(z.object({ x: z.number(), z: z.number(), size: z.number().min(0.4).max(2.5).optional() })).max(40).optional(),
+  /** a pinboard next to the room's door, with instant photos and notes */
+  pinboard: Pinboard.optional(),
   /** optional explicit doorways; when omitted, doorways are generated between neighbouring rooms */
   doorways: z.array(Doorway).optional(),
   walls: z
@@ -216,6 +233,10 @@ export type Artwork = z.infer<typeof Artwork>;
 export type Placement = z.infer<typeof Placement>;
 export type Wall = z.infer<typeof Wall>;
 export type Doorway = z.infer<typeof Doorway>;
+export type PinPhoto = z.infer<typeof PinPhoto>;
+export type PinNote = z.infer<typeof PinNote>;
+export type PinItem = z.infer<typeof PinItem>;
+export type Pinboard = z.infer<typeof Pinboard>;
 export type Room = z.infer<typeof Room>;
 export type Gallery = z.infer<typeof Gallery>;
 export type GalleryInput = z.input<typeof Gallery>;

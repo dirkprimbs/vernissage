@@ -1,6 +1,6 @@
 import type { Artwork, Gallery } from './model';
 import { WALL_SIDES } from './model';
-import { blockersOn, doorsOn, entranceOf, freeSegments, pointOnWall, wallHasWindows, type FloorPlan, type PlacedRoom } from './layout';
+import { blockersOn, doorsOn, entranceOf, freeSegments, pinboardOf, pointOnWall, wallHasWindows, type FloorPlan, type PlacedRoom } from './layout';
 import { hangWall } from './hang';
 
 /** a potted plant on the floor: world position in metres and its size (1 = about 1.3 m tall) */
@@ -70,6 +70,8 @@ export function autoPlantsFor(g: Gallery, plan: FloorPlan, roomId: string, inp: 
   }
   const e = entranceOf(g, plan);
   if (e && e.roomId === roomId) hung.push({ ...pointOnWall(pr.walls[e.wall], e.offset), reach: 0.7 });
+  const board = pinboardOf(g, plan, roomId);
+  if (board) hung.push({ ...pointOnWall(pr.walls[board.wall], board.offset), reach: board.width / 2 });
   return autoPlants(plan, pr, hung, empty);
 }
 

@@ -29,6 +29,8 @@ class StudioState {
   pane = $state<Pane>('gallery');
   /** the wall picked in the preview, for the wall editor to show; `n` counts the picks */
   wallFocus = $state<{ side: 'north' | 'east' | 'south' | 'west'; n: number } | null>(null);
+  /** the pinboard (and card) picked in the preview, for the pinboard editor to show; `quiet`: mark the card without jumping to it */
+  pinFocus = $state<{ room: string; id?: string; n: number; quiet?: boolean } | null>(null);
   /** the studio's own version */
   version = $state('');
   room = $state<string | null>(null);

@@ -3,6 +3,7 @@
   import { WALL_SIDES, computeFloorPlan, entranceOf, windowedDoorWalls, settleRooms, snapRoom, wallHasWindows, type FloorPlan, type Gallery } from '@vernissage/schema';
   import { st, newRoom } from '../state.svelte';
   import PlantsEditor from '../PlantsEditor.svelte';
+  import PinboardEditor from '../PinboardEditor.svelte';
 
   const g = $derived(st.gallery!);
   const plan = $derived.by((): FloorPlan | null => { try { return computeFloorPlan($state.snapshot(g) as typeof g); } catch { return null; } });
@@ -175,5 +176,6 @@
       <label>Centre z (m) <input type="number" step="0.5" bind:value={sel.position.z} /></label>
     {/if}
   </div>
+  <PinboardEditor roomId={sel.id} />
   <PlantsEditor roomId={sel.id} />
 {/if}
