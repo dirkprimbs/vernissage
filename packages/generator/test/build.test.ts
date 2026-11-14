@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from 'vitest';
-import { cp, mkdtemp, readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
+import { cp, mkdtemp, readFile, readdir, stat, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -53,6 +53,49 @@ describe.skipIf(!existsSync(join(viewerDir, 'index.html')))('buildSite', () => {
     const r2 = await buildSite(project, out, { viewerDir });
     expect(r2.cached).toBe(5);
     expect(r2.processed).toBe(0);
+  });
+
+  it('a rebuild writes only what changed and keeps the other files as they were', async () => {
+    const proj = await tmp('proj2');
+    await cp(sample, proj, { recursive: true, filter: (s) => !s.includes('.cache') });
+    const out = join(await tmp('out'), 'site');
+    const first = await buildSite(proj, out, { viewerDir });
+    expect(first.written).toBeGreaterThan(10);
+    const list = async () => (await readdir(out, { recursive: true, withFileTypes: true })).filter((e) => e.isFile()).map((e) => join(e.parentPath, e.name)).sort();
+    const stamps = async () => Object.fromEntries(await Promise.all((await list()).map(async (f) => [f, (await stat(f)).mtimeMs] as const)));
+    const before = await stamps();
+    await new Promise((r) => setTimeout(r, 30));
+    // nothing changed: nothing is written, not even the build date
+    const again = await buildSite(proj, out, { viewerDir });
+    expect(again).toMatchObject({ written: 0, removed: 0 });
+    expect(await stamps()).toEqual(before);
+    // the report in the site does not name a folder on this computer
+    expect(await readFile(join(out, 'build-report.json'), 'utf8')).not.toContain(out);
+
+    // a new title: the two pages that carry it are written, every image stays
+    const file = join(proj, 'gallery.json');
+    const g = JSON.parse(await readFile(file, 'utf8'));
+    await writeFile(file, JSON.stringify({ ...g, title: 'Renamed' }));
+    const renamed = await buildSite(proj, out, { viewerDir });
+    expect(renamed.written).toBe(2);
+    const after = await stamps();
+    for (const f of Object.keys(before)) if (/[\\/]art[\\/]|[\\/]app[\\/]/.test(f)) expect(after[f]).toBe(before[f]);
+
+    // a work taken out: its files go, the others stay
+    const less = { ...g, artworks: g.artworks.slice(1), rooms: g.rooms.map((r: any) => ({ ...r, walls: Object.fromEntries(Object.entries(r.walls ?? {}).map(([k, w]: [string, any]) => [k, { ...w, artworks: (w.artworks ?? []).filter((p: any) => p.artwork !== g.artworks[0].id) }])) })) };
+    await writeFile(file, JSON.stringify(less));
+    const smaller = await buildSite(proj, out, { viewerDir });
+    expect(smaller.removed).toBe(3);
+    expect(existsSync(join(out, 'art', g.artworks[0].id))).toBe(false);
+    expect(existsSync(join(out, 'art', g.artworks[1].id, 'thumb.webp'))).toBe(true);
+
+    // a site folder emptied by hand comes back with the same dates, so an upload still skips the images
+    const { rm } = await import('node:fs/promises');
+    await rm(join(out, 'art'), { recursive: true });
+    await buildSite(proj, out, { viewerDir });
+    const rebuilt = await stamps();
+    const img = Object.keys(rebuilt).find((f) => f.endsWith('texture.webp'))!;
+    expect(rebuilt[img]).toBe(before[img]);
   });
 
   it('refuses to overwrite a foreign non-empty folder unless forced', async () => {

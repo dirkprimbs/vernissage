@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile, copyFile, stat } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, copyFile, stat, utimes } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp, { type Sharp } from 'sharp';
@@ -84,11 +84,28 @@ export async function processImage(src: string, cacheRoot: string): Promise<{ di
   return { dir, info, cached: false };
 }
 
-export async function copyVariant(cacheDir: string, name: string, dest: string) {
+/**
+ * Put a processed image into the site. The copy carries the cached file's modification time, and a file that is
+ * already there with the same size and time is left alone: a rebuild then changes nothing on disk for images
+ * that did not change, and an upload tool that compares size and time (rsync, lftp mirror) skips them.
+ * Returns whether the file was written.
+ */
+export async function copyVariant(cacheDir: string, name: string, dest: string): Promise<boolean> {
   const s = join(cacheDir, name);
+  const a = await stat(s);
   if (existsSync(dest)) {
-    const [a, b] = await Promise.all([stat(s), stat(dest)]);
-    if (a.size === b.size && b.mtimeMs >= a.mtimeMs) return;
+    const b = await stat(dest);
+    if (a.size === b.size && Math.abs(b.mtimeMs - a.mtimeMs) < 2) return false;
   }
   await copyFile(s, dest);
+  await utimes(dest, a.atime, a.mtime);
+  return true;
+}
+
+/** Write a file only if that changes its content, so an unchanged file keeps its modification time. */
+export async function writeIfChanged(dest: string, content: string | Buffer): Promise<boolean> {
+  const next = typeof content === 'string' ? Buffer.from(content) : content;
+  if (existsSync(dest) && (await readFile(dest)).equals(next)) return false;
+  await writeFile(dest, next);
+  return true;
 }

@@ -59,7 +59,7 @@
 {#if report}
   <div class="report">
     <h2>Done</h2>
-    <p>{report.artworks} artworks in {report.rooms} rooms · {(report.bytes / 1e6).toFixed(1)} MB · {report.processed} images processed, {report.cached} reused · {(report.durationMs / 1000).toFixed(1)} s</p>
+    <p>{report.artworks} artworks in {report.rooms} rooms · {(report.bytes / 1e6).toFixed(1)} MB · {report.processed} images processed, {report.cached} reused · {report.written} file{report.written === 1 ? '' : 's'} changed{report.removed ? `, ${report.removed} removed` : ''} · {(report.durationMs / 1000).toFixed(1)} s</p>
     <p class="muted small">{report.outDir}</p>
     {#if report.issues.length}
       <h3>Warnings</h3>

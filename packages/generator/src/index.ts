@@ -1,17 +1,17 @@
 import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve, extname } from 'node:path';
+import { dirname, join, relative, resolve, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   SITE_DATA_ELEMENT_ID, WALL_SIDES, blockersOn, computeFloorPlan, hangWall, planIssues, migrate, parseGallery, pinAssetKey, publishedGallery, resolveStyle,
   type ArtAsset, type Gallery, type SiteData, type StyleDef, type ValidationIssue,
 } from '@vernissage/schema';
-import { copyVariant, processImage } from './images';
+import { copyVariant, processImage, writeIfChanged } from './images';
 
 export { sanitizeSvg, processImage } from './images';
 export { importAlbum, listAlbum, addFromAlbum, type ListedPhoto, parseAlbumPage, parsePhotoPage, galleryFromAlbum, formatDay, type Album, type AlbumPhoto, type ImportOptions } from './album';
 
-export const GENERATOR = 'Vernissage 0.7.1';
+export const GENERATOR = 'Vernissage 0.7.2';
 const MARKER = '.vernissage-site';
 
 export interface BuildOptions {
@@ -30,6 +30,9 @@ export interface BuildReport {
   rooms: number;
   processed: number;
   cached: number;
+  /** files of the site this build wrote, and files of an earlier build it removed; everything else was left untouched */
+  written: number;
+  removed: number;
   issues: ValidationIssue[];
   bytes: number;
   durationMs: number;
@@ -138,15 +141,18 @@ export async function buildSite(projectDir: string, outDir: string, opts: BuildO
     const entries = await readdir(outDir);
     if (entries.length && !entries.includes(MARKER) && !opts.force)
       throw new BuildError(`${outDir} is not empty and was not created by Vernissage. Choose an empty folder or pass --force.`);
-    for (const e of ['art', 'app', 'index.html', 'site.json', 'build-report.json']) await rm(join(outDir, e), { recursive: true, force: true });
   }
   await mkdir(join(outDir, 'art'), { recursive: true });
-  await writeFile(join(outDir, MARKER), `${GENERATOR}\n`);
+  await writeIfChanged(join(outDir, MARKER), `${GENERATOR}\n`);
 
   // images
   const cacheRoot = join(projectDir, '.cache', 'images');
   const assets: Record<string, ArtAsset> = {};
   let processed = 0, cached = 0, done = 0;
+  /** every file this build puts into the site (relative paths): whatever else lies in art/ and app/ is from an earlier build and goes */
+  const kept = new Set<string>();
+  let written = 0;
+  const put = async (cacheDir: string, name: string, rel: string) => { kept.add(rel); if (await copyVariant(cacheDir, name, join(outDir, rel))) written++; };
   const queue = [...gallery.artworks];
   const worker = async () => {
     for (let a = queue.shift(); a; a = queue.shift()) {
@@ -156,9 +162,9 @@ export async function buildSite(projectDir: string, outDir: string, opts: BuildO
       await mkdir(dest, { recursive: true });
       const ext = extname(info.full);
       await Promise.all([
-        copyVariant(dir, info.thumb, join(dest, 'thumb.webp')),
-        copyVariant(dir, info.texture, join(dest, 'texture.webp')),
-        copyVariant(dir, info.full, join(dest, `full${ext}`)),
+        put(dir, info.thumb, `art/${a.id}/thumb.webp`),
+        put(dir, info.texture, `art/${a.id}/texture.webp`),
+        put(dir, info.full, `art/${a.id}/full${ext}`),
       ]);
       assets[a.id] = {
         thumb: `art/${a.id}/thumb.webp`, texture: `art/${a.id}/texture.webp`, full: `art/${a.id}/full${ext}`,
@@ -179,27 +185,61 @@ export async function buildSite(projectDir: string, outDir: string, opts: BuildO
     const ext = extname(info.full);
     await Promise.all([
       // an instant photo is small on the wall: the thumbnail is texture enough
-      copyVariant(dir, info.thumb, join(dest, 'thumb.webp')),
-      copyVariant(dir, info.full, join(dest, `full${ext}`)),
+      put(dir, info.thumb, `art/${name}/thumb.webp`),
+      put(dir, info.full, `art/${name}/full${ext}`),
     ]);
     assets[pinAssetKey(room.id, p.id)] = { thumb: `art/${name}/thumb.webp`, texture: `art/${name}/thumb.webp`, full: `art/${name}/full${ext}`, kind: info.kind, width: info.width, height: info.height, color: info.color };
   }
 
   // viewer + data
   progress('Writing site', 0, 1);
-  const site: SiteData = { gallery: publishedGallery(gallery), assets, build: { generator: GENERATOR, builtAt: new Date().toISOString() } };
+  // the images were processed side by side and finished in any order: list them in the gallery's order, so the
+  // same gallery always gives the same data
+  const ordered: Record<string, ArtAsset> = {};
+  for (const a of gallery.artworks) if (assets[a.id]) ordered[a.id] = assets[a.id];
+  for (const k of Object.keys(assets)) ordered[k] ??= assets[k];
+  const site: SiteData = { gallery: publishedGallery(gallery), assets: ordered, build: { generator: GENERATOR, builtAt: new Date().toISOString() } };
+  // a build that changes nothing keeps the date of the build before it, so the site's files stay byte for byte the same
+  try {
+    const before = JSON.parse(await readFile(join(outDir, 'site.json'), 'utf8')) as SiteData;
+    const same = (s: SiteData) => JSON.stringify({ ...s, build: { ...s.build, builtAt: '' } });
+    if (same(before) === same(site)) site.build.builtAt = before.build.builtAt;
+  } catch { /* no earlier build, or not one this version can read */ }
   const style = resolveStyle(gallery.style.preset, gallery.style.overrides as Partial<StyleDef>);
-  await cp(join(viewerDir, 'app'), join(outDir, 'app'), { recursive: true });
+  // the viewer: only files whose content changed are written
+  await mkdir(join(outDir, 'app'), { recursive: true });
+  for (const e of await readdir(join(viewerDir, 'app'), { withFileTypes: true, recursive: true })) {
+    if (!e.isFile()) continue;
+    const rel = join('app', relative(join(viewerDir, 'app'), join(e.parentPath, e.name))).split(sep).join('/');
+    kept.add(rel);
+    await mkdir(dirname(join(outDir, rel)), { recursive: true });
+    if (await writeIfChanged(join(outDir, rel), await readFile(join(e.parentPath, e.name)))) written++;
+  }
   const template = await readFile(join(viewerDir, 'index.html'), 'utf8');
-  await writeFile(join(outDir, 'index.html'), renderIndexHtml(template, site, style));
-  await writeFile(join(outDir, 'site.json'), JSON.stringify(site));
+  if (await writeIfChanged(join(outDir, 'index.html'), renderIndexHtml(template, site, style))) written++;
+  if (await writeIfChanged(join(outDir, 'site.json'), JSON.stringify(site))) written++;
+
+  // what an earlier build left behind and this one no longer has: works taken out, a renamed id, old viewer files
+  let removed = 0;
+  for (const top of ['art', 'app']) {
+    for (const e of await readdir(join(outDir, top), { withFileTypes: true, recursive: true })) {
+      if (!e.isFile()) continue;
+      const rel = relative(outDir, join(e.parentPath, e.name)).split(sep).join('/');
+      if (!kept.has(rel)) { await rm(join(outDir, rel), { force: true }); removed++; }
+    }
+    // folders that are empty now, deepest first
+    const dirs = (await readdir(join(outDir, top), { withFileTypes: true, recursive: true })).filter((e) => e.isDirectory()).map((e) => join(e.parentPath, e.name)).sort((a, b) => b.length - a.length);
+    for (const d of dirs) if (!(await readdir(d)).length) await rm(d, { recursive: true, force: true });
+  }
 
   const allIssues = [...issues, ...hangingIssues(gallery, assets)];
+  // the report in the site names no folder on this computer and nothing that differs from run to run
+  const summary = { artworks: gallery.artworks.length, rooms: gallery.rooms.length, issues: allIssues };
+  if (await writeIfChanged(join(outDir, 'build-report.json'), JSON.stringify(summary, null, 2))) written++;
   const report: BuildReport = {
-    outDir, artworks: gallery.artworks.length, rooms: gallery.rooms.length, processed, cached, issues: allIssues,
+    outDir, ...summary, processed, cached, written, removed,
     bytes: await dirSize(outDir), durationMs: Date.now() - t0,
   };
-  await writeFile(join(outDir, 'build-report.json'), JSON.stringify(report, null, 2));
   progress('Done', 1, 1);
   return report;
 }

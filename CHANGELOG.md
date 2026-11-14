@@ -3,6 +3,12 @@
 What changed, newest first. The studio shows the entries someone has not seen yet when they open a newer
 version, so keep each one short and plain. Headings read `## version — date — title` (the title is optional).
 
+## 0.7.2 — 2026-11-14 — Builds that only touch what changed
+
+- **Faster uploads:** a build now writes only the files that changed and leaves the rest as they are, dates included. Upload tools that compare size and date (lftp mirror, rsync) then send only what is new. The build says how many files it wrote.
+- Files of works that were taken out are removed from the site folder.
+- `build-report.json` no longer names the folder on your computer.
+
 ## 0.7.1 — 2026-11-14 — Descriptions on labels
 
 - **Description on the label:** a work's description now shows on its wall label, in the room the label has left, and in full in the label close-up (Markdown, with working links). Before, it appeared only when inspecting the work.

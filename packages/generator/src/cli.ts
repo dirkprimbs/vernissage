@@ -69,6 +69,7 @@ async function main(argv: string[]) {
       if (process.stdout.isTTY) process.stdout.write('\n');
       console.log(`Built ${report.artworks} works in ${report.rooms} rooms → ${report.outDir}`);
       console.log(`  ${report.processed} images processed, ${report.cached} from cache, ${(report.bytes / 1e6).toFixed(1)} MB, ${(report.durationMs / 1000).toFixed(1)} s`);
+      console.log(`  ${report.written} file${report.written === 1 ? '' : 's'} written${report.removed ? `, ${report.removed} removed` : ''}; the rest is unchanged`);
       if (report.issues.length) { console.log('Warnings:'); printIssues(report.issues); }
       return 0;
     }

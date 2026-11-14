@@ -156,6 +156,8 @@ node packages/generator/dist/cli.js import-album <google-photos-link> <new-proje
 
 The generator refuses to write into a non-empty folder that it did not create, unless you pass `--force`. Even then it only replaces its own files (`index.html`, `site.json`, `app/`, `art/`, `build-report.json`).
 
+A rebuild writes only the files that changed. Images keep the date they were processed, so tools that upload by size and date (`lftp mirror -R`, `rsync`) send only what is new; files of works that were taken out are removed.
+
 ### Output
 
 ```
