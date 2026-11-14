@@ -3,6 +3,11 @@
 What changed, newest first. The studio shows the entries someone has not seen yet when they open a newer
 version, so keep each one short and plain. Headings read `## version — date — title` (the title is optional).
 
+## 0.7.1 — 2026-11-14 — Descriptions on labels
+
+- **Description on the label:** a work's description now shows on its wall label, in the room the label has left, and in full in the label close-up (Markdown, with working links). Before, it appeared only when inspecting the work.
+- **Fix:** the *+ Add room* button lines up with the fields beside it.
+
 ## 0.7.0 — 2026-11-14 — Pinboards
 
 - **Pinboard:** a room can have a cork board next to its door (Rooms pane, *Pinboard*). Art keeps clear of it.

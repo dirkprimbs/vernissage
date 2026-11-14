@@ -150,7 +150,7 @@
         </label>
         <label>Date <input bind:value={art.date} placeholder="c. 1503 or 18 April 2026" /></label>
         <label class="wide">Medium <input bind:value={art.medium} placeholder="Oil on panel, digital photograph, …" /></label>
-        <label class="wide">Description <span class="muted small">shown when a visitor inspects the work; Markdown allowed</span>
+        <label class="wide">Description <span class="muted small">shown on the label and when a visitor inspects the work; Markdown allowed</span>
           <textarea rows="3" bind:value={art.description}></textarea>
         </label>
       </div>

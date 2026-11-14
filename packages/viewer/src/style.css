@@ -339,6 +339,10 @@ body[data-mode="portfolio"] .stick, body.focus-open .stick, body:has(.modal-back
 .label-card .l-facts dt { opacity: .6; }
 .label-card .l-facts dd { margin: 0; }
 .label-card .l-credit { margin: 1em 0 0; font-size: .82em; opacity: .7; }
+.label-card .l-desc { margin: 1.1em 0 0; font-size: .92em; }
+.label-card .l-desc > :first-child { margin-top: 0; } .label-card .l-desc > :last-child { margin-bottom: 0; }
+.label-card .l-desc p, .label-card .l-desc ul, .label-card .l-desc ol { margin: 0 0 .7em; }
+.label-card .l-desc a { color: inherit; text-decoration: underline; }
 .label-card .l-prov { margin-top: 1.4em; padding-top: 1em; border-top: 2px solid color-mix(in srgb, var(--label-fg) 20%, transparent); }
 .label-card .l-prov h3 { margin: 0 0 .6em; font-size: .72em; letter-spacing: .14em; text-transform: uppercase; opacity: .65; }
 .label-card .l-prov ol { list-style: none; margin: 0; padding: 0; display: grid; gap: .55em; }

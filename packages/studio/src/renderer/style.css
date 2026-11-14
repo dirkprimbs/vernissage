@@ -95,6 +95,8 @@ code { background: var(--panel2); padding: 1px 5px; border-radius: 4px; }
 .form label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
 .form label > input, .form label > select { color: var(--fg); font-size: 14px; }
 .form .wide { grid-column: 1 / -1; }
+/* a button beside labelled fields lines up with the fields, not with their labels */
+.form > button { align-self: end; }
 .form label.check { display: flex; align-items: center; gap: 8px; color: var(--fg); font-size: 13px; align-self: center; }
 .form label.color { display: flex; align-items: center; gap: 10px; color: var(--fg); }
 .form output { font-size: 12px; color: var(--fg); }

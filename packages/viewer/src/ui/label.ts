@@ -1,4 +1,5 @@
 import type { Artwork, SiteData, StyleDef } from '@vernissage/schema';
+import { marked } from 'marked';
 import { h, clear } from '../dom';
 import { formatDimensions } from '../data';
 import { icons } from './icons';
@@ -64,6 +65,14 @@ export class LabelView {
 
   hide() { this.el.hidden = true; this.el.classList.remove('in'); this.id = undefined; }
 
+  /** the work's description, set from Markdown; its links open beside the gallery */
+  private description(a: Artwork): HTMLElement | null {
+    if (!a.description?.trim()) return null;
+    const el = h('div', { class: 'l-desc', html: marked.parse(a.description, { async: false }) as string });
+    for (const link of el.querySelectorAll('a')) { link.target = '_blank'; link.rel = 'noopener'; }
+    return el;
+  }
+
   private render(a: Artwork) {
     clear(this.card);
     const life = [a.artist.nationality, a.artist.life].filter(Boolean).join(', ');
@@ -79,6 +88,7 @@ export class LabelView {
         h('h2', { class: 'l-title' }, a.title, a.date ? h('span', { class: 'l-date' }, `, ${a.date}`) : null)),
       h('dl', { class: 'l-facts' }, rows.filter(([, v]) => v).flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v!)])),
       a.credit ? h('p', { class: 'l-credit' }, a.credit) : null,
+      this.description(a),
       a.provenance.length
         ? h('section', { class: 'l-prov' },
           h('h3', {}, 'Provenance'),

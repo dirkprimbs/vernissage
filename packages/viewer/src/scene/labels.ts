@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { Artwork, StyleDef } from '@vernissage/schema';
+import { noteLines, type Artwork, type StyleDef } from '@vernissage/schema';
 import { formatDimensions } from '../data';
 
 const W = 832, H = 640; // matches the 0.26 × 0.20 m card (LABEL_W × LABEL_H)
@@ -58,8 +58,19 @@ export function labelTexture(art: Artwork, style: StyleDef, index: number, rende
     ctx.globalAlpha = 0.6;
     for (const l of wrap(ctx, credit, maxW, 2)) { if (y > H - 150) break; ctx.fillText(l, pad, y + 8); y += 30; }
   }
-  // provenance in one breath: first and latest owners; the full history is one click away
   const prov = art.provenance;
+  // the description, as plain text, in the room that is left (the close-up shows all of it, with its links)
+  const desc = noteLines(art.description ?? '').map((d) => d.text).filter(Boolean).join(' ');
+  if (desc) {
+    const lines = Math.floor((H - 70 - (y + 18) - (prov.length ? 120 : 0)) / 32);
+    if (lines >= 1) {
+      y += 18;
+      ctx.font = `400 25px ${family}`;
+      ctx.globalAlpha = 0.85;
+      for (const row of wrap(ctx, desc, maxW, lines)) { ctx.fillText(row, pad, y); y += 32; }
+    }
+  }
+  // provenance in one breath: first and latest owners; the full history is one click away
   if (prov.length && y < H - 110) {
     y += 22;
     ctx.globalAlpha = 0.35;
