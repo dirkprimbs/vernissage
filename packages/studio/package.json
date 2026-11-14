@@ -1,6 +1,6 @@
 {
   "name": "@vernissage/studio",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "private": true,
   "description": "Vernissage Studio \u2014 design 3D galleries and export them as static websites",
   "author": "Vernissage",
@@ -11,7 +11,7 @@
     "build:renderer": "vite build",
     "build": "npm run build:main && npm run build:renderer",
     "start": "npm run build && electron .",
-    "dist": "npm run build && electron-builder --linux AppImage deb",
+    "dist": "npm run build && electron-builder --publish never",
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
@@ -28,7 +28,7 @@
     "@vernissage/generator": "*",
     "@vernissage/schema": "*"
   },
-  "homepage": "https://github.com/vernissage/vernissage",
+  "homepage": "https://github.com/dirkprimbs/vernissage",
   "build": {
     "appId": "org.vernissage.studio",
     "productName": "Vernissage Studio",
@@ -68,13 +68,45 @@
       "maintainer": "Vernissage",
       "synopsis": "Design 3D galleries and export static websites",
       "executableName": "vernissage-studio",
-      "syncDesktopName": true
+      "syncDesktopName": true,
+      "icon": "build/icons",
+      "artifactName": "vernissage-studio-${version}-linux-${arch}.${ext}"
     },
     "npmRebuild": false,
     "extraMetadata": {
       "name": "vernissage-studio"
     },
-    "artifactName": "vernissage-studio-${version}-${arch}.${ext}"
+    "artifactName": "vernissage-studio-${version}-${arch}.${ext}",
+    "icon": "build/icon.png",
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.graphics-design",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "artifactName": "vernissage-studio-${version}-mac-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "Vernissage Studio ${version}"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "vernissage-studio-${version}-windows-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "Vernissage Studio"
+    }
   },
   "desktopName": "vernissage-studio.desktop"
 }

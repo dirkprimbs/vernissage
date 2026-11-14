@@ -3,6 +3,11 @@
 What changed, newest first. The studio shows the entries someone has not seen yet when they open a newer
 version, so keep each one short and plain. Headings read `## version — date — title` (the title is optional).
 
+## 0.7.3 — 2026-11-14 — Installers for Windows, Mac and Linux
+
+- **Installers:** the studio can be packaged for Windows (.exe), macOS (.dmg, Apple and Intel chips) and Linux (AppImage, .deb), built by GitHub when a version is tagged. The README says how to install each.
+- The studio has its own icon.
+
 ## 0.7.2 — 2026-11-14 — Builds that only touch what changed
 
 - **Faster uploads:** a build now writes only the files that changed and leaves the rest as they are, dates included. Upload tools that compare size and date (lftp mirror, rsync) then send only what is new. The build says how many files it wrote.

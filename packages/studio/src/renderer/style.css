@@ -273,3 +273,6 @@ legend { color: var(--muted); font-size: 12px; }
 .pin-order { display: flex; gap: 4px; }
 .pin-list li.picked { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .pin-head { scroll-margin-top: 8px; }
+/* the Artworks header's buttons stay on one line each; the row wraps when the pane is narrow */
+.lib-top { flex-wrap: wrap; row-gap: 8px; }
+.lib-top button { white-space: nowrap; }

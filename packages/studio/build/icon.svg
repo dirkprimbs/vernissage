@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2c33"/><stop offset="1" stop-color="#17181c"/></linearGradient>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#274b8f"/><stop offset=".62" stop-color="#e58a5c"/><stop offset="1" stop-color="#f4c27a"/></linearGradient>
+    <radialGradient id="pool" cx=".5" cy=".12" r=".8"><stop offset="0" stop-color="#fff3d6" stop-opacity=".34"/><stop offset="1" stop-color="#fff3d6" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#wall)"/>
+  <rect x="64" y="64" width="896" height="896" rx="200" fill="url(#pool)"/>
+  <!-- a framed picture: frame, mat, and an evening skyline across the water -->
+  <rect x="232" y="236" width="560" height="470" rx="10" fill="#0c0c0e"/>
+  <rect x="254" y="258" width="516" height="426" fill="#f3f0e8"/>
+  <rect x="300" y="304" width="424" height="334" fill="url(#sky)"/>
+  <g fill="#1b2233">
+    <rect x="322" y="486" width="34" height="84"/><rect x="362" y="452" width="44" height="118"/><rect x="412" y="500" width="30" height="70"/>
+    <rect x="448" y="430" width="40" height="140"/><rect x="560" y="466" width="46" height="104"/><rect x="612" y="440" width="36" height="130"/><rect x="654" y="492" width="48" height="78"/>
+    <!-- the tower -->
+    <path d="M512 330 l5 96 h-10 z"/><rect x="498" y="424" width="28" height="16" rx="6"/><path d="M505 440 h14 l8 130 h-30 z"/>
+  </g>
+  <rect x="300" y="570" width="424" height="68" fill="#16233f"/>
+  <g stroke="#f4c27a" stroke-opacity=".55" stroke-width="5" stroke-linecap="round"><path d="M392 594 h66"/><path d="M486 612 h92"/><path d="M604 596 h54"/></g>
+  <!-- the wall label beside it -->
+  <rect x="812" y="606" width="76" height="60" rx="4" fill="#0c0c0e"/>
+  <rect x="824" y="620" width="40" height="6" rx="3" fill="#ececf0"/><rect x="824" y="634" width="52" height="5" rx="2.5" fill="#9a9aa5"/><rect x="824" y="646" width="32" height="5" rx="2.5" fill="#9a9aa5"/>
+  <!-- floor line -->
+  <rect x="64" y="806" width="896" height="6" fill="#000" opacity=".35"/>
+</svg>

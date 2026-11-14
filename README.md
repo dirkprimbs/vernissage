@@ -10,6 +10,19 @@ Design a multi-room 3D art gallery on your desktop and publish it as a **static 
 
 *The Leonardo da Vinci demo at dusk: the* Last Supper *at full size, and Toronto across the harbour.*
 
+## Install the studio
+
+You do not need to be a developer. Download the installer for your computer from the [latest release](https://github.com/dirkprimbs/vernissage/releases/latest):
+
+| Your computer | File | Then |
+|---|---|---|
+| **Windows** 10 or 11 | `…-windows-x64.exe` | Double-click it. Windows may say it protected your PC: choose *More info*, then *Run anyway*. |
+| **Mac** with an Apple chip (M1 or later) | `…-mac-arm64.dmg` | Open it and drag Vernissage Studio to Applications. The first time, macOS refuses to open it: go to *System Settings › Privacy & Security* and choose *Open Anyway*. |
+| **Mac** with an Intel chip | `…-mac-x64.dmg` | As above. |
+| **Linux** | `…-linux-x86_64.AppImage` | Make it executable and run it. On Debian and Ubuntu you can install the `.deb` instead. |
+
+The warnings on Windows and macOS appear because the installers are not signed with a paid developer certificate. The studio does not update itself: install a newer release over the old one, and it tells you what changed.
+
 ## Quick start
 
 ```bash
@@ -94,7 +107,7 @@ Paste the link of an album **shared by link** (`https://photos.app.goo.gl/…`) 
 
 Google offers no interface for public albums, so the importer reads the album's web pages, as a browser would. If Google changes those pages the import can stop working. Only the first page of a very long album (a few hundred photos) is read.
 
-Packaging: `npm run dist -w @vernissage/studio` builds an AppImage and a .deb in `release/`.
+Packaging: `npm run dist -w @vernissage/studio` builds the installers for the system it runs on into `release/` (AppImage and .deb on Linux, a .dmg on macOS, an installer .exe on Windows). Installers for all three are built by GitHub when a version tag is pushed (`.github/workflows/release.yml`) and collected in a draft release; see *Development*.
 
 ## Project folder
 
@@ -204,6 +217,14 @@ VERNISSAGE_SITE=out/davinci npm run dev     # viewer dev server against a built 
 ```
 
 Studio development hooks: `VERNISSAGE_OPEN=<project>` opens a project at launch (without adding it to the recent list). `VERNISSAGE_SCREENSHOT=<png>` (optionally with `VERNISSAGE_JS`, `VERNISSAGE_WAIT`, and `VERNISSAGE_SIZE=1600x900` to render offscreen at an exact size) saves a capture of the window and quits.
+
+### Releasing
+
+1. Bump the version (root and studio `package.json`, `GENERATOR`) and add the `CHANGELOG.md` entry; a test checks they agree.
+2. Tag and push: `git tag v0.7.2 && git push origin v0.7.2`.
+3. GitHub builds the installers for Windows, macOS (Apple and Intel chips) and Linux and puts them in a **draft** release with install steps and the changelog entry. Check it, then press *Publish release*.
+
+The installers are unsigned. To sign them later, add an Apple Developer ID (and notarisation) for macOS and a code-signing certificate for Windows to the workflow.
 
 ## Licence
 

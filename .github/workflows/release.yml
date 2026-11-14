@@ -1,0 +1,70 @@
+# Builds Vernissage Studio for Windows, macOS and Linux and collects the installers in a draft release.
+#
+# It runs when a version tag is pushed (git tag v0.7.2 && git push origin v0.7.2), or by hand from the Actions
+# tab. Nothing is published by itself: the release is a draft until someone presses "Publish release".
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: Linux, os: ubuntu-latest, flags: --linux }
+          - { name: Windows, os: windows-latest, flags: --win }
+          - { name: macOS (Apple chip), os: macos-latest, flags: --mac --arm64 }
+          - { name: macOS (Intel), os: macos-15-intel, flags: --mac --x64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # each system installs its own build of the image library (sharp), which is why every system builds its own installer
+      - run: npm ci
+      - run: npm run build
+      - if: matrix.name == 'Linux'
+        run: npm test
+      - run: npm run build -w @vernissage/studio
+      - name: Package
+        working-directory: packages/studio
+        run: npx electron-builder ${{ matrix.flags }} --publish never
+        env:
+          # no certificates are set up: do not go looking for any
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            release/*.AppImage
+            release/*.deb
+            release/*.dmg
+            release/*.exe
+
+  release:
+    name: Draft release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+      - run: node scripts/release-notes.mjs "${GITHUB_REF_NAME}" > notes.md
+      - name: Create the draft release
+        run: gh release create "${GITHUB_REF_NAME}" installers/* --draft --title "Vernissage Studio ${GITHUB_REF_NAME#v}" --notes-file notes.md
+        env:
+          GH_TOKEN: ${{ github.token }}
