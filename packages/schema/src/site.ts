@@ -23,4 +23,13 @@ export interface SiteData {
   build: { generator: string; builtAt: string };
 }
 
+/**
+ * The gallery as visitors get it. With `display.sourceLinks` off the source links are removed here, so they are
+ * neither shown nor present in the site's data.
+ */
+export function publishedGallery(g: Gallery): Gallery {
+  if (g.display.sourceLinks) return g;
+  return { ...g, artworks: g.artworks.map(({ source: _source, ...a }) => a) };
+}
+
 export const SITE_DATA_ELEMENT_ID = 'vernissage-data';

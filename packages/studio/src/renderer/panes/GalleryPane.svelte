@@ -78,6 +78,12 @@
   {/if}
 </div>
 
+<h2>Source links</h2>
+<div class="form">
+  <label class="check"><input type="checkbox" bind:checked={g.display.sourceLinks} /> Show each work's source link to visitors</label>
+  {#if !g.display.sourceLinks}<p class="wide muted small">The links stay in this project and are left out of the website.</p>{/if}
+</div>
+
 <h2>View outside</h2>
 <div class="form">
   <label>Scenery <select bind:value={g.environment.landscape}>{#each LANDSCAPE_IDS as id}<option value={id}>{landNames[id]}</option>{/each}</select></label>

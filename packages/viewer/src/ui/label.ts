@@ -79,13 +79,13 @@ export class LabelView {
         h('h2', { class: 'l-title' }, a.title, a.date ? h('span', { class: 'l-date' }, `, ${a.date}`) : null)),
       h('dl', { class: 'l-facts' }, rows.filter(([, v]) => v).flatMap(([k, v]) => [h('dt', {}, k), h('dd', {}, v!)])),
       a.credit ? h('p', { class: 'l-credit' }, a.credit) : null,
-      h('section', { class: 'l-prov' },
-        h('h3', {}, 'Provenance'),
-        a.provenance.length
-          ? h('ol', {}, a.provenance.map((p) => h('li', {},
+      a.provenance.length
+        ? h('section', { class: 'l-prov' },
+          h('h3', {}, 'Provenance'),
+          h('ol', {}, a.provenance.map((p) => h('li', {},
             h('span', { class: 'when' }, p.date ?? '—'),
-            h('span', { class: 'what' }, p.event, p.note ? h('small', {}, p.note) : null))))
-          : h('p', { class: 'l-none' }, 'No provenance has been recorded for this work.')),
+            h('span', { class: 'what' }, p.event, p.note ? h('small', {}, p.note) : null)))))
+        : null,
       a.rights || a.source
         ? h('footer', {},
           a.rights ? h('span', {}, a.rights) : null,

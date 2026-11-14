@@ -155,8 +155,10 @@ export const Gallery = z.object({
       frameScale: z.number().min(0.5).max(3).default(1.6),
       /** scale on the wall labels */
       labelScale: z.number().min(0.5).max(3).default(1.35),
+      /** show each work's source link to visitors; off: the links stay in the project and are left out of the built site */
+      sourceLinks: z.boolean().default(true),
     })
-    .default(() => ({ sizing: 'auto' as const, artScale: 1.2, frameScale: 1.6, labelScale: 1.35 })),
+    .default(() => ({ sizing: 'auto' as const, artScale: 1.2, frameScale: 1.6, labelScale: 1.35, sourceLinks: true })),
   /** what lies around and above the rooms */
   environment: z
     .object({

@@ -3,7 +3,7 @@ import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promi
 import { dirname, join, resolve, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  SITE_DATA_ELEMENT_ID, WALL_SIDES, blockersOn, computeFloorPlan, hangWall, planIssues, migrate, parseGallery, resolveStyle,
+  SITE_DATA_ELEMENT_ID, WALL_SIDES, blockersOn, computeFloorPlan, hangWall, planIssues, migrate, parseGallery, publishedGallery, resolveStyle,
   type ArtAsset, type Gallery, type SiteData, type StyleDef, type ValidationIssue,
 } from '@vernissage/schema';
 import { copyVariant, processImage } from './images';
@@ -169,7 +169,7 @@ export async function buildSite(projectDir: string, outDir: string, opts: BuildO
 
   // viewer + data
   progress('Writing site', 0, 1);
-  const site: SiteData = { gallery, assets, build: { generator: GENERATOR, builtAt: new Date().toISOString() } };
+  const site: SiteData = { gallery: publishedGallery(gallery), assets, build: { generator: GENERATOR, builtAt: new Date().toISOString() } };
   const style = resolveStyle(gallery.style.preset, gallery.style.overrides as Partial<StyleDef>);
   await cp(join(viewerDir, 'app'), join(outDir, 'app'), { recursive: true });
   const template = await readFile(join(viewerDir, 'index.html'), 'utf8');

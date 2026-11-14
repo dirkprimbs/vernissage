@@ -6,7 +6,7 @@ import { homedir } from 'node:os';
 import { basename, dirname, extname, join, normalize, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import { migrate, parseGallery, resolveStyle, SCHEMA_VERSION, starterRoom, type ArtAsset, type SiteData, type StyleDef } from '@vernissage/schema';
+import { migrate, parseGallery, publishedGallery, resolveStyle, SCHEMA_VERSION, starterRoom, type ArtAsset, type SiteData, type StyleDef } from '@vernissage/schema';
 import { BuildError, buildSite, importAlbum, renderIndexHtml } from '@vernissage/generator';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -317,7 +317,7 @@ function registerIpc() {
         assets[a.id] = { thumb: raster, texture: raster, full: url, kind: svg ? 'svg' : 'raster', ...m };
       } catch { /* skip broken image */ }
     }
-    previewData = { gallery: { ...parsed.gallery, basePath: './' }, assets, build: { generator: 'Vernissage Studio preview', builtAt: new Date().toISOString() } };
+    previewData = { gallery: { ...publishedGallery(parsed.gallery), basePath: './' }, assets, build: { generator: 'Vernissage Studio preview', builtAt: new Date().toISOString() } };
     return { ok: true, url: `http://127.0.0.1:${previewPort}/preview/`, issues: parsed.issues, site: previewData };
   });
 

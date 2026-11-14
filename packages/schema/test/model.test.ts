@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseGallery, migrate } from '../src';
+import { parseGallery, migrate, publishedGallery } from '../src';
 import { art, twoRooms } from './fixtures';
 
 describe('parseGallery', () => {
@@ -22,7 +22,7 @@ describe('parseGallery', () => {
 
   it('fills display and environment defaults', () => {
     const g = parseGallery(twoRooms()).gallery!;
-    expect(g.display).toEqual({ sizing: 'auto', artScale: 1.2, frameScale: 1.6, labelScale: 1.35 });
+    expect(g.display).toEqual({ sizing: 'auto', artScale: 1.2, frameScale: 1.6, labelScale: 1.35, sourceLinks: true });
     expect(g.environment).toEqual({ time: 'live', weather: 'live', skylights: true, windows: true, landscape: 'lake', plants: true });
   });
 
@@ -114,6 +114,16 @@ describe('migrate', () => {
     const bad = parseGallery({ ...twoRooms(), menu: [{ label: ' ', url: 'primbs.ca' }] });
     expect(bad.ok).toBe(false);
     expect(bad.issues.map((i) => i.path).sort()).toEqual(['menu.0.label', 'menu.0.url']);
+  });
+  it('keeps source links unless the gallery hides them', () => {
+    const raw = twoRooms();
+    raw.artworks![0].source = 'https://example.org/work';
+    const shown = parseGallery(raw).gallery!;
+    expect(shown.display.sourceLinks).toBe(true);
+    expect(publishedGallery(shown).artworks[0].source).toBe('https://example.org/work');
+    const hidden = parseGallery({ ...raw, display: { sourceLinks: false } }).gallery!;
+    expect(JSON.stringify(publishedGallery(hidden))).not.toContain('example.org/work');
+    expect(hidden.artworks[0].source).toBe('https://example.org/work'); // the project itself keeps it
   });
   it('rejects newer files', () => {
     expect(() => migrate({ schemaVersion: 99 })).toThrow(/v99/);
