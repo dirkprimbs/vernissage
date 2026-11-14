@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0 — 2026-11-14
+
+- **Contact link:** a gallery can name a contact address (`contact`, *Contact address* under Menu bar in the studio). The menu bar then ends with a *Contact* link that opens an email to it (*Kontakt* when the gallery's `locale` is German). It shows even when the menu has no other links.
+
 ## 0.4.0 — 2026-11-13
 
 - **New galleries** start with one tall room (12 × 9 m, 4.6 m high): three closed walls for art, a windowed north wall onto the Toronto skyline, and an entry door. They use the look of the American Photographs demo (Industrial Loft, Daylight, immersive focus view).

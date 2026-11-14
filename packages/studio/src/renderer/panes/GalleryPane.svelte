@@ -54,6 +54,12 @@
   {/each}
   {#if g.menu.length < 8}<div><button onclick={() => g.menu.push({ label: '', url: '' })}>+ Add link</button></div>{/if}
 </div>
+<div class="form">
+  <label>Contact address
+    <input type="email" value={g.contact ?? ''} placeholder="name@example.org" oninput={(e) => (g.contact = e.currentTarget.value.trim() || undefined)} />
+    <span class="muted small">Adds a “Contact” link at the end of the menu bar that opens an email to this address. Leave empty for none.</span>
+  </label>
+</div>
 
 <h2>Indoor light</h2>
 <p class="muted small">The light outside follows Toronto's time of day and weather by itself. Choose how the rooms are lit; visitors can change it in the Light menu.</p>

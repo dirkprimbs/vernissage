@@ -3,13 +3,15 @@ import { parseGallery, planIssues, WALL_SIDES, type Gallery, type ValidationIssu
 import { studio, type Meta, type ProjectInfo } from './api';
 
 /**
- * The gallery without rows that are still being typed: menu links without a label or a full address, and
+ * The gallery without rows that are still being typed: menu links without a label or a full address, a
+ * contact address that is not complete yet, and
  * provenance entries without an event. They stay in the editor but are not saved, checked or previewed.
  */
-export function finished<T extends { menu?: Array<{ label?: string; url?: string }>; artworks?: Array<{ provenance?: Array<{ event?: string }> }> }>(g: T): T {
+export function finished<T extends { menu?: Array<{ label?: string; url?: string }>; contact?: string; artworks?: Array<{ provenance?: Array<{ event?: string }> }> }>(g: T): T {
   return {
     ...g,
     menu: g.menu?.filter((l) => l.label?.trim() && /^https?:\/\/\S+\.\S+/.test(l.url ?? '')),
+    contact: /^\S+@\S+\.\S+$/.test(g.contact?.trim() ?? '') ? g.contact!.trim() : undefined,
     artworks: g.artworks?.map((a) => ({ ...a, provenance: a.provenance?.filter((p) => p.event?.trim()) })),
   };
 }

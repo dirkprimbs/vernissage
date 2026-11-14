@@ -115,6 +115,13 @@ describe('migrate', () => {
     expect(bad.ok).toBe(false);
     expect(bad.issues.map((i) => i.path).sort()).toEqual(['menu.0.label', 'menu.0.url']);
   });
+  it('takes an optional contact address and checks it', () => {
+    expect(parseGallery(twoRooms()).gallery!.contact).toBeUndefined();
+    expect(parseGallery({ ...twoRooms(), contact: 'someone@example.org' }).gallery!.contact).toBe('someone@example.org');
+    const bad = parseGallery({ ...twoRooms(), contact: 'not an address' });
+    expect(bad.ok).toBe(false);
+    expect(bad.issues.map((i) => i.path)).toEqual(['contact']);
+  });
   it('keeps source links unless the gallery hides them', () => {
     const raw = twoRooms();
     raw.artworks![0].source = 'https://example.org/work';
