@@ -309,6 +309,8 @@ async function boot() {
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (params.has('enter') && has3D) join(); // the studio preview skips the lobby
   else if (reduced && !location.hash && has3D) location.hash = '#/portfolio';
+  // development aid (?capture, and the studio's preview): a handle on the 3D view for scripts that record a walk-through
+  if (params.has('capture') || studio) (window as unknown as { __vernissage: unknown }).__vernissage = { get g3d() { return g3d; } };
   window.addEventListener('hashchange', () => void route());
   await route();
 }

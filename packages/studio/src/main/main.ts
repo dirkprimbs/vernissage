@@ -4,7 +4,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { copyFile, cp, mkdir, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename, dirname, extname, join, normalize, relative, resolve, sep } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 import { migrate, parseGallery, pinAssetKey, publishedGallery, resolveStyle, SCHEMA_VERSION, starterRoom, type ArtAsset, type SiteData, type StyleDef } from '@vernissage/schema';
 import { BuildError, addFromAlbum, buildSite, importAlbum, listAlbum, renderIndexHtml } from '@vernissage/generator';
@@ -409,8 +409,8 @@ let dirtyTitle = '';
 /** a close the user has already confirmed */
 let closing = false;
 
-/** development aid: VERNISSAGE_SCREENSHOT with VERNISSAGE_SIZE=1600x900 captures offscreen at that size */
-const shotSize = process.env.VERNISSAGE_SCREENSHOT && /^\d+x\d+$/.test(process.env.VERNISSAGE_SIZE ?? '') ? process.env.VERNISSAGE_SIZE!.split('x').map(Number) as [number, number] : undefined;
+/** development aid: VERNISSAGE_SCREENSHOT or VERNISSAGE_CAPTURE with VERNISSAGE_SIZE=1600x900 runs the window offscreen at that size */
+const shotSize = (process.env.VERNISSAGE_SCREENSHOT || process.env.VERNISSAGE_CAPTURE) && /^\d+x\d+$/.test(process.env.VERNISSAGE_SIZE ?? '') ? process.env.VERNISSAGE_SIZE!.split('x').map(Number) as [number, number] : undefined;
 
 async function createWindow() {
   win = new BrowserWindow({
@@ -424,7 +424,7 @@ async function createWindow() {
   // closing the window closes the app. With unsaved changes, ask first instead of refusing silently.
   win.on('close', (e) => {
     // the development hook leaves the project as it found it: no question, no save
-    if (!dirty || closing || process.env.VERNISSAGE_SCREENSHOT) return;
+    if (!dirty || closing || process.env.VERNISSAGE_SCREENSHOT || process.env.VERNISSAGE_CAPTURE) return;
     e.preventDefault();
     void (async () => {
       const r = await dialog.showMessageBox(win!, {
@@ -461,6 +461,11 @@ app.whenReady().then(async () => {
   if (process.env.VERNISSAGE_OPEN) setTimeout(() => win?.webContents.send('menu', `open:${resolve(process.env.VERNISSAGE_OPEN!)}`), 400);
   // projects opened by the development hook are not added to the user's recent list
   if (process.env.VERNISSAGE_OPEN) noRemember = true;
+  // development aid: VERNISSAGE_CAPTURE=/path/script.mjs hands the window to a script (its default export), e.g. to record a demo
+  if (process.env.VERNISSAGE_CAPTURE) {
+    const script = await import(pathToFileURL(resolve(process.env.VERNISSAGE_CAPTURE)).href);
+    void script.default({ win, app }).catch((e: unknown) => { console.error(e); app.exit(1); });
+  }
   // development aid: VERNISSAGE_SCREENSHOT=/path/shot.png [VERNISSAGE_PANE=walls] captures the window after load
   if (process.env.VERNISSAGE_SCREENSHOT) {
     setTimeout(async () => {
