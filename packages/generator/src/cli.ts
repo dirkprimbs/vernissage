@@ -7,7 +7,7 @@ import { BuildError, buildSite, importAlbum, loadProject } from './index';
 
 const USAGE = `Vernissage — static 3D gallery generator
 
-  vernissage build <project-dir> --out <dir> [--base /path/] [--force]
+  vernissage build <project-dir> --out <dir> [--base /path/] [--url https://example.org/gallery/] [--force]
   vernissage validate <project-dir>
   vernissage serve <site-dir> [--port 8080]
   vernissage import-album <google-photos-link> <new-project-dir>
@@ -58,6 +58,7 @@ async function main(argv: string[]) {
       let last = '';
       const report = await buildSite(target, out, {
         basePath: arg(rest, '--base'),
+        url: arg(rest, '--url'),
         force: rest.includes('--force'),
         onProgress: (step, d, t) => {
           const line = t > 1 ? `${step} ${d}/${t}` : step;

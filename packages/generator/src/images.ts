@@ -84,6 +84,15 @@ export async function processImage(src: string, cacheRoot: string): Promise<{ di
   return { dir, info, cached: false };
 }
 
+export const SHARE_W = 1200, SHARE_H = 630;
+/**
+ * The picture that social networks and messengers show for a link to the gallery: 1200 × 630 (the shape they
+ * expect), cut from the work around its most eye-catching part, as a JPEG (the one format they all read).
+ */
+export async function shareImage(src: string): Promise<Buffer> {
+  return sharp(src).flatten({ background: '#ffffff' }).resize(SHARE_W, SHARE_H, { fit: 'cover', position: sharp.strategy.attention }).jpeg({ quality: 84, mozjpeg: true }).toBuffer();
+}
+
 /**
  * Put a processed image into the site. The copy carries the cached file's modification time, and a file that is
  * already there with the same size and time is left alone: a rebuild then changes nothing on disk for images

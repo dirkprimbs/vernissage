@@ -84,7 +84,7 @@ Start a **new gallery** (one tall room: three walls for art, a windowed wall ont
 
 The editor on the left folds away with the *Hide editor* button or **Ctrl+E**, so you can walk the gallery in the whole window and fold it back to carry on. Panes:
 
-- **Gallery**: title, subtitle, intro (Markdown); whether visitors **start in** the gallery or the portfolio; the **menu bar** (links to other pages, and a contact address for a *Contact* link); the **indoor light** (Daylight, Gallery white, Evening spots, Chiaroscuro, Night tour); the **entry door** and the address it opens; the scenery outside. The sky needs no settings: it follows Toronto's time and weather, and visitors can change it in the Light menu.
+- **Gallery**: title, subtitle, intro (Markdown); whether visitors **start in** the gallery or the portfolio; the **menu bar** (links to other pages, and a contact address for a *Contact* link); **sharing** (the gallery's web address and the picture that social networks and messengers show for a link to it); the **indoor light** (Daylight, Gallery white, Evening spots, Chiaroscuro, Night tour); the **entry door** and the address it opens; the scenery outside. The sky needs no settings: it follows Toronto's time and weather, and visitors can change it in the Light menu.
 - **Rooms**: add rooms, set their size and height, and drag them into position. A room can have a **pinboard** next to its door, with instant photos (mini, square, wide; a short line on the white border) and Markdown notes; visitors can move the cards around on the board, and each visitor's arrangement stays in their own browser. Each room's **plants** are placed automatically, clear of pictures and doors; on the plan of the selected room you can add, move, resize and remove them by hand. Doorways are generated between consecutive rooms that face each other.
 - **Walls**: an elevation drawing of each wall. Tick *Windows* to make a wall a window wall, or drag works onto it. Works are sized and spaced automatically to suit the wall; each has a **Size** slider that changes that work only and stops where the wall is full. Tick works under *Not hung yet* to hang just those in the room. ← and → move a work along the wall, and past a door to the wall's other side. Hanging can be in a line, stacked or in a grid.
 - **Artworks**: add JPG/PNG/SVG files by button or drag and drop, or add photos from a Google Photos album (see below), pick a work from the thumbnail strip, choose the wall it hangs on, and edit its label: title, artist, date, medium, description, further details and the provenance entries. *Show in preview* jumps to the work in the live preview, and a click on a work in the preview opens its entry here (a click on the wall beside the works opens that wall in the Walls pane).
@@ -133,6 +133,8 @@ my-gallery/
   "startIn":  "gallery | portfolio",
   "menu":     [{ "label": "Home", "url": "https://primbs.ca" }],
   "contact":  "name@example.org",                                                   // optional: a Contact link in the menu bar
+  "url":      "https://example.org/gallery/",                                       // optional: where the gallery is published; gives shared links a preview picture
+  "shareImage": "sunflowers",                                                       // optional: the work shown in that preview (its id); default: the first work
   "navigation": { "teleport": true, "lobbyOrbit": true },
   "entrance":   { "enabled": true, "url": "https://primbs.ca", "wall": "south" },   // wall is optional
   "artworks": [{
@@ -160,7 +162,7 @@ The full schema, with defaults, is in [`packages/schema/src/model.ts`](packages/
 
 ```bash
 node packages/generator/dist/cli.js validate <project>
-node packages/generator/dist/cli.js build <project> --out <dir> [--base /gallery/] [--force]
+node packages/generator/dist/cli.js build <project> --out <dir> [--base /gallery/] [--url https://example.org/gallery/] [--force]
 node packages/generator/dist/cli.js serve <dir> [--port 8080]
 node packages/generator/dist/cli.js import-album <google-photos-link> <new-project-dir>
 ```

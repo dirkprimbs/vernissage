@@ -98,6 +98,31 @@ describe.skipIf(!existsSync(join(viewerDir, 'index.html')))('buildSite', () => {
     expect(rebuilt[img]).toBe(before[img]);
   });
 
+  it('gives shared links a preview picture when the gallery knows its web address', async () => {
+    const out = join(await tmp('out'), 'site');
+    // without an address: no picture is named (a relative address would not load), and the build says so
+    const plain = await buildSite(project, out, { viewerDir });
+    let html = await readFile(join(out, 'index.html'), 'utf8');
+    expect(html).not.toContain('og:image');
+    expect(existsSync(join(out, 'art/share.jpg'))).toBe(false);
+    expect(plain.issues.some((i) => i.path === 'url')).toBe(true);
+
+    // with one (given without its final slash): a wide JPEG, named by its full address
+    const withUrl = await buildSite(project, out, { viewerDir, url: 'https://example.org/gallery' });
+    html = await readFile(join(out, 'index.html'), 'utf8');
+    expect(html).toContain('<meta property="og:image" content="https://example.org/gallery/art/share.jpg">');
+    expect(html).toContain('<meta property="og:url" content="https://example.org/gallery/">');
+    expect(html).toContain('<meta name="twitter:card" content="summary_large_image">');
+    expect(withUrl.issues.some((i) => i.path === 'url')).toBe(false);
+    const { default: sharp } = await import('sharp');
+    expect(await sharp(join(out, 'art/share.jpg')).metadata()).toMatchObject({ format: 'jpeg', width: 1200, height: 630 });
+
+    // the same build again writes nothing; without the address the picture goes again
+    expect(await buildSite(project, out, { viewerDir, url: 'https://example.org/gallery' })).toMatchObject({ written: 0, removed: 0 });
+    expect((await buildSite(project, out, { viewerDir })).removed).toBe(1);
+    expect(existsSync(join(out, 'art/share.jpg'))).toBe(false);
+  });
+
   it('refuses to overwrite a foreign non-empty folder unless forced', async () => {
     const out = await tmp('foreign');
     await writeFile(join(out, 'important.txt'), 'keep me');

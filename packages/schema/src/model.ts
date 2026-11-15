@@ -206,6 +206,10 @@ export const Gallery = z.object({
     .default([]),
   /** an email address; the menu bar ends with a "Contact" link that writes to it ("Kontakt" when the locale is German) */
   contact: z.email('enter an email address, e.g. name@example.org').optional(),
+  /** the web address the gallery is published at, e.g. https://example.org/gallery/. Needed for the preview that social networks and messengers show for a link: they only load a picture given by its full address */
+  url: z.string().url('enter a full web address, e.g. https://example.org/gallery/').optional(),
+  /** the work whose picture that preview shows (its id); unset: the first work */
+  shareImage: id.optional(),
   /** the entry door: a door in the first room that leads out to a web page when clicked */
   entrance: z
     .object({

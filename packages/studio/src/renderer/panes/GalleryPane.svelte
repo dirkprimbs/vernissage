@@ -10,6 +10,14 @@
     if (v && !/^https?:\/\//i.test(v)) v = `https://${v}`;
     try { new URL(v); g.entrance.url = v; urlError = ''; } catch { urlError = 'Enter a web address such as https://example.org'; }
   }
+  let siteError = $state('');
+  /** the gallery's own web address: empty for none, otherwise a full address */
+  function setSite(v: string) {
+    v = v.trim();
+    if (!v) { g.url = undefined; siteError = ''; return; }
+    if (!/^https?:\/\//i.test(v)) v = `https://${v}`;
+    try { new URL(v); g.url = v; siteError = ''; } catch { siteError = 'Enter a web address such as https://example.org/gallery/'; }
+  }
   /** a web address without its scheme gets https:// */
   const withScheme = (v: string) => { v = v.trim(); return v && !/^[a-z]+:\/\//i.test(v) ? `https://${v}` : v; };
   function moveLink(i: number, d: number) {
@@ -58,6 +66,22 @@
   <label>Contact address
     <input type="email" value={g.contact ?? ''} placeholder="name@example.org" oninput={(e) => (g.contact = e.currentTarget.value.trim() || undefined)} />
     <span class="muted small">Adds a “Contact” link at the end of the menu bar that opens an email to this address. Leave empty for none.</span>
+  </label>
+</div>
+
+<h2>Sharing</h2>
+<p class="muted small">When someone posts a link to the gallery, social networks and messengers show a preview with a picture. They can only load that picture if the gallery says where it is on the web.</p>
+<div class="form">
+  <label class="wide">Web address of the gallery
+    <input value={g.url ?? ''} onchange={(e) => setSite(e.currentTarget.value)} placeholder="https://example.org/gallery/" />
+    {#if siteError}<span class="warn small">{siteError}</span>{:else if !g.url}<span class="muted small">Leave empty if you do not know it yet; shared links then show no picture.</span>{/if}
+  </label>
+  <label>Preview picture
+    <select value={g.artworks.some((a) => a.id === g.shareImage) ? g.shareImage : ''} onchange={(e) => (g.shareImage = e.currentTarget.value || undefined)}>
+      <option value="">The first work</option>
+      {#each g.artworks as a}<option value={a.id}>{a.title}</option>{/each}
+    </select>
+    <span class="muted small">Shown in a wide format, cut around the most striking part of the picture.</span>
   </label>
 </div>
 

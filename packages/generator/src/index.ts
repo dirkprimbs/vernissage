@@ -6,12 +6,12 @@ import {
   SITE_DATA_ELEMENT_ID, WALL_SIDES, blockersOn, computeFloorPlan, hangWall, planIssues, migrate, parseGallery, pinAssetKey, publishedGallery, resolveStyle,
   type ArtAsset, type Gallery, type SiteData, type StyleDef, type ValidationIssue,
 } from '@vernissage/schema';
-import { copyVariant, processImage, writeIfChanged } from './images';
+import { SHARE_H, SHARE_W, copyVariant, processImage, shareImage, writeIfChanged } from './images';
 
 export { sanitizeSvg, processImage } from './images';
 export { importAlbum, listAlbum, addFromAlbum, type ListedPhoto, parseAlbumPage, parsePhotoPage, galleryFromAlbum, formatDay, type Album, type AlbumPhoto, type ImportOptions } from './album';
 
-export const GENERATOR = 'Vernissage 0.7.4';
+export const GENERATOR = 'Vernissage 0.7.5';
 const MARKER = '.vernissage-site';
 
 export interface BuildOptions {
@@ -19,6 +19,8 @@ export interface BuildOptions {
   viewerDir?: string;
   /** overrides gallery.basePath */
   basePath?: string;
+  /** overrides gallery.url, the web address the gallery is published at */
+  url?: string;
   /** allow writing into a non-empty folder that was not created by Vernissage */
   force?: boolean;
   onProgress?: (step: string, done: number, total: number) => void;
@@ -83,9 +85,21 @@ async function dirSize(dir: string): Promise<number> {
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-function headTags(g: Gallery, assets: Record<string, ArtAsset>, style: StyleDef): string {
+/** the gallery's web address as a folder: a picture's address is worked out against it */
+const siteUrl = (url: string) => (url.endsWith('/') || /\.[a-z0-9]+$/i.test(new URL(url).pathname) ? url : `${url}/`);
+/** where the preview picture for shared links lies in the site */
+const SHARE_FILE = 'art/share.jpg';
+/** the work whose picture a shared link shows: the one chosen, else the first */
+const shareWork = (g: Gallery) => g.artworks.find((a) => a.id === g.shareImage) ?? g.artworks[0];
+
+/** the preview picture of a shared link, if this build wrote one */
+export interface SharePicture { width: number; height: number; alt: string }
+
+function headTags(g: Gallery, style: StyleDef, share?: SharePicture): string {
   const desc = g.subtitle ?? `${g.artworks.length} works in ${g.rooms.length} rooms`;
-  const first = g.artworks.find((a) => assets[a.id]);
+  // social networks and messengers load the picture from their own servers, so it needs its full address;
+  // without the gallery's web address there is none to give, and a relative one would only mislead them
+  const base = g.url ? siteUrl(g.url) : undefined;
   return [
     g.basePath && g.basePath !== './' ? `<base href="${esc(g.basePath)}">` : '',
     `<meta name="description" content="${esc(desc)}">`,
@@ -93,7 +107,15 @@ function headTags(g: Gallery, assets: Record<string, ArtAsset>, style: StyleDef)
     `<meta property="og:type" content="website">`,
     `<meta property="og:title" content="${esc(g.title)}">`,
     `<meta property="og:description" content="${esc(desc)}">`,
-    first ? `<meta property="og:image" content="${esc(assets[first.id].thumb)}">` : '',
+    base ? `<meta property="og:url" content="${esc(base)}">` : '',
+    ...(base && share ? [
+      `<meta property="og:image" content="${esc(new URL(SHARE_FILE, base).href)}">`,
+      `<meta property="og:image:type" content="image/jpeg">`,
+      `<meta property="og:image:width" content="${share.width}">`,
+      `<meta property="og:image:height" content="${share.height}">`,
+      `<meta property="og:image:alt" content="${esc(share.alt)}">`,
+      `<meta name="twitter:card" content="summary_large_image">`,
+    ] : [`<meta name="twitter:card" content="summary">`]),
     `<style>html,body{background:${style.ui.bg};color:${style.ui.fg}}</style>`,
   ].filter(Boolean).join('\n    ');
 }
@@ -116,11 +138,11 @@ function hangingIssues(g: Gallery, assets: Record<string, ArtAsset>): Validation
   return out;
 }
 
-export function renderIndexHtml(template: string, site: SiteData, style: StyleDef): string {
+export function renderIndexHtml(template: string, site: SiteData, style: StyleDef, share?: SharePicture): string {
   const json = JSON.stringify(site).replace(/</g, '\\u003c');
   return template
     .replace(/<title>.*?<\/title>/, `<title>${esc(site.gallery.title)}</title>`)
-    .replace('<!--VERNISSAGE:HEAD-->', headTags(site.gallery, site.assets, style))
+    .replace('<!--VERNISSAGE:HEAD-->', headTags(site.gallery, style, share))
     .replace('<!--VERNISSAGE:DATA-->', `<script type="application/json" id="${SITE_DATA_ELEMENT_ID}">${json}</script>`);
 }
 
@@ -134,6 +156,7 @@ export async function buildSite(projectDir: string, outDir: string, opts: BuildO
   progress('Validating', 0, 1);
   const { gallery, issues } = await loadProject(projectDir);
   if (opts.basePath !== undefined) gallery.basePath = opts.basePath;
+  if (opts.url !== undefined) gallery.url = opts.url;
   const viewerDir = opts.viewerDir ?? defaultViewerDir();
 
   // output folder safety
@@ -191,6 +214,15 @@ export async function buildSite(projectDir: string, outDir: string, opts: BuildO
     assets[pinAssetKey(room.id, p.id)] = { thumb: `art/${name}/thumb.webp`, texture: `art/${name}/thumb.webp`, full: `art/${name}/full${ext}`, kind: info.kind, width: info.width, height: info.height, color: info.color };
   }
 
+  // the picture a shared link shows, made from the chosen work's wall texture
+  let share: SharePicture | undefined;
+  const cover = shareWork(gallery);
+  if (gallery.url && cover && assets[cover.id]) {
+    kept.add(SHARE_FILE);
+    if (await writeIfChanged(join(outDir, SHARE_FILE), await shareImage(join(outDir, assets[cover.id].texture)))) written++;
+    share = { width: SHARE_W, height: SHARE_H, alt: cover.title };
+  }
+
   // viewer + data
   progress('Writing site', 0, 1);
   // the images were processed side by side and finished in any order: list them in the gallery's order, so the
@@ -216,7 +248,7 @@ export async function buildSite(projectDir: string, outDir: string, opts: BuildO
     if (await writeIfChanged(join(outDir, rel), await readFile(join(e.parentPath, e.name)))) written++;
   }
   const template = await readFile(join(viewerDir, 'index.html'), 'utf8');
-  if (await writeIfChanged(join(outDir, 'index.html'), renderIndexHtml(template, site, style))) written++;
+  if (await writeIfChanged(join(outDir, 'index.html'), renderIndexHtml(template, site, style, share))) written++;
   if (await writeIfChanged(join(outDir, 'site.json'), JSON.stringify(site))) written++;
 
   // what an earlier build left behind and this one no longer has: works taken out, a renamed id, old viewer files
@@ -233,6 +265,8 @@ export async function buildSite(projectDir: string, outDir: string, opts: BuildO
   }
 
   const allIssues = [...issues, ...hangingIssues(gallery, assets)];
+  if (!gallery.url && gallery.artworks.length) allIssues.push({ path: 'url', message: 'The gallery has no web address (Gallery pane, Sharing): a link to it posted on social networks or in a messenger will show no picture', severity: 'warning' });
+  else if (gallery.shareImage && cover?.id !== gallery.shareImage) allIssues.push({ path: 'shareImage', message: `The work chosen as the preview picture ("${gallery.shareImage}") is no longer in the gallery: the first work is used`, severity: 'warning' });
   // the report in the site names no folder on this computer and nothing that differs from run to run
   const summary = { artworks: gallery.artworks.length, rooms: gallery.rooms.length, issues: allIssues };
   if (await writeIfChanged(join(outDir, 'build-report.json'), JSON.stringify(summary, null, 2))) written++;

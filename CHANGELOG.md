@@ -3,6 +3,12 @@
 What changed, newest first. The studio shows the entries someone has not seen yet when they open a newer
 version, so keep each one short and plain. Headings read `## version — date — title` (the title is optional).
 
+## 0.7.5 — 2026-11-15 — A picture for shared links
+
+- **Preview picture:** a link to the gallery posted on a social network or in a messenger now shows a picture. Enter the gallery's web address under *Sharing* in the Gallery pane (or `url` in `gallery.json`, or `--url` on the command line); the build then writes a wide picture made for these previews.
+- **Which picture:** the first work, or the one chosen as *Preview picture* (`shareImage`).
+- Without a web address the build warns that shared links will show no picture. Before, the page named a picture in a way these services could not load.
+
 ## 0.7.4 — 2026-11-15 — Pinboard cards stay on the board
 
 - **Fix:** a card dragged on a pinboard no longer lifts off the board and hangs in the air in front of it.
