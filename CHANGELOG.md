@@ -3,6 +3,11 @@
 What changed, newest first. The studio shows the entries someone has not seen yet when they open a newer
 version, so keep each one short and plain. Headings read `## version — date — title` (the title is optional).
 
+## 0.7.4 — 2026-11-15 — Pinboard cards stay on the board
+
+- **Fix:** a card dragged on a pinboard no longer lifts off the board and hangs in the air in front of it.
+- Works no longer get a coloured frame when the pointer is over them or when they are clicked.
+
 ## 0.7.3 — 2026-11-14 — Installers for Windows, Mac and Linux
 
 - **Installers:** the studio can be packaged for Windows (.exe), macOS (.dmg, Apple and Intel chips) and Linux (AppImage, .deb), built by GitHub when a version is tagged. The README says how to install each.

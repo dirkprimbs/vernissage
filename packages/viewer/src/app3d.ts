@@ -180,13 +180,11 @@ export class Gallery3D {
     if (!on) this.lobbyT = 0;
   }
 
-  /** highlight an artwork and tell the UI (object menu); optionally go to it */
+  /** select an artwork and tell the UI (object menu); optionally go to it */
   select(id: string | undefined, go: 'walk' | 'teleport' | 'none' = 'none') {
     const a = id ? this.built.artworks.find((x) => x.id === id) : undefined;
-    if (this.selected && this.selected !== this.hovered) this.selected.highlight.visible = false;
     this.selected = a;
     if (a) {
-      a.highlight.visible = true;
       if (go === 'teleport') this.teleportToArtwork(a.id);
       else if (go === 'walk' && a.viewpoint.distanceTo(this.position) > 0.6) this.walkTo(a.viewpoint, a);
     }
@@ -544,17 +542,10 @@ export class Gallery3D {
     }
   }
 
-  private setHover(a: ArtworkInstance | undefined) {
-    if (a === this.hovered) return;
-    if (this.hovered && this.hovered !== this.selected) this.hovered.highlight.visible = false;
-    this.hovered = a;
-    if (a) a.highlight.visible = true;
-  }
-
   private hover(e: PointerEvent) {
     if (e.buttons || this.lobby) return;
     const { art, label, door, pin } = this.pick(e.clientX, e.clientY);
-    this.setHover(art);
+    this.hovered = art;
     const ent = this.built.entrance;
     if (ent) ent.leaf.material.emissiveIntensity = door ? 0.35 : 0;
     this.renderer.domElement.style.cursor = art ? (label ? 'zoom-in' : 'pointer') : door ? 'pointer' : pin ? 'grab' : '';

@@ -175,8 +175,10 @@ export function buildPinboard(root: THREE.Group, pr: PlacedRoom, at: PlacedPinbo
     group.add(bar);
   }
 
-  let top = 0;
   const pins: PinInstance[] = [];
+  // each card lies a hair above the one under it; `stack` lists them from the bottom up
+  const lift = (i: number) => D + 0.004 + (i + 1) * 0.0012;
+  let stack: PinInstance[] = [];
   // seen from the room, turning clockwise is a negative turn about the axis that points out of the board
   const local = (p: PinInstance) => { p.mesh.position.x = (p.x - 0.5) * W; p.mesh.position.y = (0.5 - p.y) * H; p.mesh.rotation.z = -THREE.MathUtils.degToRad(p.tilt); };
   const placed = layoutPins(board, W, H);
@@ -203,7 +205,8 @@ export function buildPinboard(root: THREE.Group, pr: PlacedRoom, at: PlacedPinbo
   // what lies on top: the cards in their order on the board (later ones over earlier ones), and above those the
   // cards this visitor has handled, the last one handled on top
   const touched = (p: PinInstance) => saved[p.id]?.[3] ?? -1;
-  for (const p of [...pins].sort((a, b) => touched(a) - touched(b))) p.mesh.position.z = D + 0.004 + (top += 0.0012);
+  stack = [...pins].sort((a, b) => touched(a) - touched(b));
+  stack.forEach((p, i) => { p.mesh.position.z = lift(i); });
 
   return {
     roomId: pr.room.id, width: W, height: H, group, cork, pins,
@@ -211,7 +214,10 @@ export function buildPinboard(root: THREE.Group, pr: PlacedRoom, at: PlacedPinbo
       const c = clampPin(x, y, turnedShape(pin.shape, pin.tilt), W, H);
       pin.x = c.x; pin.y = c.y;
       local(pin);
-      pin.mesh.position.z = D + 0.004 + (top += 0.0012);
+      // to the top of the pile, and no higher: the others close the gap it leaves, so a card that is dragged
+      // (placed again at every step) does not rise off the board
+      stack = [...stack.filter((p) => p !== pin), pin];
+      stack.forEach((p, i) => { p.mesh.position.z = lift(i); });
     },
     under(pin) {
       // by the cards' outlines (the box around a turned card), in metres on the board

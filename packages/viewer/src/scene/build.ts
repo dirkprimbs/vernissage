@@ -17,8 +17,6 @@ export interface ArtworkInstance {
   group: THREE.Group;
   picture: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
   pool: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
-  /** coloured rim shown when the work is hovered or selected */
-  highlight: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>;
   /** world-space centre of the picture */
   centre: THREE.Vector3;
   /** unit vector pointing out of the wall */
@@ -496,15 +494,6 @@ function buildArtwork(
   pool.renderOrder = 1;
   group.add(pool);
 
-  // hover / selection rim just behind the frame
-  const highlight = new THREE.Mesh(
-    new THREE.PlaneGeometry(hw.outerW + 0.07, hw.outerH + 0.07),
-    new THREE.MeshBasicMaterial({ color: style.ui.accent, transparent: true, opacity: 0.95, depthWrite: false }),
-  );
-  highlight.position.z = 0.004;
-  highlight.visible = false;
-  group.add(highlight);
-
   // label card
   const lx = hw.label.offset - hw.offset, ly = hw.label.y - hw.y;
   const card = new THREE.Mesh(
@@ -526,5 +515,5 @@ function buildArtwork(
   const viewpoint = new THREE.Vector3(base.x + w.normal.x * dist, 0, base.z + w.normal.z * dist);
   const spotAnchor = new THREE.Vector3(base.x + w.normal.x * 1.4, room.height - 0.12, base.z + w.normal.z * 1.4);
 
-  return { id: art.id, art, asset, roomId, hung: hw, group, picture, pool, highlight, centre, normal, viewpoint, spotAnchor, index };
+  return { id: art.id, art, asset, roomId, hung: hw, group, picture, pool, centre, normal, viewpoint, spotAnchor, index };
 }

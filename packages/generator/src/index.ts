@@ -11,7 +11,7 @@ import { copyVariant, processImage, writeIfChanged } from './images';
 export { sanitizeSvg, processImage } from './images';
 export { importAlbum, listAlbum, addFromAlbum, type ListedPhoto, parseAlbumPage, parsePhotoPage, galleryFromAlbum, formatDay, type Album, type AlbumPhoto, type ImportOptions } from './album';
 
-export const GENERATOR = 'Vernissage 0.7.3';
+export const GENERATOR = 'Vernissage 0.7.4';
 const MARKER = '.vernissage-site';
 
 export interface BuildOptions {
