@@ -46,6 +46,10 @@ The interface is modelled on **Mozilla Hubs**, the open-source social-VR space (
 
 Hubs was multi-user. A Vernissage gallery is visited alone and in first person, so avatars, name tags, emoji reactions, voice and chat are left out.
 
+### A debt of gratitude to Mozilla Hubs
+
+Vernissage owes a real debt of gratitude to the [Mozilla Hubs](https://hubsfoundation.org/) project (now maintained by the Hubs Foundation on [GitHub](https://github.com/Hubs-Foundation/hubs)). Hubs extends the basic idea of a virtual 3D space in the browser that Vernissage anchors on by a lot—with more models and sceneries, multi-user support, real-time communication between users, and avatars. If Vernissage is not enough for what you need, Hubs might well be the solution.
+
 ## The visitor experience
 
 | | |
@@ -238,6 +242,10 @@ Studio development hooks: `VERNISSAGE_OPEN=<project>` opens a project at launch 
 3. GitHub builds the installers for Windows, macOS (Apple and Intel chips) and Linux and puts them in a **draft** release with install steps and the changelog entry. Check it, then press *Publish release*.
 
 The installers are unsigned. To sign them later, add an Apple Developer ID (and notarisation) for macOS and a code-signing certificate for Windows to the workflow.
+
+### Development process
+
+Built on Linux in VS Code. I write very little code by hand and read the codebase selectively. Initial coding leans on Claude Code (Opus or Fable), followed by OpenCode with various models via OpenRouter—often Gemini Neon as the main driver—for architecture reviews, bug hunting, detailed architecture and refactoring. For visual work, I use Nano Banana to iterate on art concepts and drafts. Everything else is done manually with the usual tools.
 
 ## Licence
 
